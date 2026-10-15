@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import fs from 'node:fs'
 import path from 'node:path'
-import { getTermById, getCachedTermAudio, saveCachedTermAudio } from '@/lib/db'
-import { resolveVoiceForLanguage, PREMADE_VOICES } from '@/lib/voice-router'
+import { getTermById, getAnyCachedTermAudio, saveCachedTermAudio } from '@/lib/db'
 
 const AUDIO_CACHE_DIR = path.join(process.cwd(), 'data', 'audio')
 
@@ -12,6 +11,10 @@ function ensureAudioDir(): void {
   }
 }
 
+/**
+ * GET /api/tts
+ * Retrieves cached audio file or checks cache status for a term.
+ */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
@@ -19,14 +22,14 @@ export async function GET(req: NextRequest) {
     // Status query
     if (searchParams.get('status')) {
       return NextResponse.json({
-        elevenLabsConfigured: !!process.env.ELEVENLABS_API_KEY,
-        languageRoutingEnabled: true,
-        defaultVoice: process.env.ELEVENLABS_VOICE_ID || PREMADE_VOICES.ADAM,
-        availablePremadeVoices: PREMADE_VOICES,
+        provider: 'puter.js',
+        status: 'ready',
+        description: 'Puter.js client-side multilingual neural text-to-speech with local audio caching',
       })
     }
 
     const idParam = searchParams.get('id') || searchParams.get('termId')
+    const checkOnly = searchParams.get('check') === '1' || searchParams.get('check') === 'true'
 
     if (!idParam) {
       return NextResponse.json(
@@ -51,40 +54,54 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Determine speaker voice based on term's language or explicit query param
-    const explicitVoice = searchParams.get('voice')?.trim()
-    const voiceRoute = resolveVoiceForLanguage(term.language, term.language_group)
-    let targetVoiceId = explicitVoice || voiceRoute.voiceId
-    const fallbackVoiceId = voiceRoute.fallbackVoiceId
-
     ensureAudioDir()
-    let audioFilePath = path.join(AUDIO_CACHE_DIR, `${term.id}_${targetVoiceId}.mp3`)
 
-    // 1. Check if saved audio file already exists on disk
-    if (fs.existsSync(audioFilePath)) {
-      const fileBuffer = fs.readFileSync(audioFilePath)
-      if (fileBuffer.length > 0) {
-        return new Response(fileBuffer, {
-          status: 200,
-          headers: {
-            'Content-Type': 'audio/mpeg',
-            'Content-Length': String(fileBuffer.length),
-            'Cache-Control': 'public, max-age=31536000, immutable',
-            'X-TTS-Source': 'disk-file',
-            'X-TTS-Voice': targetVoiceId,
-            'X-TTS-Voice-Name': voiceRoute.voiceName,
-            'X-TTS-Language': term.language || 'Unknown',
-          },
-        })
+    // 1. Check if saved audio file exists on disk
+    // First check exact puter file, then any other saved audio for this term
+    const puterFilePath = path.join(AUDIO_CACHE_DIR, `${term.id}_puter.mp3`)
+    let existingFilePath: string | null = null
+
+    if (fs.existsSync(puterFilePath) && fs.statSync(puterFilePath).size > 0) {
+      existingFilePath = puterFilePath
+    } else {
+      const files = fs.readdirSync(AUDIO_CACHE_DIR)
+      const prefix = `${term.id}_`
+      const match = files.find((f) => f.startsWith(prefix) && (f.endsWith('.mp3') || f.endsWith('.wav')))
+      if (match) {
+        const fullPath = path.join(AUDIO_CACHE_DIR, match)
+        if (fs.statSync(fullPath).size > 0) {
+          existingFilePath = fullPath
+        }
       }
     }
 
+    if (existingFilePath) {
+      if (checkOnly) {
+        return NextResponse.json({ cached: true, source: 'disk-file' })
+      }
+      const fileBuffer = fs.readFileSync(existingFilePath)
+      const mime = existingFilePath.endsWith('.wav') ? 'audio/wav' : 'audio/mpeg'
+      return new Response(fileBuffer, {
+        status: 200,
+        headers: {
+          'Content-Type': mime,
+          'Content-Length': String(fileBuffer.length),
+          'Cache-Control': 'public, max-age=31536000, immutable',
+          'X-TTS-Source': 'disk-file',
+        },
+      })
+    }
+
     // 2. Check SQLite audio cache
-    const cached = getCachedTermAudio(term.id, targetVoiceId)
+    const cached = getAnyCachedTermAudio(term.id)
     if (cached && cached.audio_data && cached.audio_data.length > 0) {
+      if (checkOnly) {
+        return NextResponse.json({ cached: true, source: 'sqlite-cache' })
+      }
+
       const buffer = Buffer.from(cached.audio_data)
       try {
-        fs.writeFileSync(audioFilePath, buffer)
+        fs.writeFileSync(puterFilePath, buffer)
       } catch (e) {
         console.warn('Failed to sync audio from SQLite to disk:', e)
       }
@@ -96,119 +113,30 @@ export async function GET(req: NextRequest) {
           'Content-Length': String(buffer.length),
           'Cache-Control': 'public, max-age=31536000, immutable',
           'X-TTS-Source': 'sqlite-cache',
-          'X-TTS-Voice': targetVoiceId,
-          'X-TTS-Voice-Name': voiceRoute.voiceName,
-          'X-TTS-Language': term.language || 'Unknown',
         },
       })
     }
 
-    // 3. Check if ELEVENLABS_API_KEY is available
-    const apiKey = process.env.ELEVENLABS_API_KEY
-    if (!apiKey) {
-      return NextResponse.json(
-        {
-          error: 'ELEVENLABS_API_KEY_NOT_CONFIGURED',
-          message: 'ElevenLabs API key is not configured in .env.local',
-        },
-        { status: 503 }
-      )
+    // 3. Audio not in cache yet
+    if (checkOnly) {
+      return NextResponse.json({ cached: false })
     }
 
-    // 4. Generate audio via ElevenLabs Text-to-Speech API
-    // Strictly the word itself
-    const textToRecite = (term.term || term.romanization || '').trim()
-
-    let elevenRes = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(targetVoiceId)}`,
+    return NextResponse.json(
       {
-        method: 'POST',
-        headers: {
-          'xi-api-key': apiKey,
-          'Content-Type': 'application/json',
-          'Accept': 'audio/mpeg',
+        cached: false,
+        error: 'AUDIO_NOT_CACHED',
+        message: 'Audio not generated yet. Client will synthesize via Puter.js.',
+        term: {
+          id: term.id,
+          term: term.term,
+          romanization: term.romanization,
+          language: term.language,
+          language_group: term.language_group,
         },
-        body: JSON.stringify({
-          text: textToRecite,
-          model_id: 'eleven_multilingual_v2',
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.8,
-          },
-        }),
-      }
-    )
-
-    // Seamless fallback to premade voice if custom/library voice returns 402 or 404
-    if ((elevenRes.status === 402 || elevenRes.status === 404) && fallbackVoiceId && fallbackVoiceId !== targetVoiceId) {
-      console.warn(
-        `ElevenLabs voice ${targetVoiceId} failed with ${elevenRes.status}. Retrying with premade voice ${fallbackVoiceId}...`
-      )
-      targetVoiceId = fallbackVoiceId
-      audioFilePath = path.join(AUDIO_CACHE_DIR, `${term.id}_${targetVoiceId}.mp3`)
-
-      elevenRes = await fetch(
-        `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(targetVoiceId)}`,
-        {
-          method: 'POST',
-          headers: {
-            'xi-api-key': apiKey,
-            'Content-Type': 'application/json',
-            'Accept': 'audio/mpeg',
-          },
-          body: JSON.stringify({
-            text: textToRecite,
-            model_id: 'eleven_multilingual_v2',
-            voice_settings: {
-              stability: 0.5,
-              similarity_boost: 0.8,
-            },
-          }),
-        }
-      )
-    }
-
-    if (!elevenRes.ok) {
-      const errData = await elevenRes.json().catch(() => ({}))
-      const errMsg =
-        errData.detail?.message ||
-        errData.message ||
-        `ElevenLabs request failed with status ${elevenRes.status}`
-      console.error('ElevenLabs API error:', errMsg)
-      return NextResponse.json(
-        { error: 'ELEVENLABS_API_ERROR', message: errMsg },
-        { status: elevenRes.status }
-      )
-    }
-
-    const audioArrayBuffer = await elevenRes.arrayBuffer()
-    const audioBuffer = Buffer.from(audioArrayBuffer)
-
-    // 5. Permanently save to disk file AND SQLite
-    try {
-      fs.writeFileSync(audioFilePath, audioBuffer)
-    } catch (fsErr) {
-      console.warn('Failed to save audio file to disk:', fsErr)
-    }
-
-    try {
-      saveCachedTermAudio(term.id, targetVoiceId, audioBuffer, 'audio/mpeg')
-    } catch (cacheErr) {
-      console.warn('Failed to cache audio in SQLite:', cacheErr)
-    }
-
-    return new Response(audioBuffer, {
-      status: 200,
-      headers: {
-        'Content-Type': 'audio/mpeg',
-        'Content-Length': String(audioBuffer.length),
-        'Cache-Control': 'public, max-age=31536000, immutable',
-        'X-TTS-Source': 'elevenlabs-api',
-        'X-TTS-Voice': targetVoiceId,
-        'X-TTS-Voice-Name': voiceRoute.voiceName,
-        'X-TTS-Language': term.language || 'Unknown',
       },
-    })
+      { status: 404 }
+    )
   } catch (err: unknown) {
     if (
       typeof err === 'object' &&
@@ -218,11 +146,83 @@ export async function GET(req: NextRequest) {
     ) {
       throw err
     }
-    console.error('Error in /api/tts:', err)
+    console.error('Error in GET /api/tts:', err)
     const message = err instanceof Error ? err.message : 'Unknown TTS error'
-    return NextResponse.json(
-      { error: 'TTS_GENERATION_FAILED', message },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'TTS_ERROR', message }, { status: 500 })
+  }
+}
+
+/**
+ * POST /api/tts
+ * Caches newly generated Puter.js audio to local disk and SQLite.
+ */
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json()
+    const { id, audioBase64, mimeType, voice } = body
+
+    if (!id || !audioBase64) {
+      return NextResponse.json(
+        { error: 'Missing required fields: "id" and "audioBase64"' },
+        { status: 400 }
+      )
+    }
+
+    const termId = parseInt(String(id), 10)
+    if (isNaN(termId)) {
+      return NextResponse.json(
+        { error: 'Invalid term "id" parameter' },
+        { status: 400 }
+      )
+    }
+
+    const term = getTermById(termId)
+    if (!term) {
+      return NextResponse.json(
+        { error: 'Term not found in lexicon' },
+        { status: 404 }
+      )
+    }
+
+    ensureAudioDir()
+    const buffer = Buffer.from(audioBase64, 'base64')
+    if (buffer.length === 0) {
+      return NextResponse.json(
+        { error: 'Empty audio buffer received' },
+        { status: 400 }
+      )
+    }
+
+    const ext = mimeType?.includes('wav') ? 'wav' : 'mp3'
+    const audioFilePath = path.join(AUDIO_CACHE_DIR, `${term.id}_puter.${ext}`)
+    const targetMime = mimeType || (ext === 'wav' ? 'audio/wav' : 'audio/mpeg')
+    const voiceTag = voice || 'puter'
+
+    // Write to disk
+    try {
+      fs.writeFileSync(audioFilePath, buffer)
+    } catch (fsErr) {
+      console.warn('Failed to save audio file to disk:', fsErr)
+    }
+
+    // Write to SQLite
+    try {
+      saveCachedTermAudio(term.id, voiceTag, buffer, targetMime)
+    } catch (cacheErr) {
+      console.warn('Failed to cache audio in SQLite:', cacheErr)
+    }
+
+    return NextResponse.json({
+      success: true,
+      saved: true,
+      termId: term.id,
+      size: buffer.length,
+      mimeType: targetMime,
+      voice: voiceTag,
+    })
+  } catch (err: unknown) {
+    console.error('Error in POST /api/tts:', err)
+    const message = err instanceof Error ? err.message : 'Failed to save audio cache'
+    return NextResponse.json({ error: 'TTS_SAVE_FAILED', message }, { status: 500 })
   }
 }

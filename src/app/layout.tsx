@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Bricolage_Grotesque, IBM_Plex_Mono, Instrument_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -40,6 +41,7 @@ export default function RootLayout({
         <meta name="claude:viewport-fit-sides" content="cover" />
       </head>
       <body className={`${bricolage.variable} ${ibmPlexMono.variable} ${instrumentSans.variable}`}>
+        <Script src="https://js.puter.com/v2/" strategy="afterInteractive" />
         {children}
       </body>
     </html>

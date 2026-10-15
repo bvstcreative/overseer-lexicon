@@ -9,8 +9,7 @@
     "lint": "eslint",
     "seed": "node scripts/seed.mjs",
     "seed:creatures": "node scripts/generate-terms.mjs --import=data/mythological-creatures.txt --save",
-    "generate": "node scripts/generate-terms.mjs",
-    "tts:preheat": "node scripts/preheat-audio.mjs"
+    "generate": "node scripts/generate-terms.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.29.1",

@@ -227,7 +227,7 @@ export default function Home() {
   // Text-to-speech native voice state and playback handler
   const [speakingKey, setSpeakingKey] = useState<string | null>(null)
 
-  const handleToggleSpeak = useCallback((item: { t: string; r?: string; l: string; dbId?: number }, key: string) => {
+  const handleToggleSpeak = useCallback((item: { t: string; r?: string; l: string; lg?: string; dbId?: number }, key: string) => {
     if (speakingKey === key) {
       stopSpeaking()
       setSpeakingKey(null)
@@ -240,6 +240,7 @@ export default function Home() {
       term: item.t,
       romanization: item.r,
       language: item.l,
+      languageGroup: item.lg,
       onStart: () => setSpeakingKey(key),
       onEnd: () => setSpeakingKey((curr) => (curr === key ? null : curr)),
       onError: (err) => {

@@ -726,11 +726,17 @@ export function getCachedTermAudio(termId: number, voice = 'Charon'): CachedAudi
   return row || null
 }
 
+export function getAnyCachedTermAudio(termId: number): CachedAudioRecord | null {
+  const db = getDb()
+  const row = db.prepare('SELECT term_id, voice, mime_type, audio_data, created_at FROM term_audio WHERE term_id = ? ORDER BY created_at DESC LIMIT 1').get(termId) as CachedAudioRecord | undefined
+  return row || null
+}
+
 export function saveCachedTermAudio(
   termId: number,
   voice: string,
   audioData: Uint8Array | Buffer,
-  mimeType = 'audio/wav'
+  mimeType = 'audio/mpeg'
 ): void {
   const db = getDb()
   db.prepare(`
