@@ -74,6 +74,16 @@ const ICON = {
     <svg {...props} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M18 15l-6-6-6 6" />
     </svg>
+  ),
+  dice: (props: IconProps) => (
+    <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="3" />
+      <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
+      <circle cx="15.5" cy="8.5" r="1.5" fill="currentColor" />
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+      <circle cx="8.5" cy="15.5" r="1.5" fill="currentColor" />
+      <circle cx="15.5" cy="15.5" r="1.5" fill="currentColor" />
+    </svg>
   )
 }
 
@@ -165,6 +175,9 @@ export default function Home() {
   const [importText, setImportText] = useState('')
   const [importing, setImporting] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+
+  // "I'm Feeling Lucky" random term modal
+  const [luckyItem, setLuckyItem] = useState<LexiconItem | null>(null)
 
   // Duplicate options
   const [duplicateMode, setDuplicateMode] = useState<'term' | 'term_language'>('term')
@@ -454,6 +467,41 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  // "I'm Feeling Lucky" random picker
+  const triggerLucky = useCallback(() => {
+    const pool = list.length > 0 ? list : rows
+    if (pool.length === 0) return
+    const randomIndex = Math.floor(Math.random() * pool.length)
+    setLuckyItem(pool[randomIndex])
+  }, [list, rows])
+
+  const rollAnotherLucky = useCallback(() => {
+    const pool = list.length > 1 ? list : rows
+    if (pool.length === 0) return
+    let randomIndex = Math.floor(Math.random() * pool.length)
+    if (pool.length > 1 && luckyItem && pool[randomIndex].id === luckyItem.id) {
+      randomIndex = (randomIndex + 1) % pool.length
+    }
+    setLuckyItem(pool[randomIndex])
+  }, [list, rows, luckyItem])
+
+  // Keyboard controls for full-screen Lucky card (Esc to close, Space or R to roll another)
+  useEffect(() => {
+    if (!luckyItem) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setLuckyItem(null)
+      } else if (e.key === ' ' || e.key === 'r' || e.key === 'R') {
+        e.preventDefault()
+        rollAnotherLucky()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [luckyItem, rollAnotherLucky])
+
   const total = useMemo(() => {
     const td: Record<string, number> = {}, tr: Record<string, number> = {}, te: Record<string, number> = {}, tl: Record<string, number> = {}
     rows.forEach(r => {
@@ -579,7 +627,15 @@ export default function Home() {
         <div className="in">
           <div className="tools" id="tools">
             <label className="select"><span>Sort</span>
-              <select id="sort" aria-label="Sort by" value={sort} onChange={(e) => setSort(e.target.value)}>
+              <select
+                id="sort"
+                aria-label="Sort by"
+                value={sort}
+                onChange={(e) => {
+                  if (e.target.value === 'rand') reshuffle()
+                  setSort(e.target.value)
+                }}
+              >
                 <option value="az">A to Z</option>
                 <option value="lang">Language</option>
                 <option value="region">Region</option>
@@ -588,8 +644,15 @@ export default function Home() {
                 <option value="rand">Shuffled</option>
               </select>
             </label>
-            <button className="ibtn" id="shuffle" type="button" aria-label="Shuffle the order" onClick={() => { reshuffle(); setSort('rand') }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+            <button
+              className="ibtn"
+              id="shuffle"
+              type="button"
+              aria-label="I'm Feeling Lucky (Random word)"
+              title="I'm Feeling Lucky (Random word)"
+              onClick={triggerLucky}
+            >
+              <ICON.dice />
             </button>
             <button className="ibtn" id="view" type="button" aria-label={view === 'cards' ? 'Switch to compact list' : 'Switch to cards'} onClick={() => setView(v => v === 'cards' ? 'compact' : 'cards')}>
               {view === 'cards' ? <ICON.list /> : <ICON.cards />}
@@ -1025,6 +1088,113 @@ export default function Home() {
       >
         <ICON.up />
       </button>
+
+      {/* Full-screen "I'm Feeling Lucky" Card Overlay */}
+      {luckyItem && (
+        <div
+          className={`lucky-overlay ${luckyItem ? 'open' : ''}`}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="luckyTermTitle"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setLuckyItem(null)
+          }}
+        >
+          <div className="lucky-card">
+            <div className="lucky-top">
+              <div className="lucky-badge">
+                <ICON.dice />
+                <span>I&apos;m Feeling Lucky</span>
+              </div>
+              <div className="lucky-top-actions">
+                <button
+                  className="star"
+                  type="button"
+                  aria-pressed={isStarred(luckyItem)}
+                  aria-label={isStarred(luckyItem) ? 'Unstar this term' : 'Star this term'}
+                  title={isStarred(luckyItem) ? 'Starred' : 'Add to starred'}
+                  onClick={() => toggleStarItem(luckyItem)}
+                >
+                  <ICON.star />
+                </button>
+                <button
+                  className="ibtn"
+                  type="button"
+                  aria-label="Close card (Esc)"
+                  title="Close (Esc)"
+                  onClick={() => setLuckyItem(null)}
+                >
+                  <ICON.x />
+                </button>
+              </div>
+            </div>
+
+            <div className="lucky-body">
+              <div>
+                <bdi id="luckyTermTitle" className="lucky-term" lang={luckyItem.tag || undefined}>
+                  {luckyItem.t}
+                </bdi>
+                {luckyItem.r && luckyItem.r !== luckyItem.t && (
+                  <div className="lucky-rom">{luckyItem.r}</div>
+                )}
+              </div>
+
+              <p className="lucky-gloss">&ldquo;{luckyItem.g}&rdquo;</p>
+
+              <div className="lucky-meta">
+                <span className="tag" title="Language">
+                  <b>{luckyItem.l}</b>
+                  {luckyItem.lg && luckyItem.lg !== luckyItem.l ? ` · ${luckyItem.lg}` : ''}
+                </span>
+                <span className="tag" title="Region">
+                  {luckyItem.rg}
+                </span>
+                <span className="tag" title="Domain">
+                  {luckyItem.d}
+                </span>
+                <span className={`era era-${luckyItem.e}`} title={ERA_NOTE[luckyItem.e]}>
+                  {luckyItem.e} {ERA_NOTE[luckyItem.e] ? `(${ERA_NOTE[luckyItem.e]})` : ''}
+                </span>
+              </div>
+            </div>
+
+            <div className="lucky-foot">
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => {
+                    const text = `${luckyItem.t}${luckyItem.r && luckyItem.r !== luckyItem.t ? ` (${luckyItem.r})` : ''} — ${luckyItem.g} [${luckyItem.l}, ${luckyItem.d}]`
+                    navigator.clipboard.writeText(text).then(() => showToast(`Copied "${luckyItem.t}" to clipboard!`))
+                  }}
+                >
+                  Copy Word
+                </button>
+                <button
+                  type="button"
+                  className="btn quiet"
+                  onClick={() => setLuckyItem(null)}
+                >
+                  Close
+                </button>
+              </div>
+
+              <button
+                type="button"
+                className="lucky-primary-btn"
+                onClick={rollAnotherLucky}
+                title="Roll another random term (or press Space)"
+              >
+                <ICON.dice />
+                <span>Roll Another Word</span>
+                <span style={{ opacity: 0.75, fontSize: 11, fontFamily: 'var(--font-mono)', marginLeft: 4 }}>
+                  [Space]
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
