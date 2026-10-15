@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useMemo, useCallback } from 'react'
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react'
 import {
   parseAgentOutput,
   REGION_CODES,
@@ -69,8 +69,15 @@ const ICON = {
       <polyline points="7 10 12 15 17 10" />
       <line x1="12" y1="15" x2="12" y2="3" />
     </svg>
+  ),
+  up: (props: IconProps) => (
+    <svg {...props} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M18 15l-6-6-6 6" />
+    </svg>
   )
 }
+
+const PAGE_SIZE = 48
 
 const ERA_ORDER: Record<string, number> = { Ancient: 0, Historic: 1, Modern: 2 }
 const ERA_NOTE: Record<string, string> = { Ancient: 'to c. 500 CE', Historic: 'c. 500 to 1900', Modern: 'current or recent' }
@@ -384,6 +391,69 @@ export default function Home() {
     return filtered
   }, [rows, passes, sort, shuffleRank])
 
+  // Lazy loading state and visible slice
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const [showBackToTop, setShowBackToTop] = useState(false)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+
+  // Reset visible count whenever search, filter, or sort changes (adjust state during render)
+  const filterKey = `${q}|${sort}|${starred}|${domain.size}|${region.size}|${era.size}|${lg.size}|${Array.from(domain).join(',')}|${Array.from(region).join(',')}|${Array.from(era).join(',')}|${Array.from(lg).join(',')}`
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey)
+
+  if (filterKey !== prevFilterKey) {
+    setPrevFilterKey(filterKey)
+    setVisibleCount(PAGE_SIZE)
+  }
+
+  const visibleList = useMemo(() => {
+    return list.slice(0, visibleCount)
+  }, [list, visibleCount])
+
+  const hasMore = visibleCount < list.length
+  const remainingCount = Math.max(0, list.length - visibleCount)
+
+  const loadMore = useCallback(() => {
+    setVisibleCount(prev => Math.min(prev + PAGE_SIZE, list.length))
+  }, [list.length])
+
+  // Automatically load next batch when sentinel scrolls into view
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel || !hasMore) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0]
+        if (first.isIntersecting) {
+          setVisibleCount(prev => Math.min(prev + PAGE_SIZE, list.length))
+        }
+      },
+      { rootMargin: '300px' }
+    )
+
+    observer.observe(sentinel)
+    return () => {
+      observer.disconnect()
+    }
+  }, [hasMore, list.length])
+
+  // Track window scroll for Back to Top button
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 400) {
+        setShowBackToTop(true)
+      } else {
+        setShowBackToTop(false)
+      }
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const total = useMemo(() => {
     const td: Record<string, number> = {}, tr: Record<string, number> = {}, te: Record<string, number> = {}, tl: Record<string, number> = {}
     rows.forEach(r => {
@@ -538,7 +608,14 @@ export default function Home() {
               {loading ? (
                 'Loading terms from database...'
               ) : (
-                <><b>{list.length}</b> of {rows.length} terms</>
+                <>
+                  <b>{list.length}</b> of {rows.length} terms
+                  {hasMore && (
+                    <span style={{ color: 'var(--ink-3)', fontWeight: 400, marginLeft: 6, fontSize: 12 }}>
+                      ({visibleList.length} shown)
+                    </span>
+                  )}
+                </>
               )}
             </p>
             <div className="active" id="active">
@@ -564,50 +641,78 @@ export default function Home() {
             ) : group === 'none' ? (
               list.length === 0 ? (
                 <div className="empty"><p>No terms match. Remove a filter or try a shorter search.</p><button className="btn primary" type="button" onClick={resetAll}>Reset everything</button></div>
-              ) : view === 'compact' ? (
-                <div className="rows">
-                  {list.map(r => (
-                    <article key={r.id + r.i} className="row">
-                      <div className="main">
-                        <div>
-                          <bdi className="term">{r.t}</bdi>
-                          {r.r && r.r !== r.t && <span className="rom">{r.r}</span>}
-                        </div>
-                        <p className="gloss">{r.g}</p>
-                        <div className="sub">{r.l} · {r.rg} · {r.d}</div>
-                      </div>
-                      <div className="side">
-                        <button className="star" type="button" aria-pressed={isStarred(r)} onClick={() => toggleStarItem(r)}>
-                          <ICON.star />
-                        </button>
-                        <span className={`era era-${r.e}`}>{r.e}</span>
-                      </div>
-                    </article>
-                  ))}
-                </div>
               ) : (
-                <div className="grid">
-                  {list.map(r => (
-                    <article key={r.id + r.i} className="card">
-                      <div className="top">
-                        <div>
-                          <bdi className="term">{r.t}</bdi>
-                          {r.r && r.r !== r.t && <span className="rom">{r.r}</span>}
-                        </div>
-                        <button className="star" type="button" aria-pressed={isStarred(r)} onClick={() => toggleStarItem(r)}>
-                          <ICON.star />
-                        </button>
+                <>
+                  {view === 'compact' ? (
+                    <div className="rows">
+                      {visibleList.map(r => (
+                        <article key={r.id + r.i} className="row">
+                          <div className="main">
+                            <div>
+                              <bdi className="term">{r.t}</bdi>
+                              {r.r && r.r !== r.t && <span className="rom">{r.r}</span>}
+                            </div>
+                            <p className="gloss">{r.g}</p>
+                            <div className="sub">{r.l} · {r.rg} · {r.d}</div>
+                          </div>
+                          <div className="side">
+                            <button className="star" type="button" aria-pressed={isStarred(r)} onClick={() => toggleStarItem(r)}>
+                              <ICON.star />
+                            </button>
+                            <span className={`era era-${r.e}`}>{r.e}</span>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid">
+                      {visibleList.map(r => (
+                        <article key={r.id + r.i} className="card">
+                          <div className="top">
+                            <div>
+                              <bdi className="term">{r.t}</bdi>
+                              {r.r && r.r !== r.t && <span className="rom">{r.r}</span>}
+                            </div>
+                            <button className="star" type="button" aria-pressed={isStarred(r)} onClick={() => toggleStarItem(r)}>
+                              <ICON.star />
+                            </button>
+                          </div>
+                          <p className="gloss">{r.g}</p>
+                          <div className="meta">
+                            <button className="tag" type="button" aria-pressed={lg.has(r.lg)} onClick={() => toggle('lg', r.lg)}>{r.lg}</button>
+                            <button className="tag" type="button" aria-pressed={region.has(r.rg)} onClick={() => toggle('region', r.rg)}>{r.rg}</button>
+                            <button className="tag" type="button" aria-pressed={domain.has(r.d)} onClick={() => toggle('domain', r.d)}>{r.d}</button>
+                            <span className={`era era-${r.e}`}>{r.e}</span>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Intersection sentinel */}
+                  {hasMore && <div ref={sentinelRef} className="scroll-sentinel" aria-hidden="true" />}
+
+                  {/* Lazy load footer status & manual button */}
+                  <div className="lazy-foot">
+                    <div className="lazy-meta">
+                      Showing <b>{visibleList.length}</b> of <b>{list.length}</b> terms
+                      {list.length < rows.length && <span> (filtered from {rows.length})</span>}
+                    </div>
+                    {hasMore ? (
+                      <button
+                        type="button"
+                        className="btn lazy-btn"
+                        onClick={loadMore}
+                      >
+                        Load more ({remainingCount} remaining)
+                      </button>
+                    ) : list.length > PAGE_SIZE ? (
+                      <div className="lazy-end">
+                        <span>✓ All {list.length} terms loaded</span>
                       </div>
-                      <p className="gloss">{r.g}</p>
-                      <div className="meta">
-                        <button className="tag" type="button" aria-pressed={lg.has(r.lg)} onClick={() => toggle('lg', r.lg)}>{r.lg}</button>
-                        <button className="tag" type="button" aria-pressed={region.has(r.rg)} onClick={() => toggle('region', r.rg)}>{r.rg}</button>
-                        <button className="tag" type="button" aria-pressed={domain.has(r.d)} onClick={() => toggle('domain', r.d)}>{r.d}</button>
-                        <span className={`era era-${r.e}`}>{r.e}</span>
-                      </div>
-                    </article>
-                  ))}
-                </div>
+                    ) : null}
+                  </div>
+                </>
               )
             ) : null}
           </div>
@@ -909,6 +1014,17 @@ export default function Home() {
       <div className={`toast ${toast ? 'show' : ''}`} role="status">
         {toast}
       </div>
+
+      {/* Floating Back to Top Button */}
+      <button
+        type="button"
+        className={`back-to-top ${showBackToTop ? 'show' : ''}`}
+        aria-label="Back to top"
+        title="Back to top"
+        onClick={scrollToTop}
+      >
+        <ICON.up />
+      </button>
     </div>
   )
 }

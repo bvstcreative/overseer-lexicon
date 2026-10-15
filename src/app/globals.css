@@ -190,3 +190,22 @@ footer p{margin:10px 0 0}
 .settings-select{height:32px;padding:0 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-size:12.5px;outline:none}
 .settings-select:focus{border-color:var(--accent)}
 .settings-toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);cursor:pointer;user-select:none}
+
+/* Lazy loading & Infinite scroll */
+.scroll-sentinel{height:1px;width:100%;pointer-events:none;visibility:hidden}
+.lazy-foot{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;margin:32px 0 24px;padding:16px;text-align:center}
+.lazy-meta{font-size:13.5px;color:var(--ink-2)}
+.lazy-meta b{color:var(--ink)}
+.lazy-btn{padding:10px 22px;font-size:13.5px;font-weight:500;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer;transition:background .15s,border-color .15s,transform .1s}
+.lazy-btn:hover{background:var(--surface);border-color:var(--accent);color:var(--accent)}
+.lazy-btn:active{transform:scale(0.98)}
+.lazy-end{font-size:12.5px;color:var(--ink-3);display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line)}
+
+/* Floating Back to Top Button */
+.back-to-top{position:fixed;bottom:24px;right:24px;width:44px;height:44px;border-radius:50%;background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:0 4px 16px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;visibility:hidden;transform:translateY(12px);transition:opacity .2s,transform .2s,visibility .2s,background .15s,border-color .15s;z-index:40}
+.back-to-top.show{opacity:1;visibility:visible;transform:translateY(0)}
+.back-to-top:hover{background:var(--surface-2);border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+.back-to-top:active{transform:translateY(0)}
+@media (max-width:600px){
+  .back-to-top{bottom:18px;right:18px;width:40px;height:40px}
+}
