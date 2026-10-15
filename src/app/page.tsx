@@ -1,10 +1,24 @@
 'use client'
 
-import { useEffect, useState, useMemo, useCallback } from 'react'
-import rawData from '@/data/overseer.json'
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
+
+interface TermApiRecord {
+  id: number
+  term: string
+  romanization: string
+  language: string
+  language_group: string
+  region: string
+  era: string
+  domain: string
+  gloss: string
+  created_at: string
+  starred: boolean
+}
 
 interface LexiconItem {
   i: number
+  dbId: number
   t: string
   r: string
   l: string
@@ -19,24 +33,26 @@ interface LexiconItem {
   tag: string
 }
 
+type IconProps = React.SVGProps<SVGSVGElement>
+
 const ICON = {
-  star: (props: any) => (
+  star: (props: IconProps) => (
     <svg {...props} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true">
       <path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z" />
     </svg>
   ),
-  x: (props: any) => (
+  x: (props: IconProps) => (
     <svg {...props} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
       <path d="M6 6l12 12M18 6 6 18" />
     </svg>
   ),
-  cards: (props: any) => (
+  cards: (props: IconProps) => (
     <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true">
       <rect x="4" y="4" width="16" height="7" rx="1.5" />
       <rect x="4" y="13" width="16" height="7" rx="1.5" />
     </svg>
   ),
-  list: (props: any) => (
+  list: (props: IconProps) => (
     <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
       <path d="M4 6h16M4 12h16M4 18h16" />
     </svg>
@@ -53,7 +69,7 @@ const LANG_TAGS: Array<[string, string]> = [
 ]
 
 function norm(s: string): string {
-  return String(s)
+  return String(s || '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
@@ -71,27 +87,28 @@ function langTag(l: string): string {
   return ''
 }
 
-function transformData(): LexiconItem[] {
-  const data = rawData as any[]
-  return data.map((a: any[], i: number) => {
-    const term = a[0] || ''
-    const roman = a[1] || ''
+function transformDbTerms(terms: TermApiRecord[]): LexiconItem[] {
+  return terms.map((item, i) => {
+    const term = item.term || ''
+    const roman = item.romanization || ''
     const keyNorm = norm(roman || term).replace(/[^a-z0-9 ]/g, '').trim() || norm(term)
-    const hay = norm([term, roman, a[2], a[3], a[4], a[5], a[6], a[7]].join(' '))
+    const hay = norm([term, roman, item.language, item.language_group, item.region, item.era, item.domain, item.gloss].join(' '))
+    const uniqueKey = term + '|' + (item.language || '')
     return {
       i,
+      dbId: item.id,
       t: term,
       r: roman,
-      l: a[2] || '',
-      lg: a[3] || '',
-      rg: a[4] || '',
-      e: a[5] || '',
-      d: a[6] || '',
-      g: a[7] || '',
+      l: item.language || '',
+      lg: item.language_group || '',
+      rg: item.region || '',
+      e: item.era || '',
+      d: item.domain || '',
+      g: item.gloss || '',
       key: keyNorm,
       hay,
-      id: term + '|' + (a[2] || ''),
-      tag: langTag(a[2] || '')
+      id: uniqueKey,
+      tag: langTag(item.language || '')
     }
   })
 }
@@ -100,6 +117,7 @@ const KEY = 'overseer-lexicon-v1'
 
 export default function Home() {
   const [rows, setRows] = useState<LexiconItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [q, setQ] = useState('')
   const [domain, setDomain] = useState<Set<string>>(new Set())
   const [region, setRegion] = useState<Set<string>>(new Set())
@@ -115,39 +133,116 @@ export default function Home() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [langExpanded, setLangExpanded] = useState(false)
 
+  // Fetch terms and stars from SQLite backend
   useEffect(() => {
-    setRows(transformData())
-    try {
-      const saved = JSON.parse(localStorage.getItem(KEY) || '{}')
-      if (Array.isArray(saved.stars)) setStars(new Set(saved.stars))
-      if (saved.view === 'compact' || saved.view === 'cards') setView(saved.view)
-    } catch (e) {}
+    let isMounted = true
+
+    async function loadData() {
+      try {
+        const res = await fetch('/api/terms')
+        const data = await res.json()
+        if (isMounted && Array.isArray(data.terms)) {
+          const transformed = transformDbTerms(data.terms)
+          setRows(transformed)
+
+          // Precompute shuffle rank on initial data load
+          const idx = transformed.map((_, i) => i)
+          for (let i = idx.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1))
+            const t = idx[i]; idx[i] = idx[j]; idx[j] = t
+          }
+          const rank = new Array(transformed.length).fill(0)
+          idx.forEach((v, pos) => { rank[v] = pos })
+          setShuffleRank(rank)
+
+          const starSet = new Set<string>()
+          data.terms.forEach((t: TermApiRecord) => {
+            if (t.starred) {
+              starSet.add(String(t.id))
+              starSet.add(t.term + '|' + t.language)
+            }
+          })
+
+          // Merge with localStorage if previous saved state exists
+          try {
+            const saved = JSON.parse(localStorage.getItem(KEY) || '{}')
+            if (Array.isArray(saved.stars)) {
+              saved.stars.forEach((s: string) => starSet.add(s))
+            }
+            if (saved.view === 'compact' || saved.view === 'cards') {
+              setView(saved.view)
+            }
+          } catch {}
+
+          setStars(starSet)
+        }
+      } catch (err) {
+        console.error('Failed to load terms from SQLite backend:', err)
+      } finally {
+        if (isMounted) setLoading(false)
+      }
+    }
+
+    loadData()
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const qTokens = useMemo(() => norm(q).split(/\s+/).filter(Boolean), [q])
 
-  const save = useCallback(() => {
+  const saveLocal = useCallback(() => {
     try {
       localStorage.setItem(KEY, JSON.stringify({ stars: Array.from(stars), view }))
-    } catch (e) {}
+    } catch {}
   }, [stars, view])
 
-  useEffect(() => { save() }, [save])
+  useEffect(() => {
+    if (!loading) saveLocal()
+  }, [saveLocal, loading])
+
+  const isStarred = useCallback((r: LexiconItem) => {
+    return stars.has(r.id) || stars.has(String(r.dbId))
+  }, [stars])
+
+  const toggleStarItem = useCallback(async (r: LexiconItem) => {
+    const currentlyStarred = isStarred(r)
+    const nextStars = new Set(stars)
+
+    if (currentlyStarred) {
+      nextStars.delete(r.id)
+      nextStars.delete(String(r.dbId))
+    } else {
+      nextStars.add(r.id)
+      nextStars.add(String(r.dbId))
+    }
+    setStars(nextStars)
+
+    try {
+      await fetch('/api/stars', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ termId: r.dbId, starred: !currentlyStarred }),
+      })
+    } catch (err) {
+      console.error('Failed to sync star status to backend:', err)
+    }
+  }, [stars, isStarred])
 
   const reshuffle = useCallback(() => {
-    const idx = rows.map((_, i) => i)
-    for (let i = idx.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      const t = idx[i]; idx[i] = idx[j]; idx[j] = t
-    }
-    const rank = new Array(rows.length).fill(0)
-    idx.forEach((v, pos) => { rank[v] = pos })
-    setShuffleRank(rank)
-  }, [rows])
-
-  useEffect(() => {
-    if (rows.length > 0 && shuffleRank === null) reshuffle()
-  }, [rows, shuffleRank, reshuffle])
+    setRows((prevRows) => {
+      const idx = prevRows.map((_, i) => i)
+      for (let i = idx.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        const t = idx[i]; idx[i] = idx[j]; idx[j] = t
+      }
+      const rank = new Array(prevRows.length).fill(0)
+      idx.forEach((v, pos) => { rank[v] = pos })
+      setShuffleRank(rank)
+      return prevRows
+    })
+  }, [])
 
   const passes = useCallback((r: LexiconItem, skip?: string) => {
     for (let i = 0; i < qTokens.length; i++) {
@@ -157,9 +252,9 @@ export default function Home() {
     if (region.size && !region.has(r.rg) && skip !== 'region') return false
     if (era.size && !era.has(r.e) && skip !== 'era') return false
     if (lg.size && !lg.has(r.lg) && skip !== 'lg') return false
-    if (starred && skip !== 'starred' && !stars.has(r.id)) return false
+    if (starred && skip !== 'starred' && !isStarred(r)) return false
     return true
-  }, [qTokens, domain, region, era, lg, starred, stars])
+  }, [qTokens, domain, region, era, lg, starred, isStarred])
 
   const list = useMemo(() => {
     const filtered = rows.filter(r => passes(r))
@@ -321,7 +416,13 @@ export default function Home() {
             ))}
           </div>
           <div className="status">
-            <p id="count" aria-live="polite"><b>{list.length}</b> of {rows.length} terms</p>
+            <p id="count" aria-live="polite">
+              {loading ? (
+                'Loading terms from database...'
+              ) : (
+                <><b>{list.length}</b> of {rows.length} terms</>
+              )}
+            </p>
             <div className="active" id="active">
               {Array.from(domain).map(v => (
                 <button key={v} className="chip x" type="button" onClick={() => toggle('domain', v)} aria-label={`Remove filter ${v}`}>Domain: {v}<ICON.x /></button>
@@ -340,7 +441,9 @@ export default function Home() {
             </div>
           </div>
           <div id="out">
-            {group === 'none' ? (
+            {loading ? (
+              <div className="empty"><p>Connecting to SQLite database...</p></div>
+            ) : group === 'none' ? (
               list.length === 0 ? (
                 <div className="empty"><p>No terms match. Remove a filter or try a shorter search.</p><button className="btn primary" type="button" onClick={resetAll}>Reset everything</button></div>
               ) : view === 'compact' ? (
@@ -356,7 +459,7 @@ export default function Home() {
                         <div className="sub">{r.l} · {r.rg} · {r.d}</div>
                       </div>
                       <div className="side">
-                        <button className="star" type="button" aria-pressed={stars.has(r.id)} onClick={() => { const s = new Set(stars); if (s.has(r.id)) s.delete(r.id); else s.add(r.id); setStars(s); }}>
+                        <button className="star" type="button" aria-pressed={isStarred(r)} onClick={() => toggleStarItem(r)}>
                           <ICON.star />
                         </button>
                         <span className={`era era-${r.e}`}>{r.e}</span>
@@ -373,7 +476,7 @@ export default function Home() {
                           <bdi className="term">{r.t}</bdi>
                           {r.r && r.r !== r.t && <span className="rom">{r.r}</span>}
                         </div>
-                        <button className="star" type="button" aria-pressed={stars.has(r.id)} onClick={() => { const s = new Set(stars); if (s.has(r.id)) s.delete(r.id); else s.add(r.id); setStars(s); }}>
+                        <button className="star" type="button" aria-pressed={isStarred(r)} onClick={() => toggleStarItem(r)}>
                           <ICON.star />
                         </button>
                       </div>
@@ -440,7 +543,7 @@ export default function Home() {
             {!langQ && <button className="linkbtn" id="lmore" type="button" onClick={() => setLangExpanded(e => !e)}>{langExpanded ? 'Show fewer languages' : `Show all ${options.lg.length} languages`}</button>}
           </div>
           <div className="fgroup"><h3>Starred</h3><div className="chips" id="fStar">
-            <button className="chip" type="button" aria-pressed={starred} onClick={() => toggle('star', '1')}>Starred only <span className="n">{list.filter(r => stars.has(r.id)).length > 0 ? rows.filter(r => passes(r,'starred') && stars.has(r.id)).length : 0}</span></button>
+            <button className="chip" type="button" aria-pressed={starred} onClick={() => toggle('star', '1')}>Starred only <span className="n">{list.filter(r => isStarred(r)).length > 0 ? rows.filter(r => passes(r,'starred') && isStarred(r)).length : 0}</span></button>
           </div></div>
         </div>
         <div className="sheet-foot">
