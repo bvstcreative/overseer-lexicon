@@ -17,6 +17,18 @@ export interface PuterTTSOptions {
   instructions?: string
 }
 
+// Google Gemini TTS, reached via Puter's "User Pays" model (no API key needed, same as
+// aws-polly/openai above). It has no `language` parameter — it reads whatever script the
+// text is in directly — which makes it a strong option for languages Polly/OpenAI handle poorly.
+function geminiOptions(voice: string, instructions: string): PuterTTSOptions {
+  return {
+    provider: 'gemini',
+    model: 'gemini-3.8-flash-tts',
+    voice,
+    instructions,
+  }
+}
+
 export interface PuterResolvedVoice {
   options: PuterTTSOptions
   fallbackOptions: PuterTTSOptions
@@ -42,16 +54,20 @@ export function resolvePuterVoice(
   }
 
   // 1. Hellenic & Classical Greek (Ancient Greek, Byzantine Greek, Modern Greek)
-  // AWS Polly has no Greek voice at all, so OpenAI's multilingual model is the only option.
+  // AWS Polly has no Greek voice at all. Gemini TTS reads Greek script directly and
+  // takes style instructions, so it leads; OpenAI is the fallback.
   if (lang.includes('greek') || group.includes('greek')) {
     return {
-      options: {
+      options: geminiOptions(
+        'Charon',
+        'Pronounce this as a native Modern Greek speaker would, with accurate stress and intonation.'
+      ),
+      fallbackOptions: {
         provider: 'openai',
         model: 'gpt-4o-mini-tts',
         voice: 'onyx', // deep, scholarly tone
       },
-      fallbackOptions: generalFallback,
-      speakerName: 'Onyx (Greek)',
+      speakerName: 'Charon (Greek, Gemini)',
       languageCategory: 'Hellenic',
     }
   }
@@ -68,11 +84,10 @@ export function resolvePuterVoice(
         voice: 'Adriano',
         engine: 'neural',
       },
-      fallbackOptions: {
-        provider: 'openai',
-        model: 'gpt-4o-mini-tts',
-        voice: 'onyx',
-      },
+      fallbackOptions: geminiOptions(
+        'Orus',
+        'Pronounce this Latin word using classical/ecclesiastical Latin phonetics.'
+      ),
       speakerName: 'Adriano (Classical Latin)',
       languageCategory: 'Latin',
     }
@@ -128,8 +143,8 @@ export function resolvePuterVoice(
   }
 
   // 6. Austronesian & Southeast Asian (Indonesian, Malay, Javanese, Balinese, Sundanese, Tagalog, Hawaiian, Maori)
-  // Neither Polly nor OpenAI has native voices for these; OpenAI's multilingual model
-  // is the broadest best-effort option, with Polly's English voice as a last resort.
+  // Polly has no native voices for these at all. Gemini reads the script directly and
+  // takes style instructions, so it leads; OpenAI is the fallback.
   if (
     lang.includes('indones') ||
     lang.includes('malay') ||
@@ -146,18 +161,16 @@ export function resolvePuterVoice(
     lang === 'samoan'
   ) {
     return {
-      options: {
+      options: geminiOptions(
+        'Kore',
+        'Pronounce this word accurately in its original Indonesian, Malay, Filipino, or Pacific language, respecting native phonetics.'
+      ),
+      fallbackOptions: {
         provider: 'openai',
         model: 'gpt-4o-mini-tts',
         voice: 'alloy',
       },
-      fallbackOptions: {
-        provider: 'aws-polly',
-        language: 'en-US',
-        voice: 'Matthew',
-        engine: 'neural',
-      },
-      speakerName: 'Alloy (Austronesian/Indonesian)',
+      speakerName: 'Kore (Austronesian/Indonesian, Gemini)',
       languageCategory: 'Austronesian',
     }
   }
@@ -177,13 +190,16 @@ export function resolvePuterVoice(
   ) {
     if (lang.includes('hebrew') || group.includes('hebrew')) {
       return {
-        options: {
+        options: geminiOptions(
+          'Iapetus',
+          'Pronounce this Hebrew word accurately as a native Hebrew speaker would, including correct guttural consonants.'
+        ),
+        fallbackOptions: {
           provider: 'openai',
           model: 'gpt-4o-mini-tts',
           voice: 'fable',
         },
-        fallbackOptions: generalFallback,
-        speakerName: 'Fable (Hebrew)',
+        speakerName: 'Iapetus (Hebrew, Gemini)',
         languageCategory: 'Hebrew',
       }
     }
@@ -194,11 +210,10 @@ export function resolvePuterVoice(
         voice: 'Hala',
         engine: 'neural',
       },
-      fallbackOptions: {
-        provider: 'openai',
-        model: 'gpt-4o-mini-tts',
-        voice: 'onyx',
-      },
+      fallbackOptions: geminiOptions(
+        'Charon',
+        'Pronounce this Arabic word accurately, including correct emphatic consonants.'
+      ),
       speakerName: 'Hala (Arabic Neural)',
       languageCategory: 'Near Eastern',
     }
@@ -291,22 +306,22 @@ export function resolvePuterVoice(
   }
 
   // 10. Slavic & Baltic (Russian, Polish, Czech, Croatian, etc.)
-  // Polly has no neural tier for Russian (standard only), so it's noticeably more
-  // robotic than other Polly languages here — OpenAI is the fallback if it fails.
+  // Polly has no neural tier for Russian (standard only, noticeably robotic). Gemini
+  // reads the Cyrillic script directly and takes style instructions, so it leads;
+  // Polly's standard voice is the fallback.
   if (lang.includes('russ') || group.includes('russ') || lang.includes('slav') || group.includes('slav')) {
     return {
-      options: {
+      options: geminiOptions(
+        'Fenrir',
+        'Pronounce this Russian word accurately and naturally as a native Russian speaker would.'
+      ),
+      fallbackOptions: {
         provider: 'aws-polly',
         language: 'ru-RU',
         voice: 'Tatyana',
         engine: 'standard',
       },
-      fallbackOptions: {
-        provider: 'openai',
-        model: 'gpt-4o-mini-tts',
-        voice: 'echo',
-      },
-      speakerName: 'Tatyana (Russian)',
+      speakerName: 'Fenrir (Russian, Gemini)',
       languageCategory: 'Slavic',
     }
   }
@@ -335,7 +350,7 @@ export function resolvePuterVoice(
   // 11b. Tamil, Bengali, Marathi, Telugu — no Polly voice exists for any of these;
   // routing them through the Hindi voice above (as the old code did) silently
   // mispronounces the script, since they're different languages/scripts entirely.
-  // OpenAI's multilingual model is the best available option for each.
+  // Gemini reads each script directly and takes style instructions, so it leads here.
   if (
     lang.includes('tamil') ||
     lang.includes('bengali') ||
@@ -343,17 +358,16 @@ export function resolvePuterVoice(
     lang.includes('telugu')
   ) {
     return {
-      options: {
+      options: geminiOptions(
+        'Despina',
+        'Pronounce this word accurately in its original Indian language (Tamil, Bengali, Marathi, or Telugu), respecting native script and phonetics.'
+      ),
+      fallbackOptions: {
         provider: 'openai',
         model: 'gpt-4o-mini-tts',
         voice: 'alloy',
       },
-      fallbackOptions: {
-        provider: 'openai',
-        model: 'tts-1-hd',
-        voice: 'nova',
-      },
-      speakerName: 'Alloy (Indic)',
+      speakerName: 'Despina (Indic, Gemini)',
       languageCategory: 'Indo-Aryan/Dravidian',
     }
   }
@@ -368,7 +382,10 @@ export function resolvePuterVoice(
         voice: 'Burcu',
         engine: 'neural',
       },
-      fallbackOptions: generalFallback,
+      fallbackOptions: geminiOptions(
+        'Achernar',
+        'Pronounce this Turkish word accurately as a native Turkish speaker would.'
+      ),
       speakerName: 'Burcu (Turkish Neural)',
       languageCategory: 'Turkish',
     }
