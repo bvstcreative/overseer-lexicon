@@ -3,11 +3,9 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import {
   parseAgentOutput,
-  AGENT_SYSTEM_PROMPT,
   REGION_CODES,
   ERA_CODES,
   DOMAIN_CODES,
-  extractCountAndTopic,
 } from '@/lib/agent-rules'
 
 interface TermApiRecord {
@@ -65,20 +63,11 @@ const ICON = {
       <path d="M4 6h16M4 12h16M4 18h16" />
     </svg>
   ),
-  sparkles: (props: IconProps) => (
-    <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 3l1.91 5.89L20 10l-4.5 4.38L16.59 21 12 17.77 7.41 21 8.5 14.38 4 10l6.09-1.11L12 3z" />
-    </svg>
-  ),
-  copy: (props: IconProps) => (
+  import: (props: IconProps) => (
     <svg {...props} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-    </svg>
-  ),
-  bolt: (props: IconProps) => (
-    <svg {...props} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
     </svg>
   )
 }
@@ -138,15 +127,6 @@ function transformDbTerms(terms: TermApiRecord[]): LexiconItem[] {
 }
 
 const KEY = 'overseer-lexicon-v1'
-const API_KEY_STORAGE = 'lexicon_gemini_api_key'
-
-const PRESET_TOPICS = [
-  'give me 100 mythological creatures name around the world',
-  '50 ancient magistrates and civil overseers',
-  '50 harbour masters and maritime navigators',
-  '50 craft guildmasters and studio artisans',
-  '30 agricultural and estate stewards',
-]
 
 const SAMPLE_AI_OUTPUT = `Baumeister|Baumeister|German|EUR|M|STUDIO|master builder who oversees masonry and construction
 学芸員|gakugeiin|Japanese|EAS|N|GALLERY|museum curator who manages collections and exhibitions
@@ -172,33 +152,14 @@ export default function Home() {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [langExpanded, setLangExpanded] = useState(false)
 
-  // AI Agent modal state
-  const [agentOpen, setAgentOpen] = useState(false)
-  const [agentTab, setAgentTab] = useState<'easy' | 'input' | 'prompt' | 'rules'>('easy')
-
-  // Easy mode state
-  const [easyInput, setEasyInput] = useState('give me 100 mythological creatures name around the world')
-  const [customCount, setCustomCount] = useState<number | null>(null)
-  const [apiKey, setApiKey] = useState(() => {
-    if (typeof window === 'undefined') return ''
-    try {
-      return localStorage.getItem(API_KEY_STORAGE) || ''
-    } catch {
-      return ''
-    }
-  })
-  const [apiKeyOpen, setApiKeyOpen] = useState(false)
-  const [generating, setGenerating] = useState(false)
-
-  // Manual input / paste state
-  const [agentText, setAgentText] = useState('')
-  const [promptCount, setPromptCount] = useState(100)
-  const [promptFocus, setPromptFocus] = useState('')
+  // Import modal state
+  const [importOpen, setImportOpen] = useState(false)
+  const [importTab, setImportTab] = useState<'paste' | 'rules'>('paste')
+  const [importText, setImportText] = useState('')
   const [importing, setImporting] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
 
-  // Storage & duplicate options
-  const [autoStoreSqlite, setAutoStoreSqlite] = useState(true)
+  // Duplicate options
   const [duplicateMode, setDuplicateMode] = useState<'term' | 'term_language'>('term')
   const [onDuplicate, setOnDuplicate] = useState<'skip' | 'update'>('skip')
 
@@ -206,14 +167,6 @@ export default function Home() {
     setToast(msg)
     setTimeout(() => setToast(null), 3500)
   }, [])
-
-  const saveApiKey = (key: string) => {
-    setApiKey(key)
-    try {
-      localStorage.setItem(API_KEY_STORAGE, key.trim())
-      showToast('Gemini API key saved!')
-    } catch {}
-  }
 
   // Fetch terms and stars from SQLite backend
   useEffect(() => {
@@ -336,21 +289,12 @@ export default function Home() {
   }, [rows])
 
   const parsedBatch = useMemo(() => {
-    if (!agentText.trim()) return null
-    return parseAgentOutput(agentText, existingPairSet, {
+    if (!importText.trim()) return null
+    return parseAgentOutput(importText, existingPairSet, {
       duplicateMode,
       existingTerms: existingTermSet,
     })
-  }, [agentText, existingPairSet, existingTermSet, duplicateMode])
-
-  // Computed topic and count for Easy Mode
-  const easyParsed = useMemo(() => {
-    const extracted = extractCountAndTopic(easyInput)
-    return {
-      topic: extracted.topic,
-      count: customCount !== null ? customCount : extracted.count,
-    }
-  }, [easyInput, customCount])
+  }, [importText, existingPairSet, existingTermSet, duplicateMode])
 
   // Handle importing valid terms
   const handleImport = async () => {
@@ -396,8 +340,8 @@ export default function Home() {
           const newLexiconItems = transformDbTerms(data.terms)
           setRows((prev) => [...prev, ...newLexiconItems])
         }
-        setAgentText('')
-        setAgentOpen(false)
+        setImportText('')
+        setImportOpen(false)
         const parts: string[] = []
         if (data.insertedCount > 0) parts.push(`${data.insertedCount} added`)
         if (data.updatedCount > 0) parts.push(`${data.updatedCount} updated`)
@@ -411,102 +355,6 @@ export default function Home() {
       alert('Error importing terms into SQLite database.')
     } finally {
       setImporting(false)
-    }
-  }
-
-  // Easy Mode: Copy complete self-contained prompt
-  const copyEasyPrompt = async () => {
-    try {
-      const params = new URLSearchParams({
-        input: easyInput,
-        count: String(easyParsed.count),
-        topic: easyParsed.topic,
-      })
-      const res = await fetch(`/api/agent/prompt?${params.toString()}`)
-      const data = await res.json()
-      if (data.easyPrompt) {
-        await navigator.clipboard.writeText(data.easyPrompt)
-        showToast(`Easy AI prompt copied (${data.count} items, ${data.existingCount} existing checked)!`)
-      }
-    } catch (err) {
-      console.error('Failed to fetch easy prompt:', err)
-      alert('Failed to generate prompt.')
-    }
-  }
-
-  // Easy Mode: Direct Gemini generation
-  const handleGenerateWithAI = async () => {
-    setGenerating(true)
-    try {
-      const res = await fetch('/api/agent/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          input: easyInput,
-          count: easyParsed.count,
-          apiKey: apiKey.trim() || undefined,
-          storeInSqlite: autoStoreSqlite,
-          duplicateMode,
-          onDuplicate,
-        }),
-      })
-
-      const data = await res.json()
-      if (!res.ok) {
-        alert(data.error || 'Generation failed.')
-        return
-      }
-
-      if (data.rawText) {
-        setAgentText(data.rawText)
-      }
-
-      if (data.storedInSqlite) {
-        if (data.updatedCount > 0) {
-          const resAll = await fetch('/api/terms')
-          const allData = await resAll.json()
-          if (Array.isArray(allData.terms)) {
-            setRows(transformDbTerms(allData.terms))
-          }
-        } else if (Array.isArray(data.storedTerms) && data.storedTerms.length > 0) {
-          const newItems = transformDbTerms(data.storedTerms)
-          setRows((prev) => [...prev, ...newItems])
-        }
-        const parts: string[] = []
-        if (data.storedCount > 0) parts.push(`${data.storedCount} added`)
-        if (data.updatedCount > 0) parts.push(`${data.updatedCount} updated`)
-        if (data.skippedCount > 0) parts.push(`${data.skippedCount} skipped`)
-        showToast(`Stored in SQLite: ${parts.join(', ') || 'No changes'}`)
-      } else {
-        showToast(`Generated ${data.parsed?.valid?.length || 0} terms! Review below and click Import.`)
-      }
-    } catch (err) {
-      console.error('AI generation error:', err)
-      alert('Error generating with AI.')
-    } finally {
-      setGenerating(false)
-    }
-  }
-
-  // Advanced Prompt: Copy System Prompt
-  const copySystemPrompt = () => {
-    navigator.clipboard.writeText(AGENT_SYSTEM_PROMPT).then(() => {
-      showToast('System prompt copied to clipboard!')
-    })
-  }
-
-  // Advanced Prompt: Copy User Prompt
-  const copyUserPrompt = async () => {
-    try {
-      const res = await fetch(`/api/agent/prompt?count=${promptCount}&focus=${encodeURIComponent(promptFocus)}`)
-      const data = await res.json()
-      if (data.userPrompt) {
-        await navigator.clipboard.writeText(data.userPrompt)
-        showToast(`User prompt copied (${data.existingCount} existing terms included)!`)
-      }
-    } catch (err) {
-      console.error('Failed to fetch prompt:', err)
-      alert('Failed to generate user prompt.')
     }
   }
 
@@ -650,9 +498,9 @@ export default function Home() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 6h8M16 6h4M4 12h4M12 12h8M4 18h10M18 18h2"/><circle cx="14" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="16" cy="18" r="2"/></svg>
             <span>Filters</span><span className="badge" id="badge" hidden={activeCount === 0}>{activeCount}</span>
           </button>
-          <button className="btn" id="openAgent" type="button" aria-haspopup="dialog" onClick={() => setAgentOpen(true)}>
-            <ICON.sparkles />
-            <span>AI Agent</span>
+          <button className="btn" id="openImport" type="button" aria-haspopup="dialog" onClick={() => setImportOpen(true)}>
+            <ICON.import />
+            <span>Import</span>
           </button>
         </div>
       </div>
@@ -826,12 +674,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* AI Agent Modal / Sheet */}
-      <div className={`scrim ${agentOpen ? 'open' : ''}`} onClick={() => setAgentOpen(false)} />
-      <section className={`sheet agent-sheet ${agentOpen ? 'open' : ''}`} role="dialog" aria-modal="true" aria-labelledby="agentTitle" aria-hidden={!agentOpen}>
+      {/* Import Lexicon Terms Modal / Sheet */}
+      <div className={`scrim ${importOpen ? 'open' : ''}`} onClick={() => setImportOpen(false)} />
+      <section className={`sheet agent-sheet ${importOpen ? 'open' : ''}`} role="dialog" aria-modal="true" aria-labelledby="importTitle" aria-hidden={!importOpen}>
         <div className="sheet-head">
-          <h2 id="agentTitle">AI Term Generator</h2>
-          <button className="ibtn" type="button" aria-label="Close AI Agent dialog" onClick={() => setAgentOpen(false)}>
+          <h2 id="importTitle">Import Lexicon Terms</h2>
+          <button className="ibtn" type="button" aria-label="Close Import dialog" onClick={() => setImportOpen(false)}>
             <ICON.x />
           </button>
         </div>
@@ -839,286 +687,44 @@ export default function Home() {
         <div className="agent-tabs">
           <button
             type="button"
-            className={`agent-tab ${agentTab === 'easy' ? 'active' : ''}`}
-            onClick={() => setAgentTab('easy')}
-          >
-            ⚡ Easy Mode
-          </button>
-          <button
-            type="button"
-            className={`agent-tab ${agentTab === 'input' ? 'active' : ''}`}
-            onClick={() => setAgentTab('input')}
+            className={`agent-tab ${importTab === 'paste' ? 'active' : ''}`}
+            onClick={() => setImportTab('paste')}
           >
             📋 Paste & Import
           </button>
           <button
             type="button"
-            className={`agent-tab ${agentTab === 'prompt' ? 'active' : ''}`}
-            onClick={() => setAgentTab('prompt')}
-          >
-            🛠️ Advanced Prompt
-          </button>
-          <button
-            type="button"
-            className={`agent-tab ${agentTab === 'rules' ? 'active' : ''}`}
-            onClick={() => setAgentTab('rules')}
+            className={`agent-tab ${importTab === 'rules' ? 'active' : ''}`}
+            onClick={() => setImportTab('rules')}
           >
             📖 Codes & Rules
           </button>
         </div>
 
         <div className="sheet-body">
-          {/* TAB 1: EASY MODE */}
-          {agentTab === 'easy' && (
-            <div className="agent-box">
-              <label htmlFor="easyModeInput" style={{ display: 'block', fontWeight: 600, fontSize: 14, marginBottom: 4 }}>
-                What would you like to generate?
-              </label>
-              <p style={{ margin: '0 0 10px', fontSize: 13, color: 'var(--ink-2)' }}>
-                Type a natural phrase or topic (e.g. <i>give me 100 mythological creatures name around the world</i>):
-              </p>
-
-              <input
-                id="easyModeInput"
-                type="text"
-                className="easy-input"
-                placeholder="e.g. give me 100 mythological creatures name around the world"
-                value={easyInput}
-                onChange={(e) => setEasyInput(e.target.value)}
-              />
-
-              <div className="preset-wrap">
-                <span style={{ fontSize: 11, color: 'var(--ink-3)', alignSelf: 'center', marginRight: 2 }}>Quick Presets:</span>
-                {PRESET_TOPICS.map((p, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    className="preset-btn"
-                    onClick={() => {
-                      setEasyInput(p)
-                      setCustomCount(null)
-                    }}
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 4, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 12.5, fontWeight: 500, color: 'var(--ink-2)' }}>
-                  Detected Topic: <b style={{ color: 'var(--ink)' }}>{easyParsed.topic || 'All themes'}</b>
-                </span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 'auto' }}>
-                  <span style={{ fontSize: 12, color: 'var(--ink-3)' }}>Count:</span>
-                  {[25, 50, 100, 150].map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      className={`count-badge-btn ${easyParsed.count === c ? 'active' : ''}`}
-                      onClick={() => setCustomCount(c)}
-                    >
-                      {c}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="settings-card">
-                <div className="settings-header">
-                  <div className="settings-title">
-                    <span>💾 Storage & Duplicate Check</span>
-                  </div>
-                  <label className="settings-toggle">
-                    <input
-                      type="checkbox"
-                      checked={autoStoreSqlite}
-                      onChange={(e) => setAutoStoreSqlite(e.target.checked)}
-                    />
-                    <span>Store directly in SQLite</span>
-                  </label>
-                </div>
-
-                <div className="settings-grid">
-                  <div className="settings-field">
-                    <label htmlFor="easyDupMode">Duplicate Detection</label>
-                    <select
-                      id="easyDupMode"
-                      className="settings-select"
-                      value={duplicateMode}
-                      onChange={(e) => setDuplicateMode(e.target.value as 'term' | 'term_language')}
-                    >
-                      <option value="term">By Exact Term Name</option>
-                      <option value="term_language">By Term + Language</option>
-                    </select>
-                  </div>
-
-                  <div className="settings-field">
-                    <label htmlFor="easyOnDup">On Duplicate</label>
-                    <select
-                      id="easyOnDup"
-                      className="settings-select"
-                      value={onDuplicate}
-                      onChange={(e) => setOnDuplicate(e.target.value as 'skip' | 'update')}
-                    >
-                      <option value="skip">Skip (Keep existing)</option>
-                      <option value="update">Update (Overwrite fields)</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div className="easy-actions">
-                <button
-                  type="button"
-                  className="btn primary"
-                  style={{ flex: 1, minWidth: 200 }}
-                  onClick={copyEasyPrompt}
-                >
-                  <ICON.copy /> Copy Easy AI Prompt
-                </button>
-
-                <button
-                  type="button"
-                  className="btn"
-                  style={{ minWidth: 180 }}
-                  disabled={generating}
-                  onClick={handleGenerateWithAI}
-                >
-                  <ICON.bolt /> {generating ? 'Generating with AI...' : (autoStoreSqlite ? 'Generate & Save to SQLite' : 'Generate with Gemini API')}
-                </button>
-              </div>
-
-              <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
-                <button
-                  type="button"
-                  className="linkbtn"
-                  style={{ fontSize: 12, padding: 0 }}
-                  onClick={() => setApiKeyOpen(!apiKeyOpen)}
-                >
-                  {apiKey ? '✓ Gemini API key configured' : '⚙️ Configure Gemini API key (optional)'}
-                </button>
-              </div>
-
-              {apiKeyOpen && (
-                <div className="api-key-panel">
-                  <div style={{ fontWeight: 600, marginBottom: 4 }}>Gemini API Key (Optional for in-app generation)</div>
-                  <p style={{ margin: '0 0 8px', color: 'var(--ink-3)', fontSize: 12 }}>
-                    If provided, the app can generate entries directly without leaving this page. Otherwise, simply use the <b>Copy Easy AI Prompt</b> button and paste into ChatGPT or Claude.
-                  </p>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <input
-                      type="password"
-                      placeholder="AIzaSy..."
-                      value={apiKey}
-                      onChange={(e) => setApiKey(e.target.value)}
-                      style={{ flex: 1, height: 34, border: '1px solid var(--line)', borderRadius: 6, padding: '0 8px', background: 'var(--surface)' }}
-                    />
-                    <button type="button" className="btn" style={{ height: 34, padding: '0 12px' }} onClick={() => saveApiKey(apiKey)}>
-                      Save Key
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Show live preview in Easy Mode if text is loaded or generated */}
-              {parsedBatch && parsedBatch.all.length > 0 && (
-                <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid var(--line)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      <span className="pill valid">✓ {parsedBatch.valid.length} Valid to Add</span>
-                      {onDuplicate === 'update' && parsedBatch.duplicates.filter((d) => d.status === 'duplicate_existing').length > 0 && (
-                        <span className="pill valid" style={{ background: '#e0f2fe', color: '#0369a1' }}>
-                          🔄 {parsedBatch.duplicates.filter((d) => d.status === 'duplicate_existing').length} Will Update
-                        </span>
-                      )}
-                      {parsedBatch.duplicates.length > 0 && (
-                        <span className="pill dup">⚠️ {parsedBatch.duplicates.length} Duplicates</span>
-                      )}
-                      {parsedBatch.invalid.length > 0 && (
-                        <span className="pill error">✕ {parsedBatch.invalid.length} Errors</span>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      className="linkbtn"
-                      style={{ fontSize: 12 }}
-                      onClick={() => setAgentTab('input')}
-                    >
-                      Edit raw output in Paste tab →
-                    </button>
-                  </div>
-
-                  <div className="preview-wrap">
-                    <table className="preview-table">
-                      <thead>
-                        <tr>
-                          <th>Status</th>
-                          <th>Term</th>
-                          <th>Language</th>
-                          <th>Region</th>
-                          <th>Era</th>
-                          <th>Domain</th>
-                          <th>Meaning</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {parsedBatch.all.map((item, idx) => (
-                          <tr key={idx}>
-                            <td>
-                              {item.status === 'valid' && <span className="pill valid">Valid</span>}
-                              {item.status === 'duplicate_existing' && <span className="pill dup" title={item.error}>In DB</span>}
-                              {item.status === 'duplicate_batch' && <span className="pill dup" title={item.error}>Repeat</span>}
-                              {(item.status === 'invalid_format' || item.status === 'invalid_code') && (
-                                <span className="pill error" title={item.error}>Error</span>
-                              )}
-                            </td>
-                            <td>
-                              <b>{item.term || '—'}</b>
-                              {item.romanization && item.romanization !== item.term && (
-                                <div style={{ fontSize: 11, color: 'var(--ink-3)' }}>{item.romanization}</div>
-                              )}
-                            </td>
-                            <td>{item.language || '—'}</td>
-                            <td>{item.region || item.region_code || '—'}</td>
-                            <td>{item.era || item.era_code || '—'}</td>
-                            <td>{item.domain || item.domain_code || '—'}</td>
-                            <td style={{ fontSize: 12 }}>
-                              {item.gloss || '—'}
-                              {item.error && <div style={{ color: '#ef4444', fontSize: 11 }}>{item.error}</div>}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* TAB 2: MANUAL PASTE & IMPORT */}
-          {agentTab === 'input' && (
+          {/* TAB 1: MANUAL PASTE & IMPORT */}
+          {importTab === 'paste' && (
             <div className="agent-box">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-                <label htmlFor="agentInput" style={{ fontWeight: 600, fontSize: 13.5 }}>
+                <label htmlFor="importInput" style={{ fontWeight: 600, fontSize: 13.5 }}>
                   Paste generated lines (pipe-separated)
                 </label>
                 <button
                   type="button"
                   className="linkbtn"
                   style={{ fontSize: 12, padding: 0 }}
-                  onClick={() => setAgentText(SAMPLE_AI_OUTPUT)}
+                  onClick={() => setImportText(SAMPLE_AI_OUTPUT)}
                 >
                   Paste sample output
                 </button>
               </div>
 
               <textarea
-                id="agentInput"
+                id="importInput"
                 className="agent-textarea"
                 placeholder="term|romanization|language|region|era|domain|meaning&#10;e.g. Baumeister|Baumeister|German|EUR|M|STUDIO|master builder who oversees masonry"
-                value={agentText}
-                onChange={(e) => setAgentText(e.target.value)}
+                value={importText}
+                onChange={(e) => setImportText(e.target.value)}
                 autoComplete="off"
                 spellCheck="false"
               />
@@ -1224,83 +830,13 @@ export default function Home() {
             </div>
           )}
 
-          {/* TAB 3: ADVANCED PROMPT */}
-          {agentTab === 'prompt' && (
-            <div className="agent-box">
-              <p style={{ margin: '0 0 10px', fontSize: 13.5, color: 'var(--ink-2)' }}>
-                Use these pre-formatted prompts in your AI model (ChatGPT, Claude, Gemini, etc.). The user prompt includes all <b>{rows.length}</b> current terms to prevent duplicate output.
-              </p>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 10, marginBottom: 12 }}>
-                <div>
-                  <label htmlFor="promptCountInput" style={{ display: 'block', font: '500 12px var(--font-mono)', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 4 }}>
-                    Count
-                  </label>
-                  <input
-                    id="promptCountInput"
-                    type="number"
-                    min="10"
-                    max="200"
-                    value={promptCount}
-                    onChange={(e) => setPromptCount(parseInt(e.target.value, 10) || 50)}
-                    style={{ width: '100%', height: 38, border: '1px solid var(--line)', borderRadius: 6, padding: '0 8px', background: 'var(--surface-2)' }}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="promptFocusInput" style={{ display: 'block', font: '500 12px var(--font-mono)', textTransform: 'uppercase', color: 'var(--ink-3)', marginBottom: 4 }}>
-                    Focus (optional)
-                  </label>
-                  <input
-                    id="promptFocusInput"
-                    type="text"
-                    placeholder="e.g. Southeast Asia & Oceania, modern curators"
-                    value={promptFocus}
-                    onChange={(e) => setPromptFocus(e.target.value)}
-                    style={{ width: '100%', height: 38, border: '1px solid var(--line)', borderRadius: 6, padding: '0 8px', background: 'var(--surface-2)' }}
-                  />
-                </div>
-              </div>
-
-              <div className="prompt-card">
-                <div className="prompt-header">
-                  <h4>1. System Prompt (Lexicon Rules)</h4>
-                  <button className="btn" type="button" style={{ height: 32, padding: '0 10px', fontSize: 12 }} onClick={copySystemPrompt}>
-                    <ICON.copy /> Copy System Prompt
-                  </button>
-                </div>
-                <div className="prompt-box">
-                  {AGENT_SYSTEM_PROMPT.slice(0, 320)}...
-                </div>
-              </div>
-
-              <div className="prompt-card">
-                <div className="prompt-header">
-                  <h4>2. User Prompt (with {rows.length} existing terms)</h4>
-                  <button className="btn primary" type="button" style={{ height: 32, padding: '0 10px', fontSize: 12 }} onClick={copyUserPrompt}>
-                    <ICON.copy /> Copy User Prompt
-                  </button>
-                </div>
-                <div className="prompt-box">
-                  Generate {promptCount} new entries following the rules in the system prompt.
-                  {promptFocus ? `\nFocus: ${promptFocus}` : ''}
-                  {'\n\nAlready have (do not repeat these term + language pairs):\n' + rows.slice(0, 5).map(r => `${r.t}|${r.l}`).join('\n') + `\n... (+ ${rows.length - 5} more)`}
-                </div>
-              </div>
-
-              <div style={{ marginTop: 14 }}>
-                <h4 style={{ margin: '0 0 6px', fontSize: 13 }}>Quick Workflow:</h4>
-                <ol className="instructions-list">
-                  <li>Click <b>Copy System Prompt</b> and paste it as the system instructions in your AI tool.</li>
-                  <li>Click <b>Copy User Prompt</b> and send it as the message.</li>
-                  <li>Copy the AI response lines, click the <b>Paste & Import</b> tab here, paste them, and click <b>Import to SQLite</b>!</li>
-                </ol>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 4: CODES & RULES */}
-          {agentTab === 'rules' && (
+          {/* TAB 2: CODES & RULES */}
+          {importTab === 'rules' && (
             <div className="agent-box" style={{ fontSize: 13, lineHeight: 1.55 }}>
+              <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--surface-2)', borderRadius: 6, border: '1px solid var(--line)', fontSize: 12 }}>
+                💡 <b>Codebase Generation:</b> Term generation rules are embedded in <code style={{ color: 'var(--accent)' }}>RULES.md</code>. Run <code style={{ color: 'var(--accent)' }}>pnpm generate --help</code> or ask the AI assistant in chat to generate terms.
+              </div>
+
               <h4 style={{ margin: '0 0 6px' }}>Region Codes (Field 4)</h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 6, marginBottom: 14 }}>
                 {Object.entries(REGION_CODES).map(([code, name]) => (
@@ -1341,7 +877,7 @@ export default function Home() {
             if (totalActionable > 0) {
               return (
                 <>
-                  <button className="btn" type="button" onClick={() => setAgentOpen(false)}>
+                  <button className="btn" type="button" onClick={() => setImportOpen(false)}>
                     Cancel
                   </button>
                   <button
@@ -1361,7 +897,7 @@ export default function Home() {
             }
 
             return (
-              <button className="btn primary" type="button" onClick={() => setAgentOpen(false)}>
+              <button className="btn primary" type="button" onClick={() => setImportOpen(false)}>
                 Close
               </button>
             )

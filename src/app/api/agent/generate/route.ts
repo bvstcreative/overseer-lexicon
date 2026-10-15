@@ -5,7 +5,20 @@ import { generateEasyPrompt, parseAgentOutput, extractCountAndTopic } from '@/li
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { input, topic: rawTopic, count: rawCount, apiKey: userKey, storeInSqlite, duplicateMode = 'term', onDuplicate = 'skip' } = body
+    const {
+      input,
+      topic: rawTopic,
+      count: rawCount,
+      apiKey: userKey,
+      storeInSqlite,
+      duplicateMode = 'term',
+      onDuplicate = 'skip',
+      model: rawModel,
+    } = body
+
+    const selectedModel = (typeof rawModel === 'string' && rawModel.trim())
+      ? rawModel.trim().replace(/^models\//, '')
+      : 'gemini-2.5-flash'
 
     let topic = (rawTopic || '').trim()
     let count = typeof rawCount === 'number' ? rawCount : 100
@@ -33,7 +46,7 @@ export async function POST(request: NextRequest) {
     const pairStrings = pairs.map((p) => `${p.term}|${p.language}`)
     const prompt = generateEasyPrompt(topic, count, pairStrings)
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(selectedModel)}:generateContent?key=${encodeURIComponent(apiKey)}`
 
     const response = await fetch(geminiUrl, {
       method: 'POST',
@@ -97,6 +110,7 @@ export async function POST(request: NextRequest) {
       success: true,
       topic,
       count,
+      model: selectedModel,
       rawText,
       parsed,
       storedInSqlite: Boolean(storeInSqlite),

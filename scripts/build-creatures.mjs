@@ -1,0 +1,611 @@
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { DatabaseSync } from 'node:sqlite'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const rootDir = path.resolve(__dirname, '..')
+const dbPath = path.join(rootDir, 'data', 'lexicon.db')
+const outPath = path.join(rootDir, 'data', 'mythological-creatures.txt')
+
+const REGION_CODES = {
+  EUR: 'Europe',
+  MEA: 'Middle East',
+  CAS: 'Central Asia & Caucasus',
+  SAS: 'South Asia',
+  EAS: 'East Asia',
+  SEAS: 'Southeast Asia',
+  OCE: 'Oceania',
+  AFR: 'Africa',
+  AME: 'Americas',
+}
+
+const ERA_CODES = {
+  A: 'Ancient',
+  M: 'Historic',
+  N: 'Modern',
+}
+
+const DOMAIN_CODES = {
+  STUDIO: 'Workshop & studio',
+  GALLERY: 'Gallery & museum',
+  OFFICE: 'Office & business',
+  HOUSE: 'Household & estate',
+  LAND: 'Land & farming',
+  STATE: 'State & civil',
+  FINANCE: 'Treasury & finance',
+  TRADE: 'Trade & market',
+  RELIGION: 'Religious & temple',
+  EDUCATION: 'Library & school',
+  PERFORM: 'Performing arts',
+  PORT: 'Ships & ports',
+  MILITARY: 'Military',
+  LEAD: 'Leadership',
+}
+
+const CREATURES_RAW = [
+  // --- EUROPE (EUR) ---
+  "Μῑνώταυρος|Mīnṓtauros|Ancient Greek|EUR|A|LAND|monstrous labyrinth-dwelling beast with human body and bull head",
+  "Κέρβερος|Kérberos|Ancient Greek|EUR|A|RELIGION|three-headed monstrous hound guarding the gates of the underworld",
+  "Χίμαιρα|Chímaira|Ancient Greek|EUR|A|LAND|fire-breathing hybrid monster with lion body, goat head, and serpent tail",
+  "Ὕδρα|Hýdra|Ancient Greek|EUR|A|PORT|many-headed water serpent that grew two heads when one was severed",
+  "Πήγασος|Pḗgasos|Ancient Greek|EUR|A|RELIGION|winged divine stallion born from the neck of Medusa",
+  "Γρύψ|Grýps|Ancient Greek|EUR|A|FINANCE|creature with lion body and eagle head guarding hoards of gold",
+  "Κένταυρος|Kéntauros|Ancient Greek|EUR|A|LAND|mythological creature with the upper body of a human and lower body of horse",
+  "Ἅρπυια|Hárpyia|Ancient Greek|EUR|A|RELIGION|winged bird-woman wind spirit carrying evildoers to the underworld",
+  "Γοργώ|Gorgṓ|Ancient Greek|EUR|A|RELIGION|fearsome winged woman whose gaze turned anyone who looked into stone",
+  "Σειρήν|Seirḗn|Ancient Greek|EUR|A|PERFORM|enchanting bird-woman creature luring passing sailors onto rocky shores with song",
+  "Σάτυρος|Sátyros|Ancient Greek|EUR|A|LAND|woodland nature spirit with goat ears and tail companion to Dionysus",
+  "Σκύλλα|Skýlla|Ancient Greek|EUR|A|PORT|six-headed sea monster snatching sailors from ships in a rocky strait",
+  "Χάρυβδις|Chárybdis|Ancient Greek|EUR|A|PORT|whirlpool monster swallowing and regurgitating vast ocean waters thrice daily",
+  "Μαντιχώρας|Mantichṓras|Ancient Greek|EUR|A|LAND|carnivorous beast with lion body, human head, and quill-shooting tail",
+  "Βασιλίσκος|Basilískos|Ancient Greek|EUR|A|MILITARY|crested serpent king capable of killing with a single venomous glance",
+  "Φοῖνιξ|Phoînix|Ancient Greek|EUR|A|RELIGION|sacred immortal bird cyclically reborn from its own funeral pyre ashes",
+  "Ἔχιδνα|Échidna|Ancient Greek|EUR|A|RELIGION|serpentine nymph mother of monstrous creatures dwelling in a subterranean cave",
+  "Πύθων|Pýthōn|Ancient Greek|EUR|A|RELIGION|chthonic dragon presiding at Delphi until slain by the god Apollo",
+  "Ὄρθρος|Órthros|Ancient Greek|EUR|A|LAND|two-headed guard dog of Geryon slain by Heracles",
+  "Ἱππόκαμπος|Hippókampos|Ancient Greek|EUR|A|PORT|sea creature with upper body of a horse and lower body of fish",
+  "Τυφῶν|Typhôn|Ancient Greek|EUR|A|RELIGION|monstrous serpentine storm giant who challenged the Olympian supremacy of Zeus",
+  "Λέων τῆς Νεμέας|Léōn tês Neméas|Ancient Greek|EUR|A|MILITARY|supernatural lion whose golden pelt was impenetrable to mortal weapons",
+  "Στυμφαλίδες ὄρνιθες|Stymphalídes órnīthes|Ancient Greek|EUR|A|MILITARY|man-eating marsh birds with metallic feathers and sharp bronze beaks",
+  "Ἔμπουσα|Émpousa|Ancient Greek|EUR|A|RELIGION|shape-shifting demonic phantom with one bronze foot serving the goddess Hecate",
+  "Λάμια|Lámia|Ancient Greek|EUR|A|RELIGION|child-devouring serpentine phantom who hunted infants in darkness",
+  "Ὀρεάς|Oreás|Ancient Greek|EUR|A|LAND|mountain nymph spirit presiding over rugged crags and alpine forests",
+  "Δρυάς|Dryás|Ancient Greek|EUR|A|LAND|tree spirit living inside an oak tree dying when it falls",
+  "Ναϊάς|Naïás|Ancient Greek|EUR|A|PORT|aquatic nymph presiding over freshwater brooks, springs, and bubbling streams",
+  "Σφίγξ|Sphígx|Ancient Greek|EUR|A|EDUCATION|winged riddling monster with lion body and woman head guarding Thebes",
+  "Hippogryph|Hippogryph|Latin|EUR|M|LAND|legendary hybrid with the front half of an eagle and rear of a horse",
+  "Fenrir|Fenrir|Old Norse|EUR|M|RELIGION|monstrous wolf foretold to kill Odin during the apocalyptic battle of Ragnarök",
+  "Jörmungandr|Jörmungandr|Old Norse|EUR|M|PORT|colossal sea serpent that encircles Midgard holding its tail in its jaws",
+  "Sleipnir|Sleipnir|Old Norse|EUR|M|RELIGION|eight-legged shamanic steed of Odin capable of galloping between realms",
+  "Níðhöggr|Níðhöggr|Old Norse|EUR|M|RELIGION|malicious dragon gnawing beneath the roots of the world tree Yggdrasil",
+  "Huginn|Huginn|Old Norse|EUR|M|EDUCATION|sacred raven flying across the earth to bring thought and tidings to Odin",
+  "Muninn|Muninn|Old Norse|EUR|M|EDUCATION|sacred raven flying across the realms to bring memory and news to Odin",
+  "Fáfnir|Fáfnir|Old Norse|EUR|M|FINANCE|dwarf prince who turned into a greedy poison-breathing dragon over cursed gold",
+  "Ratatoskr|Ratatoskr|Old Norse|EUR|M|LAND|chattering squirrel running along the world tree Yggdrasil carrying gossip",
+  "Hafgufa|Hafgufa|Old Norse|EUR|M|PORT|enormous sea monster mistaken for an island swallowing ships whole",
+  "Draugr|Draugr|Old Norse|EUR|M|MILITARY|supernatural undead warrior possessing immense strength guarding treasure in burial mounds",
+  "Valkyrie|Valkyrie|Old Norse|EUR|M|RELIGION|chooser of the slain guiding fallen heroic warriors to Valhalla",
+  "Mara|Mara|Old Norse|EUR|M|HOUSE|nightmare entity riding on people's chests as they sleep causing terror",
+  "Lindwurm|Lindwurm|German|EUR|M|LAND|bipedal wingless serpentine dragon dwelling in deep caverns and hollows",
+  "Kobold|Kobold|German|EUR|M|HOUSE|mischievous sprite haunting houses or assisting miners in underground shafts",
+  "Erlkönig|Erlkönig|German|EUR|M|RELIGION|spectral elven king luring mortal travelers and sick children to their deaths",
+  "Wolpertinger|Wolpertinger|German|EUR|M|LAND|chimeric Bavarian forest creature with hare body, antlers, wings, and duck feet",
+  "Heinzelmännchen|Heinzelmännchen|German|EUR|M|STUDIO|benevolent household house-elves who completed craftsmen's work while they slept",
+  "Nix|Nix|German|EUR|M|PORT|water sprite who lured people into deep waters with enchanting music",
+  "Lorelei|Lorelei|German|EUR|M|PERFORM|fair maiden spirit sitting atop a Rhine rock singing mesmerizing melodies to sailors",
+  "Alp|Alp|German|EUR|M|HOUSE|shapeshifting nightmare spirit that enters rooms through keyholes to torment sleepers",
+  "Rübezahl|Rübezahl|German|EUR|M|LAND|capricious mountain spirit of the Giant Mountains helping good folk and testing wanderers",
+  "Nachtkrapp|Nachtkrapp|German|EUR|M|RELIGION|giant nocturnal raven snatching children who wander outside after dusk",
+  "Banshee|Banshee|Irish|EUR|M|RELIGION|wailing fairy woman whose sorrowful cry portends a death in an Irish family",
+  "Púca|Púca|Irish|EUR|M|LAND|shapeshifting trickster fairy bringing good or bad fortune to rural farmers",
+  "Dullahan|Dullahan|Irish|EUR|M|RELIGION|headless fairy horseman carrying his severed head who stops where someone must die",
+  "Selkie|Selkie|Scottish Gaelic|EUR|M|PORT|mythological seal capable of shedding its skin to become a human on land",
+  "Kelpie|Kelpie|Scottish Gaelic|EUR|M|PORT|shapeshifting water horse tempting riders before carrying them into deep lochs to drown",
+  "Each-uisge|Each-uisge|Scottish Gaelic|EUR|M|PORT|fierce highland water horse residing in sea lochs devouring unwary victims",
+  "Cù-sìth|Cù-sìth|Scottish Gaelic|EUR|M|RELIGION|huge fairy hound with dark green shaggy coat roaming the Scottish highlands",
+  "Cat-sìth|Cat-sìth|Scottish Gaelic|EUR|M|HOUSE|spectral black cat with white chest spot haunting graveyards and stealing souls",
+  "Leprechaun|Leprechaun|Irish|EUR|M|FINANCE|solitary shoemaker fairy guarding a hidden pot of gold at rainbow's end",
+  "Afanc|Afanc|Welsh|EUR|M|PORT|lake monster in Welsh folklore causing floods until subdued and chained",
+  "Ceffyl Dŵr|Ceffyl Dŵr|Welsh|EUR|M|PORT|water horse in Welsh legend leaping into the air to drop riders to death",
+  "Ankou|Ankou|Breton|EUR|M|RELIGION|personification of death riding a creaking cart to collect departed souls in Brittany",
+  "Korrigan|Korrigan|Breton|EUR|M|LAND|nocturnal fairy maiden dancing around stone dolmens alluring travelers into riddles",
+  "Buggane|Buggane|Manx|EUR|M|LAND|huge ogre-like shapeshifter tearing down unhallowed churches on the Isle of Man",
+  "Bean Nighe|Bean Nighe|Scottish Gaelic|EUR|M|RELIGION|fairy washerwoman washing bloodstained burial shrouds of those about to perish",
+  "Knocker|Knocker|English|EUR|M|STUDIO|subterranean mining spirit knocking on walls to warn miners of cave-ins",
+  "Redcap|Redcap|English|EUR|M|MILITARY|murderous malevolent goblin soaking his cap in human blood in border ruins",
+  "Black Shuck|Black Shuck|English|EUR|M|RELIGION|ghostly black hound with glowing red eyes roaming the coastline of East Anglia",
+  "Dobhar-chú|Dobhar-chú|Irish|EUR|M|PORT|hound-otter hybrid dwelling in Irish freshwater lakes preying on cattle and people",
+  "Баба Яга|Baba Yaga|Russian|EUR|M|RELIGION|enigmatic forest witch flying in a mortar and living in a hut on chicken legs",
+  "Кощей Бессмертный|Koshchey Bessmertny|Russian|EUR|M|RELIGION|undead sorcerer who hides his death inside a needle inside a nested creature",
+  "Леший|Leshy|Russian|EUR|M|LAND|guardian spirit of the forest leading travelers astray with shifting woods and mimics",
+  "Домовой|Domovoy|Russian|EUR|M|HOUSE|protective household spirit living behind the stove watching over the family hearth",
+  "Русалка|Rusalka|Russian|EUR|M|PORT|water spirit of an unbaptized woman haunting rivers and enticing men into waters",
+  "Водяной|Vodyanoy|Russian|EUR|M|PORT|male water spirit living in deep millponds dragging unsuspecting bathers down",
+  "Кикимора|Kikimora|Russian|EUR|M|HOUSE|female household spirit haunting cellars and tangling spinning threads of lazy weavers",
+  "Змей Горыныч|Zmey Gorynych|Russian|EUR|M|MILITARY|three-headed fire-breathing dragon guarding mountain passes in Slavic folklore",
+  "Гамаюн|Gamayun|Russian|EUR|M|EDUCATION|prophetic bird of paradise singing divine hymns and foretelling fortunes",
+  "Сирин|Sirin|Russian|EUR|M|PERFORM|joyous bird of paradise with a woman's face singing alluring celestial melodies",
+  "Алконост|Alkonost|Russian|EUR|M|PERFORM|miraculous bird of sorrow and happiness with human face laying eggs on sea shores",
+  "Полудница|Poludnitsa|Russian|EUR|M|LAND|field spirit appearing at noon causing sunstroke or questioning workers with riddles",
+  "Банник|Bannik|Russian|EUR|M|HOUSE|bathhouse spirit who scalds or scratches people who bathe rudely or after sunset",
+  "Aitvaras|Aitvaras|Lithuanian|EUR|M|FINANCE|rooster or dragon spirit bringing stolen grain and gold to its master's granary",
+  "Kaukas|Kaukas|Lithuanian|EUR|M|HOUSE|benevolent dwarf-like subterranean spirit bringing prosperity to industrious farm households",
+  "Iku-Turso|Iku-Turso|Finnish|EUR|A|PORT|fearsome sea monster with tusks and tentacles summoned from the deep waters in Kalevala",
+  "Otso|Otso|Finnish|EUR|M|LAND|sacred honey-pawed king of the forest venerated in traditional Finnish bear ceremonies",
+  "Hiisi|Hiisi|Finnish|EUR|M|LAND|sacred forest spirit and dweller of ancient cairns guarding sacred wilderness groves",
+  "Basajaun|Basajaun|Basque|EUR|M|LAND|hairy forest giant teaching humans agriculture, metallurgy, and protecting grazing flocks",
+  "Gaueko|Gaueko|Basque|EUR|M|RELIGION|lord of the night punishing those who venture outdoors after dark without reverence",
+  "Herensuge|Herensuge|Basque|EUR|M|LAND|seven-headed subterranean dragon in Basque mythology causing storms with its breath",
+  "Tartalo|Tartalo|Basque|EUR|M|LAND|one-eyed man-eating giant living in mountain caves in Basque legends",
+  "Strigoi|Strigoi|Romanian|EUR|M|RELIGION|troubled undead spirit rising from the grave to drain vitality from living kin",
+  "Balaur|Balaur|Romanian|EUR|M|MILITARY|colossal multi-headed serpentine dragon producing storms and guarding golden treasures",
+  "Tarasque|Tarasque|Old French|EUR|M|PORT|armored dragon-turtle hybrid with six bear paws and spiked shell tamed by Martha",
+  "Vouivre|Vouivre|French|EUR|M|PORT|winged marsh serpent bearing a radiant ruby in her forehead when bathing",
+  "Gargouille|Gargouille|French|EUR|M|PORT|fearsome water dragon that spouted floods and devoured ships along the Seine",
+  "Loup-garou|Loup-garou|French|EUR|M|LAND|tormented human shape-shifting into a savage wolf under the full moon",
+  "Cuélebre|Cuélebre|Spanish|EUR|M|FINANCE|winged serpentine dragon in Asturian folklore guarding hoards of treasure and captured nymphs",
+
+  // --- EAST ASIA (EAS) ---
+  "麒麟|qílín|Classical Chinese|EAS|A|RELIGION|auspicious horned chimerical beast appearing only during reigns of benevolent rulers",
+  "鳳凰|fènghuáng|Classical Chinese|EAS|A|LEAD|sacred immortal avian king symbolizing harmony, virtue, and the celestial empress",
+  "青龍|qīnglóng|Classical Chinese|EAS|A|RELIGION|azure dragon of the east guarding the heavens and governing springtime and wood",
+  "白虎|báihǔ|Classical Chinese|EAS|A|MILITARY|white tiger of the west guarding the heavens and governing autumn and metal",
+  "朱雀|zhūquè|Classical Chinese|EAS|A|RELIGION|vermilion bird of the south guarding the celestial quadrant governing summer and fire",
+  "玄武|xuánwǔ|Classical Chinese|EAS|A|RELIGION|black tortoise entwined with a snake guarding the northern sky and water",
+  "白澤|báizé|Classical Chinese|EAS|A|EDUCATION|sage beast with nine eyes speaking all languages knowing every ghost and monster",
+  "貔貅|píxiū|Classical Chinese|EAS|A|FINANCE|auspicious winged lion beast that attracts gold and silver and never dispels wealth",
+  "饕餮|tāotiè|Classical Chinese|EAS|A|LAND|voracious mythological beast with face on bronze vessels symbolizing insatiable greed",
+  "渾沌|hùndùn|Classical Chinese|EAS|A|RELIGION|faceless primordial six-legged entity representing cosmic chaos and harmony",
+  "窮奇|qióngqí|Classical Chinese|EAS|A|MILITARY|winged tiger fiend that eats truthful people and assists treacherous wrongdoers",
+  "檮杌|táowù|Classical Chinese|EAS|A|MILITARY|ferocious obstinate beast with tiger body, human face, and pig tusks",
+  "獬豸|xièzhì|Classical Chinese|EAS|A|STATE|single-horned divine justice beast that gores the guilty party in disputes",
+  "九尾狐|jiǔwěihú|Classical Chinese|EAS|A|RELIGION|shapeshifting nine-tailed fox spirit possessing ancient magical powers and allure",
+  "精衛|jīngwèi|Classical Chinese|EAS|A|PORT|resolute mythical bird endlessly carrying pebbles and twigs to fill the eastern sea",
+  "鯤鵬|kūnpéng|Classical Chinese|EAS|A|LEAD|giant sea creature that transforms into a colossal bird spanning vast skies",
+  "年獸|niánshòu|Classical Chinese|EAS|M|LAND|destructive beast that attacked villages each winter until scared by red and firecrackers",
+  "殭屍|jiāngshī|Classical Chinese|EAS|M|RELIGION|hopping reanimated corpse driven by stiff rigor mortis absorbing vital life essence",
+  "贔屓|bìxì|Classical Chinese|EAS|A|LAND|dragon son with the shell of a tortoise bearing heavy stone memorial stele",
+  "蒲牢|púláo|Classical Chinese|EAS|A|PERFORM|dragon son that roars loudly when struck carved atop bronze temple bells",
+  "螭吻|chīwěn|Classical Chinese|EAS|A|PORT|dragon son that loves water carved on palace roof ridges to extinguish fires",
+  "睚眥|yázì|Classical Chinese|EAS|A|MILITARY|wrathful dragon son that loves battle and killing carved onto sword guards",
+  "狻猊|suānní|Classical Chinese|EAS|A|RELIGION|lion-like dragon son that enjoys sitting still and incense carved on burners",
+  "椒圖|jiāotú|Classical Chinese|EAS|A|HOUSE|clam-shaped dragon son that hates intruders carved on doorway knockers for defense",
+  "燭龍|zhúlóng|Classical Chinese|EAS|A|LEAD|giant red serpent god whose opening eyes bring day and closing brings night",
+  "巴蛇|bāshé|Classical Chinese|EAS|A|LAND|enormous serpent capable of swallowing an entire elephant and digesting for three years",
+  "飛廉|fēilián|Classical Chinese|EAS|A|RELIGION|winged wind spirit with deer body, bird head, and serpentine tail",
+  "畢方|bìfāng|Classical Chinese|EAS|A|RELIGION|one-legged crane-like fire omen bird that carries flames in its beak",
+  "狐|kitsune|Japanese|EAS|M|RELIGION|intelligent fox spirit serving Inari acquiring additional tails as magical wisdom grows",
+  "狸|tanuki|Japanese|EAS|M|LAND|mischievous shapeshifting raccoon dog fond of sake, tricks, and belly drumming",
+  "天狗|tengu|Japanese|EAS|M|RELIGION|mountain spirit with bird features or long red nose protecting secluded forests",
+  "河童|kappa|Japanese|EAS|M|PORT|amphibious water sprite with a water bowl atop its head fond of cucumbers",
+  "鬼|oni|Japanese|EAS|M|MILITARY|ogre-like horned demon wielding an iron club punishing wicked souls in hell",
+  "鵺|nue|Japanese|EAS|M|LAND|composite chimera with monkey face, tiger limbs, tanuki body, and snake tail",
+  "絡新婦|jorōgumo|Japanese|EAS|M|HOUSE|deceptive spider spirit capable of turning into a beautiful woman to bind prey",
+  "雪女|yuki-onna|Japanese|EAS|M|LAND|pale ghost woman who appears during winter blizzards freezing wanderers with frosty breath",
+  "獏|baku|Japanese|EAS|M|HOUSE|chimeric spirit that devours nightmares and protects sleepers from evil dreams",
+  "八岐大蛇|yamata no orochi|Japanese|EAS|A|PORT|monstrous eight-headed eight-tailed dragon slain by Susanoo in Izumo province",
+  "鎌鼬|kamaitachi|Japanese|EAS|M|LAND|trio of weasel spirits riding whirlwind winds slashing victims with sickle claws",
+  "轆轤首|rokurokubi|Japanese|EAS|M|HOUSE|human whose neck elongates unnaturally at night while the body remains asleep",
+  "餓者髑髏|gashadokuro|Japanese|EAS|M|MILITARY|colossal skeleton formed from the unburied bones of fallen soldiers in battle",
+  "塗壁|nurikabe|Japanese|EAS|M|LAND|invisible wall spirit that suddenly blocks roads confounding late-night travelers",
+  "海坊主|umibōzu|Japanese|EAS|M|PORT|gigantic black sea monk rising from ocean swells demanding a barrel from sailors",
+  "猫又|nekomata|Japanese|EAS|M|HOUSE|elderly cat yokai with a split tail possessing necromantic powers over spirits",
+  "土蜘蛛|tsuchigumo|Japanese|EAS|M|MILITARY|monstrous earth spider dwelling in mountain caves fighting samurai warriors",
+  "雷獣|raijū|Japanese|EAS|M|RELIGION|lightning beast companion of Raijin falling from storm clouds into village roofs",
+  "蛟|mizuchi|Japanese|EAS|A|PORT|water dragon inhabiting quiet riverbeds spewing deadly venom at riverside travelers",
+  "鯱|shachihoko|Japanese|EAS|M|PORT|dragon-headed tiger-fish creature perched on castle roofs to guard against fire",
+  "木霊|kodama|Japanese|EAS|M|LAND|sacred tree spirit residing inside ancient mountain timber echoing through valleys",
+  "野槌|nozuchi|Japanese|EAS|M|LAND|stubby subterranean caterpillar-like serpent spirit with a gaping mouth in grassy hills",
+  "烏天狗|karasu-tengu|Japanese|EAS|M|MILITARY|crow-headed warrior spirit adept in swordsmanship living on remote sacred mountains",
+  "朱の盆|shunobon|Japanese|EAS|M|RELIGION|red-faced demon with glowing horns startling travelers on deserted mountain paths",
+  "해태|haetae|Korean|EAS|M|STATE|lion-like justice beast that repels fires, protects palaces, and judges right from wrong",
+  "불가사리|bulgasari|Korean|EAS|M|MILITARY|iron-eating monster that grew larger as it devoured weapons to stop warfare",
+  "구미호|gumiho|Korean|EAS|M|RELIGION|thousand-year-old nine-tailed fox desiring to transform into a permanent human",
+  "이무기|imugi|Korean|EAS|M|PORT|proto-dragon giant water serpent waiting a thousand years to catch a jewel",
+  "도깨비|dokkaebi|Korean|EAS|M|LAND|playful nature goblin wielding a wish-granting magic club challenging people to ssireum",
+  "삼족오|samjok-o|Korean|EAS|A|RELIGION|three-legged solar crow symbolizing the sun and the sovereign power of Goguryeo",
+  "강철이|gangcheori|Korean|EAS|M|LAND|destructive dragon-like drought monster whose heat withered crops across the land",
+  "어둑시니|eoduksini|Korean|EAS|M|RELIGION|darkness monster that grows infinitely larger whenever onlookers look directly at it",
+  "두억시니|dueoksini|Korean|EAS|M|MILITARY|ferocious goblin-ogre hybrid wielding an iron club crushing evil adversaries",
+  "장산범|jangsanbeom|Korean|EAS|N|LAND|white-furred cryptid tiger mimicking human voices to lure hikers into mountain mists",
+  "コロポックル|koropokkuru|Ainu|EAS|M|LAND|small subterranean dwarf spirits living under butterbur leaves trading food with humans",
+  "アッコロカムイ|akkorokamui|Ainu|EAS|M|PORT|colossal tentacled red octopus water spirit inhabiting the depths of Uchiura Bay",
+  "カムイチカプ|kamuychikap|Ainu|EAS|M|RELIGION|divine giant owl guardian watching over villages and foretelling danger to hunters",
+
+  // --- SOUTH ASIA (SAS) ---
+  "गरुड|garuḍa|Sanskrit|SAS|A|RELIGION|divine eagle king mount of Vishnu and eternal sworn enemy of serpents",
+  "शेष|śeṣa|Sanskrit|SAS|A|RELIGION|thousand-headed primordial serpent supporting the planets on its hoods in cosmic ocean",
+  "वासुकि|vāsuki|Sanskrit|SAS|A|RELIGION|mighty serpent king used by gods and asuras as churning rope at Ocean of Milk",
+  "ऐरावत|airāvata|Sanskrit|SAS|A|RELIGION|divine four-tusked white elephant mount of Indra born from the churned ocean",
+  "मकर|makara|Sanskrit|SAS|A|PORT|aquatic mythical beast with crocodile head and fish tail vehicle of Ganga",
+  "नन्दि|nandi|Sanskrit|SAS|A|RELIGION|sacred white bull gatekeeper and faithful vehicle of the god Shiva",
+  "उच्चैःश्रवस्|uccaiḥśravas|Sanskrit|SAS|A|RELIGION|seven-headed divine white flying horse born from the cosmic churning of the ocean",
+  "शरभ|śarabha|Sanskrit|SAS|A|MILITARY|eight-legged part-lion part-bird beast manifestation of Shiva subduing fierce deities",
+  "गण्डभेरुण्ड|gaṇḍabheruṇḍa|Sanskrit|SAS|M|MILITARY|two-headed mythological bird of enormous strength capable of carrying elephants in talons",
+  "किन्नर|kinnara|Sanskrit|SAS|A|PERFORM|celestial musician half-human half-horse praising gods with divine melodies",
+  "किन्नरी|kinnarī|Sanskrit|SAS|A|PERFORM|celestial female creature half-human half-swan known for grace in heavenly music",
+  "यक्ष|yakṣa|Sanskrit|SAS|A|FINANCE|broad class of nature spirits protecting subterranean treasures and sacred forests",
+  "यक्षी|yakṣī|Sanskrit|SAS|A|LAND|female nature spirit associated with tree fertility, forest glades, and subterranean wealth",
+  "राक्षस|rākṣasa|Sanskrit|SAS|A|MILITARY|fearsome shapeshifting man-eating demon roaming forests disrupting sacred Vedic sacrifices",
+  "नाग|nāga|Sanskrit|SAS|A|RELIGION|divine serpentine water spirit inhabiting jewel-encrusted underworld palaces guarding sacred waters",
+  "नागिन|nāgin|Hindi|SAS|M|RELIGION|female shapeshifting serpent spirit endowed with lethal venom and magical beauty",
+  "वेताल|vetāla|Sanskrit|SAS|A|EDUCATION|ghoulish spirit hanging upside down in trees occupying corpses to narrate moral riddles",
+  "पिशाच|piśāca|Sanskrit|SAS|A|RELIGION|flesh-eating shadow demon haunting cremation grounds preying on weakened travelers",
+  "भूत|bhūta|Sanskrit|SAS|A|RELIGION|restless ghost of a deceased person lingering near crossroads seeking peace",
+  "कीर्तिमुख|kīrtimukha|Sanskrit|SAS|A|RELIGION|all-consuming gaping demon face carved over temple doorways to ward off evil",
+  "कामधेनु|kāmadhenu|Sanskrit|SAS|A|RELIGION|miraculous bovine mother of all cows granting whatever wishes her keeper desires",
+  "कूर्म|kūrma|Sanskrit|SAS|A|RELIGION|cosmic tortoise avatar supporting Mount Mandara on its shell during cosmic ocean churning",
+  "मत्स्य|matsya|Sanskrit|SAS|A|PORT|giant horned fish avatar of Vishnu saving King Manu and the Vedas from flood",
+  "सिंहमुख|siṃhamukha|Sanskrit|SAS|A|MILITARY|lion-faced celestial guardian entity wielding fierce protective energy over sacred sanctuaries",
+  "हंस|haṃsa|Sanskrit|SAS|A|EDUCATION|divine swan vehicle of Brahma possessing the ability to separate milk from water",
+  "नवगुञ्जर|navaguñjara|Sanskrit|SAS|M|RELIGION|chimerical divine beast composed of nine different animals revealed by Krishna to Arjuna",
+  "यमदूत|yamadūta|Sanskrit|SAS|A|STATE|grim messenger of the death god Yama fetching mortal souls when lifespan ends",
+  "कालिय|kāliya|Sanskrit|SAS|A|PORT|multi-hooded poisonous serpent subdued by Krishna in the sacred Yamuna river",
+  "யாளி|yāḷi|Tamil|SAS|A|MILITARY|chimeric temple guardian with lion body, elephant trunk, and boar tusks",
+  "வேதாளி|vētāḷi|Tamil|SAS|M|RELIGION|fierce spirit inhabiting cremation grounds bound by powerful mantras in folk legends",
+  "பிசாசு|picācu|Tamil|SAS|M|RELIGION|malevolent wandering spirit causing mischief and illness in South Indian rural folklore",
+  "கொற்றவை சிங்கம்|koṟṟavai ciṅkam|Tamil|SAS|A|MILITARY|divine battle lion ride of the ancient Tamil goddess of victory Kotravai",
+  "காடன்|kāṭan|Tamil|SAS|M|LAND|mysterious forest-dwelling spirit guarding sacred hills and mountain footpaths in Tamil lore",
+  "ගරා යකා|garā yakā|Sinhala|SAS|M|RELIGION|demon spirit pacified in ritual dances to banish sickness and malevolent gaze",
+  "මහසෝනා|mahasōnā|Sinhala|SAS|M|RELIGION|terrifying graveyard demon with bear head riding a goat haunting crossroads at midnight",
+  "ගුරුළු|gurulu|Sinhala|SAS|M|MILITARY|mythological sun-bird in Sri Lankan folklore chasing water serpents from lakes",
+  "කඩවර යකා|kaḍavara yakā|Sinhala|SAS|M|PORT|water reservoir spirit guarding ancient irrigation tanks in rural Sri Lankan villages",
+  "चेडिन|cheḍin|Marathi|SAS|M|LAND|mischievous forest spirit lingering along country roads puzzling solitary night travelers",
+  "हडळ|haḍaḷ|Marathi|SAS|M|RELIGION|fearsome ghost woman dwelling in tamarind trees dressed in white haunting night paths",
+  "डाकिनी|ḍākinī|Sanskrit|SAS|A|RELIGION|sacred wrathful female spirit and sky-goer guiding yogic practitioners in tantric traditions",
+
+  // --- SOUTHEAST ASIA (SEAS) ---
+  "Barong|Barong|Balinese|SEAS|M|RELIGION|lion-like benevolent spirit king leading good forces against demonic witch Rangda",
+  "Rangda|Rangda|Balinese|SEAS|M|RELIGION|demon queen of leyaks with pendulous breasts, tusks, and tongue of fire",
+  "Naga Besukih|Naga Besukih|Balinese|SEAS|A|RELIGION|sacred dragon guarding the cosmic gold beneath Mount Agung in Balinese lore",
+  "Antaboga|Antaboga|Javanese|SEAS|A|RELIGION|primordial world serpent supporting the earth on his crown in Javanese mythology",
+  "Lembusana|Lembusana|Javanese|SEAS|M|STATE|sacred chimerical guardian beast with ox body, elephant trunk, and eagle wings",
+  "Warak Ngendog|Warak Ngendog|Javanese|SEAS|M|PERFORM|mythical hybrid animal with goat body, dragon head, and bird wings celebrating Ramadan",
+  "Leyak|Leyak|Balinese|SEAS|M|RELIGION|shapeshifting witch flying at night as a severed head with entrails seeking corpses",
+  "Kuntilanak|Kuntilanak|Indonesian|SEAS|M|RELIGION|ghost of a woman dying during childbirth haunting banana trees with eerie laughter",
+  "Genderuwo|Genderuwo|Javanese|SEAS|M|LAND|ape-like hairy giant forest spirit dwelling in old banyan trees fond of pranks",
+  "Pocong|Pocong|Indonesian|SEAS|M|RELIGION|shrouded corpse spirit trapped in burial fabric hopping to seek release from binding ropes",
+  "Tuyul|Tuyul|Javanese|SEAS|M|FINANCE|child-like spirit summoned by covetous owners to steal paper banknotes from neighbor homes",
+  "Sundel Bolong|Sundel Bolong|Indonesian|SEAS|M|RELIGION|vengeful female phantom with long black hair concealing a hollow wound in back",
+  "Babi Ngepet|Babi Ngepet|Javanese|SEAS|M|FINANCE|sorcerer transformed into a mystical boar to steal wealth by brushing walls",
+  "Banaspati|Banaspati|Javanese|SEAS|M|RELIGION|floating ball of supernatural fire terrorizing nighttime woods in Javanese rural folklore",
+  "Ahool|Ahool|Sundanese|SEAS|M|LAND|giant winged cryptid bat with monkey-like face haunting deep Javanese rainforests",
+  "Hantu Raya|Hantu Raya|Malay|SEAS|M|HOUSE|powerful demon master serving its owner to guard estates and intimidate enemies",
+  "Pontianak|Pontianak|Malay|SEAS|M|RELIGION|vampiric female spirit smelling of frangipani preying on vulnerable men in rural villages",
+  "Toyol|Toyol|Malay|SEAS|M|FINANCE|infant goblin spirit kept by unscrupulous persons to steal money and small valuables",
+  "Penanggalan|Penanggalan|Malay|SEAS|M|RELIGION|nocturnal female vampire detaching her fanged head with dangling organs to hunt blood",
+  "Polong|Polong|Malay|SEAS|M|HOUSE|bottle-kept miniature spirit fed with blood sent by sorcerers to attack enemies",
+  "Langsuir|Langsuir|Malay|SEAS|M|RELIGION|flying female ghoul with talon claws and robes hiding a hole in her neck",
+  "Naga Tasik Chini|Naga Tasik Chini|Malay|SEAS|M|PORT|legendary dragon sleeping in the murky depths of Tasik Chini lake in Pahang",
+  "Bakunawa|Bakunawa|Tagalog|SEAS|A|PORT|giant serpentine sea dragon that rises from the ocean to swallow the moon",
+  "Tikbalang|Tikbalang|Tagalog|SEAS|M|LAND|tall creature with head of a horse and body of human leading travelers astray",
+  "Kapre|Kapre|Tagalog|SEAS|M|LAND|tree-dwelling giant smoking a huge cigar in balete trees watching nighttime wanderers",
+  "Manananggal|Manananggal|Tagalog|SEAS|M|RELIGION|winged vampire woman severing her upper torso to fly and feed at night",
+  "Tiyanak|Tiyanak|Tagalog|SEAS|M|LAND|demon mimicking the helpless crying of a baby to ambush compassionate travelers",
+  "Aswang|Aswang|Tagalog|SEAS|M|RELIGION|fearsome shapeshifting monster in Philippine folklore prowling rural barrios after twilight",
+  "Sarimanok|Sarimanok|Tagalog|SEAS|M|PERFORM|legendary colorful rooster with trailing feathered tail symbolizing good fortune in Mindanao",
+  "Minokawa|Minokawa|Tagalog|SEAS|A|RELIGION|colossal dragon-bird so immense its outstretched wings block out the midday sun",
+  "Sirena|Sirena|Tagalog|SEAS|M|PORT|enchanting mermaid spirit residing in coastal Philippine coves singing to fishermen",
+  "Berberoka|Berberoka|Tagalog|SEAS|M|PORT|swamp monster sucking up river water to lure fishermen before releasing a drowning deluge",
+  "Bungisngis|Bungisngis|Tagalog|SEAS|M|LAND|one-eyed laughing giant with huge teeth living in remote Philippine wilderness forests",
+  "Batibat|Batibat|Tagalog|SEAS|M|HOUSE|nightmare hag residing in wooden doorposts suffocating sleepers on beds made from her tree",
+  "พญานาค|phaya nak|Thai|SEAS|A|PORT|serpent king inhabiting the Mekong River granting rain and protecting Buddhist shrines",
+  "กินรี|kinnaree|Thai|SEAS|A|PERFORM|half-woman half-swan mythical creature living in the magical Himavanta forest",
+  "ครุฑ|khrut|Thai|SEAS|A|STATE|national royal emblem bird embodiment of Garuda possessing supernatural strength",
+  "ผีตาโขน|phi ta khon|Thai|SEAS|M|RELIGION|masked ghost spirit honored during annual festival rites in Dan Sai district",
+  "กระสือ|krasue|Thai|SEAS|M|RELIGION|nocturnal female ghost manifesting as a floating head with glowing trailing internal organs",
+  "กระหัง|krahang|Thai|SEAS|M|LAND|male nocturnal spirit flying through night skies using round rice-winnowing baskets",
+  "เสือสมิง|suea saming|Thai|SEAS|M|LAND|sorcerer transformed into a weretiger hunting unwary woodsmen in dense jungle",
+  "អប្សរា|apsara|Khmer|SEAS|A|PERFORM|celestial dancing maiden carved throughout Angkor Wat bringing celestial grace to royal courts",
+  "ဗျာလ|byala|Burmese|SEAS|M|MILITARY|chimeric guardian monster combining nine animal features protecting royal Burmese thrones",
+  "Con Rồng|Con Rồng|Vietnamese|SEAS|A|LEAD|sacred benevolent water dragon ancestor of the Vietnamese people bringing rain to rice fields",
+  "Ma Da|Ma Da|Vietnamese|SEAS|M|PORT|drowned water ghost lurking in river depths seeking to pull swimmers under",
+
+  // --- MIDDLE EAST (MEA) ---
+  "Lamassu|Lamassu|Akkadian|MEA|A|MILITARY|colossal protective deity with human head, bull body, and eagle wings guarding palaces",
+  "Shedu|Shedu|Akkadian|MEA|A|MILITARY|winged protective bull entity stationed at royal gateway portals to ward off enemies",
+  "Anzû|Anzû|Sumerian|MEA|A|MILITARY|giant lion-headed bird that stole the Tablet of Destinies from the god Enlil",
+  "Mušḫuššu|Mušḫuššu|Akkadian|MEA|A|RELIGION|scaly dragon hybrid with feline front legs and bird hind talons sacred to Marduk",
+  "Kusarikku|Kusarikku|Akkadian|MEA|A|LAND|bull-man mythological hybrid protecting rural cattle enclosures and repelling demons",
+  "Kulullû|Kulullû|Akkadian|MEA|A|PORT|fish-man apotropaic creature serving the freshwater god Ea in ancient Mesopotamian religion",
+  "Girtablilu|Girtablilu|Akkadian|MEA|A|MILITARY|scorpion-man guardian standing watch at the cosmic twin mountains of Mount Mashu",
+  "Ugallu|Ugallu|Akkadian|MEA|A|MILITARY|lion-headed storm demon wielding a dagger on apotropaic clay plaques",
+  "Pazuzu|Pazuzu|Akkadian|MEA|A|RELIGION|king of wind demons with canine face, scaly wings, and scorpion tail",
+  "Humbaba|Humbaba|Akkadian|MEA|A|LAND|monstrous lion-faced giant guardian of the great Cedar Forest slain by Gilgamesh",
+  "Asag|Asag|Sumerian|MEA|A|LAND|hideous subterranean demon whose presence boiled river fish alive in the water",
+  "Rabīṣu|Rabīṣu|Akkadian|MEA|A|RELIGION|lurking demon crouching at house doorways ambushing inhabitants who neglect purification rites",
+  "سیمرغ|sīmurgh|Persian|MEA|A|EDUCATION|benevolent mythical bird of ancient wisdom dwelling atop Mount Damavand assisting royal heroes",
+  "رُخ|rukh|Persian|MEA|M|LAND|colossal predatory bird capable of snatching adult elephants in its massive talons",
+  "چمروش|chamrosh|Persian|MEA|A|MILITARY|giant protective bird perched on Mount Alborz driving invaders away from Aryan lands",
+  "اژدها|azhdahā|Persian|MEA|A|LAND|fearsome giant dragon serpent spitting venom slain by hero Rostam in the Shahnameh",
+  "دیو|dīv|Persian|MEA|A|MILITARY|gigantic demonic monster possessing horn and superhuman brute force in Persian epics",
+  "پری|parī|Persian|MEA|A|RELIGION|exquisitely beautiful winged fairy entity dwelling in enchanted celestial palaces",
+  "آل|āl|Persian|MEA|M|HOUSE|malevolent nocturnal hag attacking pregnant women and newborn infants in Iranian folk belief",
+  "هما|humā|Persian|MEA|A|LEAD|legendary bird of good fortune whose shadow falling upon a person bestowed kingship",
+  "شادروار|shādhavār|Persian|MEA|A|PERFORM|unicorn-like horned creature whose hollow fluted horn played mesmerizing music in the wind",
+  "گندرو|gandarewa|Persian|MEA|A|PORT|golden-heeled monstrous sea monster inhabiting Lake Vourukasha slain by hero Keresaspa",
+  "جن|jinn|Arabic|MEA|A|RELIGION|unseen spirit creature created from smokeless fire living in parallel to humanity",
+  "عفريت|ʿifrīt|Arabic|MEA|M|MILITARY|exceptionally powerful and cunning underworld spirit noted for ruthless strength and pride",
+  "مارد|mārid|Arabic|MEA|M|RELIGION|gigantic rebellious spirit creature associated with roaring oceans and violent tempests",
+  "غول|ghūl|Arabic|MEA|A|LAND|desert-dwelling shapeshifting ghoul that lures travelers into desolate sands to devour them",
+  "نسناس|nasnās|Arabic|MEA|M|LAND|grotesque half-human monster with half a head, one arm, and one leg hopping",
+  "قرين|qarīn|Arabic|MEA|M|HOUSE|spiritual double attached to every mortal human whispering constant temptation or guidance",
+  "براق|burāq|Arabic|MEA|M|RELIGION|winged celestial steed with a human face transporting prophets on heavenly journeys",
+  "كركدن|karkadann|Arabic|MEA|M|LAND|ferocious unicorn-like horned beast of immense strength living in desolate Asian plains",
+  "بهموت|bahamūt|Arabic|MEA|M|PORT|colossal cosmic fish supporting the giant ox Kuyutha beneath the seven earths",
+  "عنقاء|ʿanqāʾ|Arabic|MEA|A|RELIGION|magnificent giant bird of ancient Arab lore living on Mount Qaf",
+  "دابة الأرض|dābbat al-arḍ|Arabic|MEA|M|RELIGION|eschatological beast of the earth emerging in the end days bearing Solomon's ring",
+  "לִוְיָתָן|livyātān|Biblical Hebrew|MEA|A|PORT|primordial sea serpent of immense scale vanquished by God in biblical tradition",
+  "בְּהֵמוֹת|behēmōt|Biblical Hebrew|MEA|A|LAND|mighty primordial beast of the dry land possessing colossal bones like bronze pipes",
+  "זִיז|zīz|Biblical Hebrew|MEA|A|EDUCATION|colossal primordial bird whose wingspan is vast enough to obscure the solar disk",
+  "שֵׁד|šēd|Biblical Hebrew|MEA|A|RELIGION|supernatural spirit inhabiting ruined desolations and unhallowed wilderness places",
+  "לִילִית|līlīt|Biblical Hebrew|MEA|A|RELIGION|nocturnal female winged demon wandering through desolate wilderness targeting infants",
+  "דִּבּוּק|dibbūq|Hebrew|MEA|M|RELIGION|clinging disembodied soul of a dead person entering a living body until exorcised",
+  "רְאֵם|rəʾēm|Biblical Hebrew|MEA|A|LAND|legendary colossal wild ox of untamable strength and mighty horn in scripture",
+  "גּוֹלֶם|gōlem|Hebrew|MEA|M|MILITARY|animated anthropomorphic creature sculpted from river clay brought to life by sacred names",
+  "תַּנִּין|tannīn|Biblical Hebrew|MEA|A|PORT|monstrous sea dragon of the deep abyss representing primordial watery chaos",
+
+  // --- CENTRAL ASIA & CAUCASUS (CAS) ---
+  "Тұлпар|tulpar|Kazakh|CAS|M|RELIGION|winged mythological steed ridden by steppe heroes in Turkic and Kazakh epics",
+  "Көк бөрі|kök böri|Kazakh|CAS|A|MILITARY|sacred blue-grey celestial wolf progenitor of the ancient Turkic nomad clans",
+  "Жезтырнақ|zheztyrnaq|Kazakh|CAS|M|LAND|malevolent beauty with razor-sharp copper claws hunting hunters in remote steppe wilderness",
+  "Албасты|albasty|Kazakh|CAS|M|HOUSE|female spirit of illness tormenting women in childbirth and riding horses at night",
+  "Чонос|chonos|Mongolian|CAS|A|LEAD|sacred wolf totem progenitor of the Mongol tribes venerated on the steppe",
+  "Хангарьд|khangarid|Mongolian|CAS|M|STATE|majestic king of birds in Mongolian lore clutching a serpent in its talons",
+  "གངས་སེང་གེ|gangs seng ge|Tibetan|CAS|M|RELIGION|snow lion beast with turquoise mane representing fearlessness and joyful spiritual strength",
+  "རླུང་རྟ|rlung rta|Tibetan|CAS|M|RELIGION|mythical wind horse carrying wish-fulfilling jewels printed on colorful prayer flags",
+  "མི་རྒོད|mi rgod|Tibetan|CAS|M|LAND|elusive hairy bipedal ape-man cryptid dwelling among high snowbound Himalayan mountain passes",
+  "ཁྱུང|khyung|Tibetan|CAS|A|RELIGION|sacred horned horned-eagle bird subduing malevolent water spirits in Tibetan Bon lore",
+  "ვეშაპი|veshapi|Georgian|CAS|M|PORT|colossal monstrous sea serpent or dragon dwelling in springs demanding virgin tribute",
+  "დევი|devi|Georgian|CAS|M|MILITARY|multi-headed horned giant possessing superhuman physical strength in Georgian mountain tales",
+  "ოჩოკოჩი|ochokochi|Georgian|CAS|M|LAND|horned forest beast with pointed chest bone roaming the thick forests of Samegrelo",
+  "დალი|dali|Georgian|CAS|M|LAND|radiant golden-haired goddess and guardian of mountain ibex and deer in Svaneti",
+  "Արալեզ|aralez|Armenian|CAS|A|RELIGION|winged dog-like spirit licking the battle wounds of fallen heroes to revive them",
+  "Վիշապ|vishap|Armenian|CAS|A|PORT|dragon water spirit carved as stone stele controlling water sources and thunderstorms",
+  "Շահմարան|shahmaran|Armenian|CAS|M|EDUCATION|wise half-woman half-snake queen of serpents holding ancient healing secrets in Caucasus",
+  "Nhang|Nhang|Armenian|CAS|M|PORT|shapeshifting river monster turning into a seal to drag swimmers into water",
+  "Зилант|zilant|Turkic|CAS|M|STATE|crowned winged serpent dragon depicted on the official coat of arms of Kazan",
+  "Tepegöz|Tepegöz|Turkish|CAS|M|MILITARY|one-eyed man-eating cyclops giant dwelling in caverns in the Book of Dede Korkut",
+  "Şahmeran|Şahmeran|Turkish|CAS|M|EDUCATION|snake queen possessing boundless wisdom of medicine dwelling in subterranean chambers",
+  "Su İyesi|Su İyesi|Turkic|CAS|M|PORT|water mistress spirit residing in rivers and lakes punishing those who pollute water",
+  "Orman İyesi|Orman İyesi|Turkic|CAS|M|LAND|benevolent forest spirit protecting wild game and trees from disrespectful woodcutters",
+  "Umai|Umai|Turkic|CAS|A|RELIGION|divine earth mother protector spirit caring for women, infants, and newborn cattle",
+  "Al Basti|Al Basti|Uzbek|CAS|M|HOUSE|evil female spirit with tangled hair bringing nightmares and fever to homes",
+
+  // --- AFRICA (AFR) ---
+  "Ḥwr|Ḥwr|Ancient Egyptian|AFR|A|MILITARY|monumental creature with body of a lion and head of a pharaoh guarding temples",
+  "ʿMmt|ʿMmt|Ancient Egyptian|AFR|A|RELIGION|demoness with crocodile head, lion body, and hippopotamus hindquarters devouring impure hearts",
+  "Bnw|Bnw|Ancient Egyptian|AFR|A|RELIGION|sacred radiant solar heron bird associated with cyclical creation and sun god Ra",
+  "ʿꜢpp|ʿꜢpp|Ancient Egyptian|AFR|A|RELIGION|gigantic subterranean serpent embodying primordial chaos battling Ra every night",
+  "Nḥb-kꜣw|Nḥb-kꜣw|Ancient Egyptian|AFR|A|RELIGION|multi-headed primordial serpent spirit binding the soul and guarding the underworld",
+  "Stẖ|Stẖ|Ancient Egyptian|AFR|A|MILITARY|enigmatic composite canine beast with curved snout and squared ears sacred to Seth",
+  "Mꜣfd.t|Mꜣfd.t|Ancient Egyptian|AFR|A|MILITARY|feline cheetah deity protecting the pharaoh's bedchambers against venomous snakes and scorpions",
+  "Bꜣbwy|Bꜣbwy|Ancient Egyptian|AFR|A|RELIGION|aggressive red-eared baboon god of virility feasting on entrails in the afterlife",
+  "Tꜣ-wrt|Tꜣ-wrt|Ancient Egyptian|AFR|A|HOUSE|protective bipedal hippopotamus goddess guarding mothers and infants during dangerous childbirth",
+  "Mr.t-sgr|Mr.t-sgr|Ancient Egyptian|AFR|A|RELIGION|cobra-headed guardian goddess protecting the royal tombs in the Valley of the Kings",
+  "Asanbosam|Asanbosam|Akan|AFR|M|LAND|arboreal vampire with iron teeth and hooked feet hanging from tree branches",
+  "Sasabonsam|Sasabonsam|Akan|AFR|M|LAND|giant bat-winged forest monster allied with sorcerers preying on unwary Ashanti hunters",
+  "Anansi|Anansi|Akan|AFR|M|EDUCATION|clever spider trickster possessing boundless cunning owning all the world's wisdom tales",
+  "Mami Wata|Mami Wata|Yoruba|AFR|M|PORT|radiant water spirit and mermaid bringing great wealth or madness to devotees",
+  "Ẹgbẹ́rẹ|Ẹgbẹ́rẹ|Yoruba|AFR|M|LAND|tearful woodland dwarf carrying a mat of prosperity weeping continuously in forests",
+  "Àbíkú|Àbíkú|Yoruba|AFR|M|HOUSE|spirit child fated to die repeatedly and be reborn to torment mothers",
+  "Madam Koi Koi|Madam Koi Koi|Yoruba|AFR|N|EDUCATION|school ghost wandering boarding school hallways at night wearing a single red heel",
+  "Popobawa|Popobawa|Swahili|AFR|N|HOUSE|shapeshifting nocturnal one-eyed bat demon terrorizing households across Zanzibar and Pemba",
+  "Tokoloshe|Tokoloshe|Zulu|AFR|M|HOUSE|mischievous gremlin-like dwarf spirit summoned by witch doctors to terrorize sleeping homeowners",
+  "Impundulu|Impundulu|Zulu|AFR|M|RELIGION|mythical electric lightning bird that summons lightning from the skies serving witches",
+  "Inkanyamba|Inkanyamba|Zulu|AFR|M|PORT|giant carnivorous serpent living in deep waterfalls causing seasonal tornadoes when enraged",
+  "Grootslang|Grootslang|Zulu|AFR|M|FINANCE|primeval elephant-sized serpent guarding a deep diamond-filled cave in Richtersveld",
+  "Mokèlé-mbèmbé|Mokèlé-mbèmbé|Lingala|AFR|M|PORT|legendary sauropod-like water beast dwelling in the murky bends of the Congo River",
+  "Kongamato|Kongamato|Kaonde|AFR|M|PORT|pterosaur-like flying creature with leathery wings capsizing canoes in Zambian marshes",
+  "Emela-ntouka|Emela-ntouka|Lingala|AFR|M|LAND|semi-aquatic horned rhinoceros-like beast of the Congo basin that spears adult elephants",
+  "Rompo|Rompo|Yoruba|AFR|M|LAND|bizarre chimeric creature with skeleton head, badger body, and bear arms",
+  "Dingonek|Dingonek|Swahili|AFR|M|PORT|scaly aquatic cryptid with walrus-like tusks and dart-tipped tail in Lake Victoria",
+  "Nandi Bear|Nandi Bear|Swahili|AFR|M|LAND|ferocious nocturnal carnivore of Kenyan highland forests taking scalps of human victims",
+  "Bouda|Bouda|Amharic|AFR|M|LAND|werehyena sorcerer transforming at night to rob graves and prowl rural villages",
+  "Aigamuxa|Aigamuxa|Khoisan|AFR|M|LAND|man-eating desert giant whose eyes are located on the instep of his feet",
+  "Ga-gorib|Ga-gorib|Khoisan|AFR|M|LAND|monstrous pit-dweller daring passersby to throw stones before tumbling them into the abyss",
+  "Adze|Adze|Ewe|AFR|M|RELIGION|vampire spirit taking the form of a firefly sucking blood and transmitting sickness",
+  "Muhuru|Muhuru|Swahili|AFR|M|LAND|armored scute-plated reptile resembling a stegosaurus sighted in Kenyan mountain rainforests",
+  "Nguma-monene|Nguma-monene|Lingala|AFR|M|PORT|giant serpentine monster with serrated dorsal ridge swimming the Dongu-Mataba river",
+  "Ninki Nanka|Ninki Nanka|Mandinka|AFR|M|PORT|swamp dragon dwelling in West African rivers whose sight causes fatal sickness",
+  "Inyoka Yodumo|Inyoka Yodumo|Zulu|AFR|M|RELIGION|giant mythical forest snake in Zulu tradition venerated by sangomas as healer spirit",
+  "Chitowe|Chitowe|Chewa|AFR|M|LAND|one-legged woodland creature in Malawian folklore warning people before heavy thunderstorms",
+
+  // --- AMERICAS (AME) ---
+  "Quetzalcōātl|Quetzalcōātl|Nahuatl|AME|A|LEAD|feathered serpent deity representing wind, wisdom, Venus, and the dawn of humankind",
+  "Cipactli|Cipactli|Nahuatl|AME|A|PORT|primeval crocodile sea monster with eyes on every joint sacrificed to build the earth",
+  "Xiuhcōātl|Xiuhcōātl|Nahuatl|AME|A|MILITARY|fire serpent weapon wielded by Huitzilopochtli shooting rays of destructive solar fire",
+  "Ahuitzotl|Ahuitzotl|Nahuatl|AME|A|PORT|amphibious creature with a human hand on its tail drowning lakeshore prey",
+  "Nāhualli|Nāhualli|Nahuatl|AME|M|RELIGION|shapeshifting sorcerer capable of transforming into a jaguar, coyote, or screech owl",
+  "Camazotz|Camazotz|Classic Maya|AME|A|MILITARY|fearsome bat monster of Xibalba that decapitated the hero twin Hunahpu",
+  "K'uk'ulkan|K'uk'ulkan|Classic Maya|AME|A|LEAD|feathered serpent god of rain, wind, and celestial order in Yucatán temples",
+  "Alux|Alux|Yucatec Maya|AME|M|HOUSE|small knee-high forest sprite guarding milpa cornfields against thieves in Maya folklore",
+  "Waay Chivo|Waay Chivo|Yucatec Maya|AME|M|LAND|sorcerer transformed into a menacing half-goat half-man beast with glowing red eyes",
+  "Cadejo|Cadejo|Spanish|AME|M|RELIGION|mythical dog spirit appearing as white protector of travelers or black harbinger of doom",
+  "Amaru|Amaru|Quechua|AME|A|PORT|double-headed winged water serpent associated with subterranean springs, rainbows, and seismic tremors",
+  "Supay|Supay|Quechua|AME|M|RELIGION|ruler of the subterranean realm Uku Pacha demanding mineral tribute from Andean miners",
+  "Curupira|Curupira|Guarani|AME|M|LAND|forest guardian boy with backward-facing feet punishing hunters who slaughter more than needed",
+  "Boitatá|Boitatá|Guarani|AME|M|LAND|giant fiery serpent with burning bull eyes protecting meadows and forests from wildfires",
+  "Boto cor-de-rosa|Boto cor-de-rosa|Portuguese|AME|M|PORT|shapeshifting river dolphin becoming a handsome white-suited man courting riverside village women",
+  "Mapinguari|Mapinguari|Portuguese|AME|M|LAND|giant hairy forest beast with a gaping mouth in its stomach roaming Amazonia",
+  "Iara|Iara|Guarani|AME|M|PORT|radiant river mermaid whose alluring songs entice fishermen to drown in Amazonian waters",
+  "Caipora|Caipora|Guarani|AME|M|LAND|small hairy jungle spirit riding a collared peccary defending wild animals from poachers",
+  "Saci-pererê|Saci-pererê|Portuguese|AME|M|LAND|one-legged trickster boy with red cap and pipe spinning mini whirlwinds across fields",
+  "Mbói Tu'ĩ|Mbói Tu'ĩ|Guarani|AME|M|PORT|monstrous serpent with the head of a parrot guarding wetlands and aquatic life",
+  "Teju Jagua|Teju Jagua|Guarani|AME|M|LAND|colossal lizard with seven dog heads guarding caves and subterranean fruit in Guaraní lore",
+  "Moñái|Moñái|Guarani|AME|M|LAND|horned serpent god of open fields and deceit residing in woodland hollows",
+  "Jaci Jateré|Jaci Jateré|Guarani|AME|M|LAND|blond boy carrying a golden staff tempting children into woods during the siesta",
+  "Luison|Luison|Guarani|AME|M|RELIGION|fearsome werewolf-like monster prowling graveyards feasting on the decaying remains of deceased",
+  "Cherufe|Cherufe|Mapuche|AME|M|RELIGION|colossal fiery magma creature dwelling inside active Andean volcanoes demanding human sacrifices",
+  "Peuchén|Peuchén|Mapuche|AME|M|LAND|winged shapeshifting flying serpent paralyzing sheep and humans with its hypnotic stare",
+  "Trauco|Trauco|Mapuche|AME|M|LAND|ugly dwarf of Chiloé island carrying a stone axe impregnating maidens with gaze",
+  "Animikii|Animikii|Ojibwe|AME|A|RELIGION|supernatural thunderbird producing thunderclaps with wing beats and lightning flashes from eyes",
+  "Wiindigoo|Wiindigoo|Ojibwe|AME|M|RELIGION|malevolent cannibalistic ice monster embodying starvation and gluttony in freezing northern woods",
+  "Sasq'ets|Sasq'ets|Coast Salish|AME|M|LAND|large hairy forest giant wandering through Pacific Northwest temperate rainforests",
+  "Mishipeshu|Mishipeshu|Ojibwe|AME|A|PORT|water panther dragon with cat head, horns, and scaly back ruling Lake Superior",
+  "Piasa|Piasa|Miami-Illinois|AME|A|PORT|gigantic winged dragon-bird painted on high limestone cliffs overlooking the Mississippi River",
+  "Uktena|Uktena|Cherokee|AME|A|PORT|giant aquatic horned serpent bearing a radiant diamond-like crest in its forehead",
+  "Chenoo|Chenoo|Mi'kmaq|AME|M|LAND|ice-hearted cannibal giant roaring through snowy winter woods in northeastern woodlands",
+  "Qalupalik|Qalupalik|Inuktitut|AME|M|PORT|green-skinned sea creature with long fingernails snatching children who wander onto sea ice",
+  "Adlet|Adlet|Inuktitut|AME|M|MILITARY|race of swift fierce humanoid monsters with dog legs living in Arctic tundras",
+  "Akhlut|Akhlut|Inuktitut|AME|M|PORT|shapeshifting predator taking the form of an orca in water and wolf on land",
+  "Amarok|Amarok|Inuktitut|AME|M|LAND|colossal solitary wolf hunting hunters who dare to venture into the Arctic night alone",
+  "Kooshdakhaa|Kooshdakhaa|Tlingit|AME|M|PORT|shapeshifting land-otter spirits mimicking cries of drowning children to steal souls",
+  "Gaasyendietha|Gaasyendietha|Seneca|AME|A|PORT|meteor dragon that fell from the sky shooting trails of fire across Lake Ontario",
+  "Kikituk|Kikituk|Inuktitut|AME|M|PORT|serpentine seal-like spirit summoned by shamans to settle disputes or punish wrongdoers",
+  "Yeitso|Yeitso|Navajo|AME|A|MILITARY|gigantic scaled monster born from chaos slain by the sacred hero twins in Diné lore",
+  "K'aa'tsogi|K'aa'tsogi|Navajo|AME|A|MILITARY|colossal predatory horned monster roaming the ancient four sacred mountains of the Navajo",
+  "Lusca|Lusca|Bahamian|AME|M|PORT|gigantic half-shark half-octopus sea monster dwelling in deep underwater blue holes",
+
+  // --- OCEANIA (OCE) ---
+  "Taniwha|Taniwha|Māori|OCE|A|PORT|protective water guardian or predatory monster dwelling in deep ocean rivers and dark caves",
+  "Pouākai|Pouākai|Māori|OCE|M|LAND|giant man-eating raptor spirit capable of swooping from skies to snatch people",
+  "Manaia|Manaia|Māori|OCE|A|RELIGION|spiritual messenger between mortal humans and ancestors with bird head and serpent tail",
+  "Tipua|Tipua|Māori|OCE|A|LAND|supernatural spirit manifesting as a sacred stone, ancient tree, or enchanted water spring",
+  "Marakihau|Marakihau|Māori|OCE|A|PORT|sea monster with a human head and tubular tongue sucking canoes into ocean depths",
+  "Te Wheke-a-Muturangi|Te Wheke-a-Muturangi|Māori|OCE|A|PORT|monstrous colossal octopus pursuing Polynesian voyagers across the Cook Strait slain by Kupe",
+  "Patupaiarehe|Patupaiarehe|Māori|OCE|M|LAND|pale fairy people dwelling in misty mountain forests playing flute music at night",
+  "Bunyip|Bunyip|Australian Aboriginal|OCE|M|PORT|fearsome amphibious water beast lurking in murky billabongs, creeks, and swampy waterholes",
+  "Yurlunggur|Yurlunggur|Australian Aboriginal|OCE|A|RELIGION|great copper rainbow serpent bringing monsoon rains, initiation laws, and fertility to earth",
+  "Yowie|Yowie|Australian Aboriginal|OCE|M|LAND|elusive hairy ape-like creature roaming the rugged wilderness ranges of eastern Australia",
+  "Yara-ma-yha-who|Yara-ma-yha-who|Australian Aboriginal|OCE|M|LAND|small red humanoid with suckers on fingers and toes swallowing resting travelers whole",
+  "Muldjewangk|Muldjewangk|Australian Aboriginal|OCE|M|PORT|mighty amphibious monster dwelling in the Murray River punishing children who play near water",
+  "Dirawong|Dirawong|Australian Aboriginal|OCE|A|LAND|legendary giant goanna monitor lizard protecting the Bundjalung people from the rainbow snake",
+  "Nargun|Nargun|Australian Aboriginal|OCE|M|LAND|living stone creature in Gunai folklore living in a cave turning projectiles back on attackers",
+  "Moʻo|Moʻo|Hawaiian|OCE|A|PORT|shapeshifting giant water lizard spirit guarding freshwater ponds and coastal fishponds",
+  "Menehune|Menehune|Hawaiian|OCE|M|STUDIO|legendary race of small nocturnal artisan craftsmen building temples and fishponds in single night",
+  "Kupua|Kupua|Hawaiian|OCE|A|RELIGION|shapeshifting demigod or monster trickster capable of manifesting as animals or inanimate objects",
+  "Kamohoaliʻi|Kamohoaliʻi|Hawaiian|OCE|A|PORT|revered shark god and navigator guiding lost ocean canoes safely to hawaiian islands",
+  "Adaro|Adaro|Fijian|OCE|M|PORT|malevolent flying fish-man spirit shooting flying fish at fishermen from oceanic waters",
+  "Abaia|Abaia|Melanesian|OCE|M|PORT|huge magical freshwater eel protecting all fish in its lake from predatory fishermen",
+  "Tipua Whetū|Tipua Whetū|Māori|OCE|A|RELIGION|celestial star entity navigating souls across the cosmic pathway of the Milky Way",
+  "Taotao Mona|Taotao Mona|Chamorro|OCE|M|RELIGION|ancient ancestral spirits dwelling in sacred banyan trees guarding Mariana Island wilderness",
+  "Dakuwaqa|Dakuwaqa|Fijian|OCE|A|PORT|ancient shark deity protecting fishermen and sailors from fierce sea beasts in Fijian waters",
+  "Tupilaq|Tupilaq|Inuktitut|AME|M|RELIGION|avenging creature sculpted from animal bones and hair animated by shamans to destroy enemies"
+]
+
+function validateAndProcess() {
+  console.log(`Starting validation of ${CREATURES_RAW.length} mythological creatures...`)
+  const seenTerms = new Set()
+  const validEntries = []
+  const errors = []
+
+  // Check against database existing terms
+  let existingInDb = new Set()
+  if (fs.existsSync(dbPath)) {
+    const db = new DatabaseSync(dbPath)
+    const rows = db.prepare('SELECT lower(term) as t FROM terms').all()
+    for (const r of rows) {
+      existingInDb.add(r.t)
+    }
+  }
+
+  for (let i = 0; i < CREATURES_RAW.length; i++) {
+    const line = CREATURES_RAW[i].trim()
+    const parts = line.split('|')
+    if (parts.length !== 7) {
+      errors.push(`Line ${i + 1}: Expected 7 fields, found ${parts.length} -> ${line}`)
+      continue
+    }
+
+    const [term, romanization, language, regCode, eraCode, domCode, meaning] = parts.map(p => p.trim())
+
+    if (!term) errors.push(`Line ${i + 1}: Empty term`)
+    if (!romanization) errors.push(`Line ${i + 1}: Empty romanization`)
+    if (!language) errors.push(`Line ${i + 1}: Empty language`)
+
+    if (!REGION_CODES[regCode]) {
+      errors.push(`Line ${i + 1}: Invalid region code "${regCode}" in "${term}"`)
+    }
+
+    if (!ERA_CODES[eraCode]) {
+      errors.push(`Line ${i + 1}: Invalid era code "${eraCode}" in "${term}"`)
+    }
+
+    if (!DOMAIN_CODES[domCode]) {
+      errors.push(`Line ${i + 1}: Invalid domain code "${domCode}" in "${term}"`)
+    }
+
+    // Meaning validation
+    if (meaning.endsWith('.')) {
+      errors.push(`Line ${i + 1}: Meaning ends with period -> "${meaning}"`)
+    }
+    const firstChar = meaning.charAt(0)
+    if (firstChar !== firstChar.toLowerCase()) {
+      errors.push(`Line ${i + 1}: Meaning does not start with lowercase -> "${meaning}"`)
+    }
+
+    const words = meaning.split(/\s+/).filter(Boolean)
+    if (words.length < 5 || words.length > 18) {
+      errors.push(`Line ${i + 1}: Word count is ${words.length} (expected 5-18) -> "${meaning}"`)
+    }
+
+    const termKey = term.toLowerCase()
+    if (seenTerms.has(termKey)) {
+      errors.push(`Line ${i + 1}: Duplicate term in batch "${term}"`)
+    }
+    seenTerms.add(termKey)
+
+    if (existingInDb.has(termKey)) {
+      console.warn(`Line ${i + 1}: Term already in DB "${term}" (will be handled by duplicateMode)`)
+    }
+
+    validEntries.push({
+      term,
+      romanization,
+      language,
+      region: REGION_CODES[regCode],
+      regCode,
+      era: ERA_CODES[eraCode],
+      eraCode,
+      domain: DOMAIN_CODES[domCode],
+      domCode,
+      gloss: meaning,
+      line,
+    })
+  }
+
+  if (errors.length > 0) {
+    console.error(`\nValidation failed with ${errors.length} errors:`)
+    for (const err of errors) {
+      console.error(' -', err)
+    }
+    process.exit(1)
+  }
+
+  console.log(`\nAll ${validEntries.length} entries passed validation with 0 errors!`)
+
+  // Write out to data/mythological-creatures.txt
+  const fileContent = validEntries.map(e => e.line).join('\n') + '\n'
+  fs.writeFileSync(outPath, fileContent, 'utf8')
+  console.log(`Saved dataset to: ${outPath}`)
+
+  // Distribution stats
+  const regionCounts = {}
+  const domainCounts = {}
+  const eraCounts = {}
+  for (const e of validEntries) {
+    regionCounts[e.regCode] = (regionCounts[e.regCode] || 0) + 1
+    domainCounts[e.domCode] = (domainCounts[e.domCode] || 0) + 1
+    eraCounts[e.eraCode] = (eraCounts[e.eraCode] || 0) + 1
+  }
+
+  console.log('\n--- Regional Breakdown ---')
+  for (const [k, v] of Object.entries(regionCounts)) {
+    console.log(`  ${k} (${REGION_CODES[k]}): ${v}`)
+  }
+
+  console.log('\n--- Era Breakdown ---')
+  for (const [k, v] of Object.entries(eraCounts)) {
+    console.log(`  ${k} (${ERA_CODES[k]}): ${v}`)
+  }
+
+  console.log('\n--- Domain Breakdown ---')
+  for (const [k, v] of Object.entries(domainCounts)) {
+    console.log(`  ${k} (${DOMAIN_CODES[k]}): ${v}`)
+  }
+}
+
+validateAndProcess()
+
