@@ -1,0 +1,22 @@
+services:
+  lexicon:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: overseer-lexicon
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      # Optional: Provide Gemini API key if using AI generation
+      # - GEMINI_API_KEY=your_gemini_api_key_here
+    volumes:
+      - lexicon_data:/app/data
+
+volumes:
+  lexicon_data:
+    driver: local
+
