@@ -1,10 +1,10 @@
 /**
- * Text-to-Speech (TTS) engine with automatic native-tongue resolution
- * for the Overseer Lexicon dictionary.
+ * Text-to-Speech (TTS) engine with:
+ * 1. Studio-grade human audio via Gemini 3.8 Flash TTS (/api/tts)
+ * 2. SQLite audio caching for instant 0ms, zero-cost replays
+ * 3. Graceful client-side fallback to Web Speech API with automatic native-tongue BCP-47 resolution
  */
 
-// Comprehensive mapping from Lexicon language names to BCP-47 language codes
-// and phonetic fallbacks for ancient/classical tongues.
 export const LANGUAGE_BCP47_MAP: Record<string, string> = {
   // Classical & Ancient languages
   'Ancient Greek': 'el-GR',
@@ -158,7 +158,6 @@ export function resolveBcp47(language: string): string {
  * Checks whether text contains characters outside basic Latin / Latin Extended alphabets.
  */
 function hasNonLatinScript(text: string): boolean {
-  // Matches Arabic, Greek, Cyrillic, Hebrew, Devanagari, CJK, etc.
   return /[^\u0000-\u024F\u1E00-\u1EFF]/.test(text)
 }
 
@@ -186,19 +185,41 @@ function findBestVoice(voices: SpeechSynthesisVoice[], bcp47: string): SpeechSyn
 }
 
 export interface SpeakOptions {
+  id?: number
   term: string
   romanization?: string
   language: string
+  voice?: string
   onStart?: () => void
   onEnd?: () => void
   onError?: (error: unknown) => void
 }
 
+let activeAudio: HTMLAudioElement | null = null
+
 /**
- * Speaks a lexicon term in its native tongue, automatically choosing
- * the matching browser voice and falling back gracefully if needed.
+ * Stops any currently active audio playback (both Gemini audio and Web Speech).
  */
-export function speakLexiconTerm({
+export function stopSpeaking(): void {
+  if (activeAudio) {
+    try {
+      activeAudio.pause()
+      activeAudio.src = ''
+    } catch {}
+    activeAudio = null
+  }
+
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.cancel()
+    } catch {}
+  }
+}
+
+/**
+ * Fallback to browser native Web Speech API if Gemini TTS is unavailable or unconfigured.
+ */
+function speakWithWebSpeech({
   term,
   romanization,
   language,
@@ -208,26 +229,21 @@ export function speakLexiconTerm({
 }: SpeakOptions): void {
   if (!isSpeechSupported()) {
     onError?.(new Error('Speech synthesis is not supported in this browser.'))
+    onEnd?.()
     return
   }
 
   try {
-    // Cancel any active speech synthesis
     window.speechSynthesis.cancel()
 
     const bcp47 = resolveBcp47(language)
     const voices = window.speechSynthesis.getVoices()
     const voice = findBestVoice(voices, bcp47)
 
-    // Text selection:
-    // If term is in a non-Latin script (e.g. Greek, Arabic, Kanji, Devanagari)
-    // and no native voice is installed on this device, fall back to romanization
-    // so the pronunciation is audibly spoken rather than garbled or skipped.
     const nonLatin = hasNonLatinScript(term)
     const textToRead = nonLatin && !voice && romanization ? romanization : term
 
     const utterance = new SpeechSynthesisUtterance(textToRead)
-
     if (voice) {
       utterance.voice = voice
       utterance.lang = voice.lang
@@ -235,7 +251,6 @@ export function speakLexiconTerm({
       utterance.lang = bcp47
     }
 
-    // Pacing: slightly slower rate (0.88x) provides crisp dictionary pronunciation
     utterance.rate = 0.88
     utterance.pitch = 1.0
 
@@ -257,11 +272,10 @@ export function speakLexiconTerm({
       onError?.(e)
     }
 
-    // Safety timeout in case browser drops onend (known Safari/Chrome bug for long queues)
     const estimatedDurationMs = Math.max(2500, textToRead.length * 300)
     setTimeout(() => {
       if (!finished && window.speechSynthesis.speaking) {
-        // Still speaking, will finish naturally
+        // Still speaking naturally
       } else if (!finished) {
         cleanup()
       }
@@ -275,11 +289,63 @@ export function speakLexiconTerm({
 }
 
 /**
- * Stops any currently active speech playback immediately.
+ * Speaks a lexicon term:
+ * 1. First attempts to fetch and stream human studio-grade audio via Gemini 3.8 Flash TTS (/api/tts)
+ * 2. If Gemini is unconfigured or unavailable, gracefully falls back to Web Speech API.
  */
-export function stopSpeaking(): void {
-  if (isSpeechSupported()) {
-    window.speechSynthesis.cancel()
-  }
-}
+export function speakLexiconTerm(options: SpeakOptions): void {
+  stopSpeaking()
 
+  const { id, term, romanization, language, voice = 'Charon', onStart, onEnd, onError } = options
+
+  // If term has a database ID, try Gemini TTS endpoint with SQLite caching
+  if (id && typeof window !== 'undefined') {
+    onStart?.()
+
+    const audioUrl = `/api/tts?id=${encodeURIComponent(id)}&voice=${encodeURIComponent(voice)}`
+    const audio = new Audio()
+    activeAudio = audio
+
+    let ended = false
+    const handleEnd = () => {
+      if (!ended) {
+        ended = true
+        activeAudio = null
+        onEnd?.()
+      }
+    }
+
+    audio.onended = handleEnd
+
+    audio.onerror = () => {
+      // Endpoint returned an error (e.g. 503 GEMINI_API_KEY_NOT_CONFIGURED), fallback to Web Speech
+      activeAudio = null
+      speakWithWebSpeech({
+        term,
+        romanization,
+        language,
+        onStart,
+        onEnd: handleEnd,
+        onError,
+      })
+    }
+
+    audio.src = audioUrl
+    audio.play().catch(() => {
+      // Audio playback blocked or network failure, fallback to Web Speech
+      activeAudio = null
+      speakWithWebSpeech({
+        term,
+        romanization,
+        language,
+        onStart,
+        onEnd: handleEnd,
+        onError,
+      })
+    })
+    return
+  }
+
+  // If no DB ID is provided (e.g. pre-import preview), use Web Speech
+  speakWithWebSpeech(options)
+}

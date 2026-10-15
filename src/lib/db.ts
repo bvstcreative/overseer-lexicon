@@ -140,6 +140,18 @@ export function getDb(): DatabaseSync {
     CREATE INDEX IF NOT EXISTS idx_user_stars_term ON user_stars(term_id);
     CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 
+    CREATE TABLE IF NOT EXISTS term_audio (
+      term_id INTEGER NOT NULL,
+      voice TEXT NOT NULL DEFAULT 'Charon',
+      mime_type TEXT NOT NULL DEFAULT 'audio/wav',
+      audio_data BLOB NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (term_id, voice),
+      FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_term_audio_lookup ON term_audio(term_id, voice);
+
     CREATE VIRTUAL TABLE IF NOT EXISTS terms_fts USING fts5(
       term,
       romanization,
@@ -698,6 +710,37 @@ export function createTermsBatch(
   }
 
   return { inserted, updatedCount, skippedCount }
+}
+
+export interface CachedAudioRecord {
+  term_id: number
+  voice: string
+  mime_type: string
+  audio_data: Uint8Array | Buffer
+  created_at: string
+}
+
+export function getCachedTermAudio(termId: number, voice = 'Charon'): CachedAudioRecord | null {
+  const db = getDb()
+  const row = db.prepare('SELECT term_id, voice, mime_type, audio_data, created_at FROM term_audio WHERE term_id = ? AND voice = ?').get(termId, voice) as CachedAudioRecord | undefined
+  return row || null
+}
+
+export function saveCachedTermAudio(
+  termId: number,
+  voice: string,
+  audioData: Uint8Array | Buffer,
+  mimeType = 'audio/wav'
+): void {
+  const db = getDb()
+  db.prepare(`
+    INSERT INTO term_audio (term_id, voice, mime_type, audio_data)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(term_id, voice) DO UPDATE SET
+      audio_data = excluded.audio_data,
+      mime_type = excluded.mime_type,
+      created_at = CURRENT_TIMESTAMP
+  `).run(termId, voice, mimeType, audioData)
 }
 
 

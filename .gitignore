@@ -46,3 +46,5 @@ data/*.db-wal
 data/*.db-shm
 .pnpm-store/
 
+# audio data
+data/audio

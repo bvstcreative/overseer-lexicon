@@ -7,7 +7,7 @@ import {
   ERA_CODES,
   DOMAIN_CODES,
 } from '@/lib/agent-rules'
-import { speakLexiconTerm, stopSpeaking, isSpeechSupported } from '@/lib/tts'
+import { speakLexiconTerm, stopSpeaking } from '@/lib/tts'
 
 interface TermApiRecord {
   id: number
@@ -227,28 +227,25 @@ export default function Home() {
   // Text-to-speech native voice state and playback handler
   const [speakingKey, setSpeakingKey] = useState<string | null>(null)
 
-  const handleToggleSpeak = useCallback((item: { t: string; r?: string; l: string }, key: string) => {
+  const handleToggleSpeak = useCallback((item: { t: string; r?: string; l: string; dbId?: number }, key: string) => {
     if (speakingKey === key) {
       stopSpeaking()
       setSpeakingKey(null)
       return
     }
 
-    if (!isSpeechSupported()) {
-      showToast('Speech synthesis is not supported on this device/browser.')
-      return
-    }
-
     setSpeakingKey(key)
     speakLexiconTerm({
+      id: item.dbId,
       term: item.t,
       romanization: item.r,
       language: item.l,
+      voice: 'Charon',
       onStart: () => setSpeakingKey(key),
       onEnd: () => setSpeakingKey((curr) => (curr === key ? null : curr)),
       onError: () => setSpeakingKey((curr) => (curr === key ? null : curr)),
     })
-  }, [speakingKey, showToast])
+  }, [speakingKey])
 
   useEffect(() => {
     return () => {
@@ -1081,7 +1078,7 @@ export default function Home() {
                           <div className="main">
                             <div>
                               <bdi className="term">{r.t}</bdi>
-                              {r.r && r.r !== r.t && <span className="rom">{r.r}</span>}
+                              {r.r && r.r !== r.t && <span className={`rom ${speakingKey === r.id ? 'shine' : ''}`}>{r.r}</span>}
                             </div>
                             <p className="gloss">{r.g}</p>
                             <div className="sub">{r.l} · {r.rg} · {r.d}</div>
@@ -1113,7 +1110,7 @@ export default function Home() {
                           <div className="top">
                             <div>
                               <bdi className="term">{r.t}</bdi>
-                              {r.r && r.r !== r.t && <span className="rom">{r.r}</span>}
+                              {r.r && r.r !== r.t && <span className={`rom ${speakingKey === r.id ? 'shine' : ''}`}>{r.r}</span>}
                             </div>
                             <div className="card-actions">
                               <button
@@ -1554,7 +1551,7 @@ export default function Home() {
                   </button>
                 </div>
                 {luckyItem.r && luckyItem.r !== luckyItem.t && (
-                  <div className="lucky-rom">{luckyItem.r}</div>
+                  <div className={`lucky-rom ${speakingKey === 'lucky' ? 'shine' : ''}`}>{luckyItem.r}</div>
                 )}
               </div>
 

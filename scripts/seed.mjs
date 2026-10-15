@@ -74,6 +74,18 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_user_stars_term ON user_stars(term_id);
   CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 
+  CREATE TABLE IF NOT EXISTS term_audio (
+    term_id INTEGER NOT NULL,
+    voice TEXT NOT NULL DEFAULT 'Charon',
+    mime_type TEXT NOT NULL DEFAULT 'audio/wav',
+    audio_data BLOB NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (term_id, voice),
+    FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_term_audio_lookup ON term_audio(term_id, voice);
+
   CREATE VIRTUAL TABLE IF NOT EXISTS terms_fts USING fts5(
     term,
     romanization,
