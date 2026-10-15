@@ -13,7 +13,8 @@ Built with **Next.js 16 (App Router)**, **React 19**, and Node.js 22's native **
 - **🗂️ Dual View Modes**: Instant switching between an expansive **Card View** and a compact, scannable **Table View**.
 - **📜 Infinite Scroll & Lazy Loading**: Smooth windowing displaying 18 items per page with automatic Intersection Observer triggers as you scroll down.
 - **🎲 "I'm Feeling Lucky" Spotlight**: Click the shuffle button to open a full-screen spotlight card highlighting a random steward term, definition, domain badges, and phonetic romanization, with keyboard navigation (`Esc`) and instant cycling (`Next Lucky Term`).
-- **⭐ Persistent Favorites**: Star and bookmark terms locally; bookmarks persist directly in your SQLite database.
+- **👤 User Registration & Personal Bookmarks**: Users can register an account, sign in, and save/bookmark specific terms to their personal collection, securely persisted in SQLite (`user_stars`) with cryptographic salt + scrypt password hashing and HTTP-only sessions.
+- **⭐ Saved Terms Filter & Sync**: Filter terms to view only your bookmarked terms, with seamless automatic syncing of locally favorited terms upon registration or sign-in.
 - **📥 Bulk Term Importer**: Built-in modal dialog to paste and preview pipe-delimited terms, validate schemas, detect duplicates in real-time, and choose between *Skip* or *Update* conflict resolution.
 - **🤖 AI Term Generator & Rule Engine**: Embedded historical taxonomy ([RULES.md](file:///mnt/dev_workspace/fun-projects/thelexicon/RULES.md)) and CLI tool to generate, validate, and batch-import hundreds of culturally authentic terms using Gemini or manual LLM prompting.
 - **🎨 Pure Responsive CSS**: Modern, typography-first aesthetic with dark/light themes and zero CSS-in-JS runtime overhead.

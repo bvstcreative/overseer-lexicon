@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createUser, createSession, AUTH_COOKIE_NAME, SESSION_MAX_AGE_MS } from '@/lib/auth'
+import { createUser, createSession, isRequestSecure, AUTH_COOKIE_NAME, SESSION_MAX_AGE_MS } from '@/lib/auth'
 import { syncUserStars, getUserStarredCount } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
 
     response.cookies.set(AUTH_COOKIE_NAME, token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isRequestSecure(request),
       sameSite: 'lax',
       path: '/',
       maxAge: Math.floor(SESSION_MAX_AGE_MS / 1000),

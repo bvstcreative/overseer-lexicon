@@ -146,6 +146,16 @@ export function deleteSession(token: string): void {
   db.prepare('DELETE FROM sessions WHERE token = ?').run(token)
 }
 
+// Only mark the session cookie Secure when the request actually arrived over HTTPS
+// (directly, or via a TLS-terminating proxy). NODE_ENV alone isn't a reliable signal:
+// a production deploy served over plain HTTP/bare IP would otherwise get a Secure
+// cookie that browsers silently refuse to store, logging the user out on refresh.
+export function isRequestSecure(request: NextRequest): boolean {
+  if (request.nextUrl.protocol === 'https:') return true
+  const forwardedProto = request.headers.get('x-forwarded-proto')
+  return forwardedProto?.split(',')[0]?.trim() === 'https'
+}
+
 export function getUserFromRequest(request: NextRequest): SafeUser | null {
   let token = request.cookies.get(AUTH_COOKIE_NAME)?.value
   if (!token) {

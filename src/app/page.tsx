@@ -1419,16 +1419,6 @@ export default function Home() {
               </div>
               <div className="lucky-top-actions">
                 <button
-                  className="star"
-                  type="button"
-                  aria-pressed={isStarred(luckyItem)}
-                  aria-label={isStarred(luckyItem) ? 'Unstar this term' : 'Star this term'}
-                  title={isStarred(luckyItem) ? 'Starred' : 'Add to starred'}
-                  onClick={() => toggleStarItem(luckyItem)}
-                >
-                  <ICON.star />
-                </button>
-                <button
                   className="ibtn"
                   type="button"
                   aria-label="Close card (Esc)"
@@ -1466,6 +1456,16 @@ export default function Home() {
                 <span className={`era era-${luckyItem.e}`} title={ERA_NOTE[luckyItem.e]}>
                   {luckyItem.e} {ERA_NOTE[luckyItem.e] ? `(${ERA_NOTE[luckyItem.e]})` : ''}
                 </span>
+                <button
+                  className="star"
+                  type="button"
+                  aria-pressed={isStarred(luckyItem)}
+                  aria-label={isStarred(luckyItem) ? 'Unstar this term' : 'Star this term'}
+                  title={isStarred(luckyItem) ? 'Starred' : 'Add to starred'}
+                  onClick={() => toggleStarItem(luckyItem)}
+                >
+                  <ICON.star />
+                </button>
               </div>
             </div>
 
