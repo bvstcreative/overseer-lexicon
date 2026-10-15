@@ -240,7 +240,6 @@ export default function Home() {
       term: item.t,
       romanization: item.r,
       language: item.l,
-      voice: 'Charon',
       onStart: () => setSpeakingKey(key),
       onEnd: () => setSpeakingKey((curr) => (curr === key ? null : curr)),
       onError: (err) => {

@@ -3,7 +3,6 @@ import { DatabaseSync } from 'node:sqlite'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { GoogleGenAI } from '@google/genai'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.resolve(__dirname, '..')
@@ -25,12 +24,60 @@ if (fs.existsSync(envLocalPath)) {
   }
 }
 
-const apiKey = process.env.GEMINI_API_KEY
+const apiKey = process.env.ELEVENLABS_API_KEY
 if (!apiKey) {
-  console.error('\n❌ Error: GEMINI_API_KEY is not set.')
-  console.error('Please configure your Gemini API key in .env.local:')
-  console.error('  echo "GEMINI_API_KEY=your_key_here" >> .env.local\n')
+  console.error('\n❌ Error: ELEVENLABS_API_KEY is not set.')
+  console.error('Please configure your ElevenLabs API key in .env.local:')
+  console.error('  echo "ELEVENLABS_API_KEY=your_key_here" >> .env.local\n')
   process.exit(1)
+}
+
+// Premade Voices
+const PREMADE = {
+  ADAM: 'pNInz6obpgDQGcFmaJgB',
+  DANIEL: 'onwK4e9ZLuTAKqWW03F9',
+  ALICE: 'Xb7hH8MSUJpSbSDYk0k2',
+  GEORGE: 'JBFqnCBsd6RMkjVDRZzb',
+  LILY: 'pFZP5JQG7iQjIQuC4Bku',
+  BELLA: 'hpp4J3VqNfWAUOO0d1Us',
+  ERIC: 'cjVigY5qzO86Huf0OWal',
+}
+
+function resolveVoiceForTerm(language, languageGroup) {
+  const lang = (language || '').trim().toLowerCase()
+  const group = (languageGroup || '').trim().toLowerCase()
+
+  if (lang.includes('greek') || group.includes('greek')) {
+    return { id: process.env.ELEVENLABS_VOICE_GREEK || PREMADE.DANIEL, fallback: PREMADE.DANIEL, name: 'Daniel (Greek)' }
+  }
+  if (lang.includes('latin') || group.includes('latin')) {
+    return { id: process.env.ELEVENLABS_VOICE_LATIN || PREMADE.DANIEL, fallback: PREMADE.DANIEL, name: 'Daniel (Latin)' }
+  }
+  if (lang.includes('sanskrit') || lang.includes('pali') || lang.includes('prakrit') || group.includes('sanskrit')) {
+    return { id: process.env.ELEVENLABS_VOICE_SANSKRIT || PREMADE.DANIEL, fallback: PREMADE.DANIEL, name: 'Daniel (Sanskrit)' }
+  }
+  if (lang.includes('japan') || group.includes('japan') || lang === 'ainu') {
+    return { id: process.env.ELEVENLABS_VOICE_JAPANESE || PREMADE.ALICE, fallback: PREMADE.ALICE, name: 'Alice (Japanese)' }
+  }
+  if (lang.includes('chinese') || group.includes('chinese') || lang === 'korean') {
+    return { id: process.env.ELEVENLABS_VOICE_CHINESE || PREMADE.ALICE, fallback: PREMADE.ALICE, name: 'Alice (East Asian)' }
+  }
+  if (lang.includes('indones') || lang.includes('malay') || lang.includes('javan') || lang.includes('balin')) {
+    return { id: process.env.ELEVENLABS_VOICE_INDONESIAN || PREMADE.ADAM, fallback: PREMADE.ADAM, name: 'Adam (Indonesian/Austronesian)' }
+  }
+  if (lang.includes('arab') || lang.includes('hebrew') || lang.includes('persian') || lang === 'akkadian') {
+    return { id: process.env.ELEVENLABS_VOICE_ARABIC || PREMADE.GEORGE, fallback: PREMADE.GEORGE, name: 'George (Arabic/Near East)' }
+  }
+  if (lang.includes('german') || lang.includes('dutch') || lang.includes('norse') || group.includes('scandinavian')) {
+    return { id: process.env.ELEVENLABS_VOICE_GERMAN || PREMADE.BELLA, fallback: PREMADE.BELLA, name: 'Bella (Germanic)' }
+  }
+  if (lang.includes('french') || lang.includes('italian') || lang.includes('spanish') || lang.includes('portuguese')) {
+    return { id: process.env.ELEVENLABS_VOICE_FRENCH || PREMADE.LILY, fallback: PREMADE.LILY, name: 'Lily (Romance)' }
+  }
+  if (lang.includes('russ') || lang.includes('slav') || lang === 'polish') {
+    return { id: process.env.ELEVENLABS_VOICE_RUSSIAN || PREMADE.ERIC, fallback: PREMADE.ERIC, name: 'Eric (Slavic)' }
+  }
+  return { id: process.env.ELEVENLABS_VOICE_ID || PREMADE.ADAM, fallback: PREMADE.ADAM, name: 'Adam (Default)' }
 }
 
 // Parse command line arguments
@@ -38,7 +85,7 @@ const args = process.argv.slice(2)
 const isAll = args.includes('--all')
 const isForce = args.includes('--force')
 const voiceArg = args.find((a) => a.startsWith('--voice='))
-const voice = voiceArg ? voiceArg.split('=')[1] : 'Charon'
+const fixedVoice = voiceArg ? voiceArg.split('=')[1] : null
 
 const limitArg = args.find((a) => a.startsWith('--limit='))
 let limit = 20
@@ -53,8 +100,8 @@ db.exec('PRAGMA journal_mode = WAL;')
 db.exec(`
   CREATE TABLE IF NOT EXISTS term_audio (
     term_id INTEGER NOT NULL,
-    voice TEXT NOT NULL DEFAULT 'Charon',
-    mime_type TEXT NOT NULL DEFAULT 'audio/wav',
+    voice TEXT NOT NULL DEFAULT 'pNInz6obpgDQGcFmaJgB',
+    mime_type TEXT NOT NULL DEFAULT 'audio/mpeg',
     audio_data BLOB NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (term_id, voice),
@@ -64,33 +111,45 @@ db.exec(`
 `)
 
 let query = `
-  SELECT t.id, t.term, t.romanization, t.language, t.domain, t.gloss
+  SELECT t.id, t.term, t.romanization, t.language, t.language_group, t.domain, t.gloss
   FROM terms t
+  ORDER BY t.id ASC
 `
-if (!isForce) {
-  query += `
-    LEFT JOIN term_audio a ON t.id = a.term_id AND a.voice = ?
-    WHERE a.term_id IS NULL
-  `
-}
-query += ` ORDER BY t.id ASC`
-if (!isAll) {
+if (!isAll && fixedVoice) {
   query += ` LIMIT ${limit}`
 }
 
-const termsToProcess = !isForce
-  ? db.prepare(query).all(voice)
-  : db.prepare(query).all()
+const allTerms = db.prepare(query).all()
+const audioCacheDir = path.join(rootDir, 'data', 'audio')
+if (!fs.existsSync(audioCacheDir)) {
+  fs.mkdirSync(audioCacheDir, { recursive: true })
+}
+
+// Filter terms that need processing
+const termsToProcess = []
+for (const t of allTerms) {
+  const resolved = fixedVoice
+    ? { id: fixedVoice, fallback: PREMADE.ADAM, name: fixedVoice }
+    : resolveVoiceForTerm(t.language, t.language_group)
+
+  const audioFilePath = path.join(audioCacheDir, `${t.id}_${resolved.id}.mp3`)
+  const existsOnDisk = fs.existsSync(audioFilePath) && fs.statSync(audioFilePath).size > 0
+  const row = db.prepare('SELECT 1 FROM term_audio WHERE term_id = ? AND voice = ?').get(t.id, resolved.id)
+
+  if (isForce || (!existsOnDisk && !row)) {
+    termsToProcess.push({ ...t, resolvedVoice: resolved })
+    if (!isAll && termsToProcess.length >= limit) break
+  }
+}
 
 if (termsToProcess.length === 0) {
-  console.log(`\n✨ All terms already have pre-generated audio for voice "${voice}" in SQLite!`)
+  console.log(`\n✨ All terms already have pre-generated audio for their respective language voices!`)
   process.exit(0)
 }
 
-console.log(`\n🎙️  Preheating Gemini TTS audio for ${termsToProcess.length} terms using voice "${voice}"...`)
-console.log('Model: gemini-3.8-flash-lite-tts\n')
+console.log(`\n🎙️  Preheating ElevenLabs TTS audio for ${termsToProcess.length} terms using language-based voices...`)
+console.log('Model: eleven_multilingual_v2\n')
 
-const ai = new GoogleGenAI({ apiKey })
 const saveStmt = db.prepare(`
   INSERT INTO term_audio (term_id, voice, mime_type, audio_data)
   VALUES (?, ?, ?, ?)
@@ -103,66 +162,76 @@ const saveStmt = db.prepare(`
 let successCount = 0
 let failCount = 0
 
-const audioCacheDir = path.join(rootDir, 'data', 'audio')
-if (!fs.existsSync(audioCacheDir)) {
-  fs.mkdirSync(audioCacheDir, { recursive: true })
-}
-
 for (let i = 0; i < termsToProcess.length; i++) {
   const item = termsToProcess[i]
   const textToRecite = (item.term || item.romanization || '').trim()
-  const audioFilePath = path.join(audioCacheDir, `${item.id}_${voice.toLowerCase()}.wav`)
+  let voiceId = item.resolvedVoice.id
+  let audioFilePath = path.join(audioCacheDir, `${item.id}_${voiceId}.mp3`)
 
-  process.stdout.write(`[${i + 1}/${termsToProcess.length}] "${item.term}" (${item.language})... `)
+  process.stdout.write(
+    `[${i + 1}/${termsToProcess.length}] "${item.term}" (${item.language}) -> ${item.resolvedVoice.name}... `
+  )
 
   try {
-    const interaction = await ai.interactions.create({
-      model: 'gemini-3.8-flash-lite-tts',
-      input: [
-        {
-          type: 'user_input',
-          content: [
-            {
-              type: 'text',
-              text: textToRecite,
-              annotations: [
-                {
-                  type: 'speech_metadata',
-                  style: `${item.language} pronunciation`,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-      response_format: { type: 'audio' },
-      generation_config: {
-        speech_config: [
-          { voice },
-        ],
+    let res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`, {
+      method: 'POST',
+      headers: {
+        'xi-api-key': apiKey,
+        'Content-Type': 'application/json',
+        'Accept': 'audio/mpeg',
       },
+      body: JSON.stringify({
+        text: textToRecite,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.8,
+        },
+      }),
     })
 
-    const audioB64 = interaction.output_audio?.data
-    if (!audioB64) {
-      throw new Error('No audio returned in response')
+    if ((res.status === 402 || res.status === 404) && item.resolvedVoice.fallback && item.resolvedVoice.fallback !== voiceId) {
+      voiceId = item.resolvedVoice.fallback
+      audioFilePath = path.join(audioCacheDir, `${item.id}_${voiceId}.mp3`)
+      res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voiceId)}`, {
+        method: 'POST',
+        headers: {
+          'xi-api-key': apiKey,
+          'Content-Type': 'application/json',
+          'Accept': 'audio/mpeg',
+        },
+        body: JSON.stringify({
+          text: textToRecite,
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.8,
+          },
+        }),
+      })
     }
 
-    const audioBuffer = Buffer.from(audioB64, 'base64')
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => ({}))
+      throw new Error(errJson.detail?.message || errJson.message || `HTTP ${res.status}`)
+    }
+
+    const audioArrayBuffer = await res.arrayBuffer()
+    const audioBuffer = Buffer.from(audioArrayBuffer)
+
     fs.writeFileSync(audioFilePath, audioBuffer)
-    saveStmt.run(item.id, voice, 'audio/wav', audioBuffer)
+    saveStmt.run(item.id, voiceId, 'audio/mpeg', audioBuffer)
     successCount++
-    console.log(`✓ (${Math.round(audioBuffer.length / 1024)} KB WAV saved to disk & SQLite)`)
+    console.log(`✓ (${Math.round(audioBuffer.length / 1024)} KB MP3 saved)`)
   } catch (err) {
     failCount++
     console.log(`✗ Error: ${err.message}`)
   }
 
-  // Brief pause to be respectful to rate limits
+  // Rate limit delay between requests
   if (i < termsToProcess.length - 1) {
-    await new Promise((resolve) => setTimeout(resolve, 400))
+    await new Promise((resolve) => setTimeout(resolve, 350))
   }
 }
 
-console.log(`\n🎉 Completed! ${successCount} synthesized & cached in SQLite, ${failCount} failed.`)
-
+console.log(`\n🎉 Completed! ${successCount} synthesized & cached, ${failCount} failed.`)

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import fs from 'node:fs'
 import path from 'node:path'
 import { getTermById, getCachedTermAudio, saveCachedTermAudio } from '@/lib/db'
-import { GoogleGenAI } from '@google/genai'
+import { resolveVoiceForLanguage, PREMADE_VOICES } from '@/lib/voice-router'
 
 const AUDIO_CACHE_DIR = path.join(process.cwd(), 'data', 'audio')
 
@@ -19,13 +19,14 @@ export async function GET(req: NextRequest) {
     // Status query
     if (searchParams.get('status')) {
       return NextResponse.json({
-        geminiConfigured: !!process.env.GEMINI_API_KEY,
-        defaultVoice: 'Charon',
+        elevenLabsConfigured: !!process.env.ELEVENLABS_API_KEY,
+        languageRoutingEnabled: true,
+        defaultVoice: process.env.ELEVENLABS_VOICE_ID || PREMADE_VOICES.ADAM,
+        availablePremadeVoices: PREMADE_VOICES,
       })
     }
 
     const idParam = searchParams.get('id') || searchParams.get('termId')
-    const voice = (searchParams.get('voice') || 'Charon').trim()
 
     if (!idParam) {
       return NextResponse.json(
@@ -50,8 +51,14 @@ export async function GET(req: NextRequest) {
       )
     }
 
+    // Determine speaker voice based on term's language or explicit query param
+    const explicitVoice = searchParams.get('voice')?.trim()
+    const voiceRoute = resolveVoiceForLanguage(term.language, term.language_group)
+    let targetVoiceId = explicitVoice || voiceRoute.voiceId
+    const fallbackVoiceId = voiceRoute.fallbackVoiceId
+
     ensureAudioDir()
-    const audioFilePath = path.join(AUDIO_CACHE_DIR, `${term.id}_${voice.toLowerCase()}.wav`)
+    let audioFilePath = path.join(AUDIO_CACHE_DIR, `${term.id}_${targetVoiceId}.mp3`)
 
     // 1. Check if saved audio file already exists on disk
     if (fs.existsSync(audioFilePath)) {
@@ -60,17 +67,20 @@ export async function GET(req: NextRequest) {
         return new Response(fileBuffer, {
           status: 200,
           headers: {
-            'Content-Type': 'audio/wav',
+            'Content-Type': 'audio/mpeg',
             'Content-Length': String(fileBuffer.length),
             'Cache-Control': 'public, max-age=31536000, immutable',
             'X-TTS-Source': 'disk-file',
+            'X-TTS-Voice': targetVoiceId,
+            'X-TTS-Voice-Name': voiceRoute.voiceName,
+            'X-TTS-Language': term.language || 'Unknown',
           },
         })
       }
     }
 
     // 2. Check SQLite audio cache
-    const cached = getCachedTermAudio(term.id, voice)
+    const cached = getCachedTermAudio(term.id, targetVoiceId)
     if (cached && cached.audio_data && cached.audio_data.length > 0) {
       const buffer = Buffer.from(cached.audio_data)
       try {
@@ -82,70 +92,99 @@ export async function GET(req: NextRequest) {
       return new Response(buffer, {
         status: 200,
         headers: {
-          'Content-Type': cached.mime_type || 'audio/wav',
+          'Content-Type': cached.mime_type || 'audio/mpeg',
           'Content-Length': String(buffer.length),
           'Cache-Control': 'public, max-age=31536000, immutable',
           'X-TTS-Source': 'sqlite-cache',
+          'X-TTS-Voice': targetVoiceId,
+          'X-TTS-Voice-Name': voiceRoute.voiceName,
+          'X-TTS-Language': term.language || 'Unknown',
         },
       })
     }
 
-    // 3. Check if GEMINI_API_KEY is available
-    const apiKey = process.env.GEMINI_API_KEY
+    // 3. Check if ELEVENLABS_API_KEY is available
+    const apiKey = process.env.ELEVENLABS_API_KEY
     if (!apiKey) {
       return NextResponse.json(
         {
-          error: 'GEMINI_API_KEY_NOT_CONFIGURED',
-          message: 'Gemini API key is not configured in .env.local',
+          error: 'ELEVENLABS_API_KEY_NOT_CONFIGURED',
+          message: 'ElevenLabs API key is not configured in .env.local',
         },
         { status: 503 }
       )
     }
 
-    // 4. Generate studio audio via Gemini 3.8 Flash-Lite TTS
-    const ai = new GoogleGenAI({ apiKey })
-
-    // Speak ONLY the word itself (never instructions or preambles)
+    // 4. Generate audio via ElevenLabs Text-to-Speech API
+    // Strictly the word itself
     const textToRecite = (term.term || term.romanization || '').trim()
 
-    const interaction = await ai.interactions.create({
-      model: 'gemini-3.8-flash-lite-tts',
-      input: [
-        {
-          type: 'user_input',
-          content: [
-            {
-              type: 'text',
-              text: textToRecite,
-              annotations: [
-                {
-                  type: 'speech_metadata',
-                  style: `${term.language} pronunciation`,
-                },
-              ],
-            },
-          ],
+    let elevenRes = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(targetVoiceId)}`,
+      {
+        method: 'POST',
+        headers: {
+          'xi-api-key': apiKey,
+          'Content-Type': 'application/json',
+          'Accept': 'audio/mpeg',
         },
-      ],
-      response_format: { type: 'audio' },
-      generation_config: {
-        speech_config: [
-          { voice },
-        ],
-      },
-    })
+        body: JSON.stringify({
+          text: textToRecite,
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.8,
+          },
+        }),
+      }
+    )
 
-    const audioDataB64 = interaction.output_audio?.data
-    if (!audioDataB64) {
-      return NextResponse.json(
-        { error: 'Failed to retrieve audio output from Gemini' },
-        { status: 502 }
+    // Seamless fallback to premade voice if custom/library voice returns 402 or 404
+    if ((elevenRes.status === 402 || elevenRes.status === 404) && fallbackVoiceId && fallbackVoiceId !== targetVoiceId) {
+      console.warn(
+        `ElevenLabs voice ${targetVoiceId} failed with ${elevenRes.status}. Retrying with premade voice ${fallbackVoiceId}...`
+      )
+      targetVoiceId = fallbackVoiceId
+      audioFilePath = path.join(AUDIO_CACHE_DIR, `${term.id}_${targetVoiceId}.mp3`)
+
+      elevenRes = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(targetVoiceId)}`,
+        {
+          method: 'POST',
+          headers: {
+            'xi-api-key': apiKey,
+            'Content-Type': 'application/json',
+            'Accept': 'audio/mpeg',
+          },
+          body: JSON.stringify({
+            text: textToRecite,
+            model_id: 'eleven_multilingual_v2',
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.8,
+            },
+          }),
+        }
       )
     }
 
-    const audioBuffer = Buffer.from(audioDataB64, 'base64')
+    if (!elevenRes.ok) {
+      const errData = await elevenRes.json().catch(() => ({}))
+      const errMsg =
+        errData.detail?.message ||
+        errData.message ||
+        `ElevenLabs request failed with status ${elevenRes.status}`
+      console.error('ElevenLabs API error:', errMsg)
+      return NextResponse.json(
+        { error: 'ELEVENLABS_API_ERROR', message: errMsg },
+        { status: elevenRes.status }
+      )
+    }
 
-    // 5. Permanently save to disk file AND SQLite so it is NEVER generated again
+    const audioArrayBuffer = await elevenRes.arrayBuffer()
+    const audioBuffer = Buffer.from(audioArrayBuffer)
+
+    // 5. Permanently save to disk file AND SQLite
     try {
       fs.writeFileSync(audioFilePath, audioBuffer)
     } catch (fsErr) {
@@ -153,7 +192,7 @@ export async function GET(req: NextRequest) {
     }
 
     try {
-      saveCachedTermAudio(term.id, voice, audioBuffer, 'audio/wav')
+      saveCachedTermAudio(term.id, targetVoiceId, audioBuffer, 'audio/mpeg')
     } catch (cacheErr) {
       console.warn('Failed to cache audio in SQLite:', cacheErr)
     }
@@ -161,10 +200,13 @@ export async function GET(req: NextRequest) {
     return new Response(audioBuffer, {
       status: 200,
       headers: {
-        'Content-Type': 'audio/wav',
+        'Content-Type': 'audio/mpeg',
         'Content-Length': String(audioBuffer.length),
         'Cache-Control': 'public, max-age=31536000, immutable',
-        'X-TTS-Source': 'gemini-api',
+        'X-TTS-Source': 'elevenlabs-api',
+        'X-TTS-Voice': targetVoiceId,
+        'X-TTS-Voice-Name': voiceRoute.voiceName,
+        'X-TTS-Language': term.language || 'Unknown',
       },
     })
   } catch (err: unknown) {

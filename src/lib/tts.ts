@@ -1,8 +1,7 @@
 /**
  * Audio playback engine for Overseer Lexicon:
- * - Plays studio-grade human audio via Gemini 3.8 Flash TTS (/api/tts)
+ * - Plays studio-grade human audio via ElevenLabs TTS (/api/tts)
  * - Uses SQLite & local disk-cached audio files
- * - Fully removes browser-native robotic speech synthesis
  */
 
 export interface SpeakOptions {
@@ -32,12 +31,12 @@ export function stopSpeaking(): void {
 }
 
 /**
- * Plays the studio-grade pronunciation audio for a lexicon term.
+ * Plays the studio-grade pronunciation audio for a lexicon term using ElevenLabs.
  */
 export function speakLexiconTerm(options: SpeakOptions): void {
   stopSpeaking()
 
-  const { id, term, voice = 'Charon', onStart, onEnd, onError } = options
+  const { id, term, voice, onStart, onEnd, onError } = options
 
   if (!id) {
     onError?.(new Error('Term ID is required to play pronunciation audio.'))
@@ -48,7 +47,8 @@ export function speakLexiconTerm(options: SpeakOptions): void {
 
   onStart?.()
 
-  const audioUrl = `/api/tts?id=${encodeURIComponent(id)}&voice=${encodeURIComponent(voice)}`
+  const voiceQuery = voice ? `&voice=${encodeURIComponent(voice)}` : ''
+  const audioUrl = `/api/tts?id=${encodeURIComponent(id)}${voiceQuery}`
   const audio = new Audio()
   activeAudio = audio
 
@@ -71,8 +71,8 @@ export function speakLexiconTerm(options: SpeakOptions): void {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
         const message =
-          data.error === 'GEMINI_API_KEY_NOT_CONFIGURED'
-            ? 'Gemini API key is not configured in .env.local'
+          data.error === 'ELEVENLABS_API_KEY_NOT_CONFIGURED'
+            ? 'ElevenLabs API key is not configured in .env.local'
             : data.message || `Failed to load audio (${res.status})`
         cleanup()
         onError?.(new Error(message))
