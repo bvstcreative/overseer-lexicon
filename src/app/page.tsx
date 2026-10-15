@@ -210,8 +210,10 @@ export default function Home() {
   const [importing, setImporting] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
 
-  // "I'm Feeling Lucky" random term modal
-  const [luckyItem, setLuckyItem] = useState<LexiconItem | null>(null)
+  // "I'm Feeling Lucky" random term modal — history stack lets Next/Previous navigate
+  const [luckyHistory, setLuckyHistory] = useState<LexiconItem[]>([])
+  const [luckyIndex, setLuckyIndex] = useState(-1)
+  const luckyItem = luckyIndex >= 0 ? luckyHistory[luckyIndex] ?? null : null
 
   // Duplicate options
   const [duplicateMode, setDuplicateMode] = useState<'term' | 'term_language'>('term')
@@ -754,16 +756,19 @@ export default function Home() {
     const pool = list.length > 0 ? list : rows
     if (pool.length === 0) return
     const randomIndex = Math.floor(Math.random() * pool.length)
-    setLuckyItem(pool[randomIndex])
+    setLuckyHistory([pool[randomIndex]])
+    setLuckyIndex(0)
   }, [list, rows])
 
   const closeLucky = useCallback(() => {
     stopSpeaking()
     setSpeakingKey((curr) => (curr === 'lucky' ? null : curr))
-    setLuckyItem(null)
+    setLuckyIndex(-1)
   }, [])
 
-  const rollAnotherLucky = useCallback(() => {
+  const hasPreviousLucky = luckyIndex > 0
+
+  const rollNextLucky = useCallback(() => {
     stopSpeaking()
     setSpeakingKey((curr) => (curr === 'lucky' ? null : curr))
     const pool = list.length > 1 ? list : rows
@@ -772,19 +777,31 @@ export default function Home() {
     if (pool.length > 1 && luckyItem && pool[randomIndex].id === luckyItem.id) {
       randomIndex = (randomIndex + 1) % pool.length
     }
-    setLuckyItem(pool[randomIndex])
-  }, [list, rows, luckyItem])
+    const nextItem = pool[randomIndex]
+    setLuckyHistory((prev) => [...prev.slice(0, luckyIndex + 1), nextItem])
+    setLuckyIndex((i) => i + 1)
+  }, [list, rows, luckyItem, luckyIndex])
 
-  // Keyboard controls for full-screen Lucky card (Esc to close, Space/R to roll, P/L to pronounce)
+  const rollPreviousLucky = useCallback(() => {
+    if (!hasPreviousLucky) return
+    stopSpeaking()
+    setSpeakingKey((curr) => (curr === 'lucky' ? null : curr))
+    setLuckyIndex((i) => Math.max(0, i - 1))
+  }, [hasPreviousLucky])
+
+  // Keyboard controls for full-screen Lucky card (Esc to close, ←/→ or Space/R to navigate, P/L to pronounce)
   useEffect(() => {
     if (!luckyItem) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         closeLucky()
-      } else if (e.key === ' ' || e.key === 'r' || e.key === 'R') {
+      } else if (e.key === ' ' || e.key === 'r' || e.key === 'R' || e.key === 'ArrowRight') {
         e.preventDefault()
-        rollAnotherLucky()
+        rollNextLucky()
+      } else if (e.key === 'ArrowLeft' && hasPreviousLucky) {
+        e.preventDefault()
+        rollPreviousLucky()
       } else if (e.key === 'p' || e.key === 'P' || e.key === 'l' || e.key === 'L') {
         e.preventDefault()
         handleToggleSpeak(luckyItem, 'lucky')
@@ -793,7 +810,7 @@ export default function Home() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [luckyItem, rollAnotherLucky, closeLucky, handleToggleSpeak])
+  }, [luckyItem, rollNextLucky, rollPreviousLucky, hasPreviousLucky, closeLucky, handleToggleSpeak])
 
   const total = useMemo(() => {
     const td: Record<string, number> = {}, tr: Record<string, number> = {}, te: Record<string, number> = {}, tl: Record<string, number> = {}
@@ -1591,18 +1608,31 @@ export default function Home() {
                 </button>
               </div>
 
-              <button
-                type="button"
-                className="lucky-primary-btn"
-                onClick={rollAnotherLucky}
-                title="Roll another random term (or press Space)"
-              >
-                <ICON.dice />
-                <span>Roll Another Word</span>
-                <span style={{ opacity: 0.75, fontSize: 11, fontFamily: 'var(--font-mono)', marginLeft: 4 }}>
-                  [Space · P to Listen]
-                </span>
-              </button>
+              <div className="lucky-nav">
+                <button
+                  type="button"
+                  className="lucky-nav-btn"
+                  onClick={rollPreviousLucky}
+                  disabled={!hasPreviousLucky}
+                  title={hasPreviousLucky ? 'Previous term (←)' : 'No previous term'}
+                  aria-label="Previous term"
+                >
+                  <ICON.up style={{ transform: 'rotate(-90deg)' }} />
+                  <span>Previous</span>
+                </button>
+                <button
+                  type="button"
+                  className="lucky-primary-btn"
+                  onClick={rollNextLucky}
+                  title="Next random term (Space, → or P to Listen)"
+                >
+                  <ICON.dice />
+                  <span>Next Word</span>
+                  <span style={{ opacity: 0.75, fontSize: 11, fontFamily: 'var(--font-mono)', marginLeft: 4 }}>
+                    [Space]
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
