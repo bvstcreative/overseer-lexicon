@@ -243,9 +243,13 @@ export default function Home() {
       voice: 'Charon',
       onStart: () => setSpeakingKey(key),
       onEnd: () => setSpeakingKey((curr) => (curr === key ? null : curr)),
-      onError: () => setSpeakingKey((curr) => (curr === key ? null : curr)),
+      onError: (err) => {
+        setSpeakingKey((curr) => (curr === key ? null : curr))
+        const msg = err instanceof Error ? err.message : 'Unable to play pronunciation audio'
+        showToast(msg)
+      },
     })
-  }, [speakingKey])
+  }, [speakingKey, showToast])
 
   useEffect(() => {
     return () => {
