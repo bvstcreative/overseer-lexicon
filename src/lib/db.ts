@@ -461,3 +461,67 @@ export function getStats(): LexiconStats {
     languages,
   }
 }
+
+export function getExistingTermPairs(): Array<{ term: string; language: string }> {
+  const db = getDb()
+  return db.prepare('SELECT term, language FROM terms ORDER BY id ASC').all() as Array<{ term: string; language: string }>
+}
+
+export function createTermsBatch(terms: NewTermInput[]): { inserted: TermRecord[]; skippedCount: number } {
+  const db = getDb()
+  const inserted: TermRecord[] = []
+  let skippedCount = 0
+
+  const checkStmt = db.prepare('SELECT id FROM terms WHERE lower(term) = lower(?) AND lower(language) = lower(?)')
+  const insertStmt = db.prepare(`
+    INSERT INTO terms (term, romanization, language, language_group, region, era, domain, gloss)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `)
+
+  db.exec('BEGIN')
+  try {
+    for (const input of terms) {
+      const term = input.term.trim()
+      const lang = input.language.trim()
+      const exists = checkStmt.get(term, lang)
+      if (exists) {
+        skippedCount++
+        continue
+      }
+
+      const res = insertStmt.run(
+        term,
+        (input.romanization || '').trim(),
+        lang,
+        input.language_group.trim(),
+        input.region.trim(),
+        input.era.trim(),
+        input.domain.trim(),
+        input.gloss.trim()
+      )
+      const id = Number(res.lastInsertRowid)
+      inserted.push({
+        id,
+        term,
+        romanization: (input.romanization || '').trim(),
+        language: lang,
+        language_group: input.language_group.trim(),
+        region: input.region.trim(),
+        era: input.era.trim(),
+        domain: input.domain.trim(),
+        gloss: input.gloss.trim(),
+        created_at: new Date().toISOString(),
+        starred: false,
+      })
+    }
+    db.exec('COMMIT')
+  } catch (err) {
+    try {
+      db.exec('ROLLBACK')
+    } catch {}
+    throw err
+  }
+
+  return { inserted, skippedCount }
+}
+

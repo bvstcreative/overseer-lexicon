@@ -39,7 +39,10 @@ export async function GET(request: NextRequest) {
       terms,
       total: terms.length,
     })
-  } catch (error) {
+  } catch (error: unknown) {
+    if (typeof error === 'object' && error !== null && 'digest' in error && (error as { digest: string }).digest === 'NEXT_PRERENDER_INTERRUPTED') {
+      throw error
+    }
     console.error('Failed to get terms:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
