@@ -110,6 +110,36 @@ export function getDb(): DatabaseSync {
       FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE NOT NULL COLLATE NOCASE,
+      email TEXT UNIQUE COLLATE NOCASE,
+      password_hash TEXT NOT NULL,
+      salt TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      token TEXT PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS user_stars (
+      user_id INTEGER NOT NULL,
+      term_id INTEGER NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (user_id, term_id),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_user_stars_user ON user_stars(user_id);
+    CREATE INDEX IF NOT EXISTS idx_user_stars_term ON user_stars(term_id);
+    CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+
     CREATE VIRTUAL TABLE IF NOT EXISTS terms_fts USING fts5(
       term,
       romanization,
@@ -191,10 +221,23 @@ export function seedDatabase(force = false): { seeded: number } {
   return { seeded: countRow.count }
 }
 
-export function getAllTerms(filter?: TermFilter): TermRecord[] {
+export function getAllTerms(filter?: TermFilter, userId?: number): TermRecord[] {
   const db = getDb()
   const conditions: string[] = []
-  const params: unknown[] = []
+  const joinParams: unknown[] = []
+  const whereParams: unknown[] = []
+
+  let starJoin = ''
+  let starSelect = ''
+
+  if (userId) {
+    starJoin = `LEFT JOIN user_stars us ON t.id = us.term_id AND us.user_id = ?`
+    starSelect = `CASE WHEN us.term_id IS NOT NULL THEN 1 ELSE 0 END as starred`
+    joinParams.push(userId)
+  } else {
+    starJoin = `LEFT JOIN stars s ON t.id = s.term_id`
+    starSelect = `CASE WHEN s.term_id IS NOT NULL THEN 1 ELSE 0 END as starred`
+  }
 
   if (filter?.q) {
     const tokens = norm(filter.q).split(/\s+/).filter(Boolean)
@@ -202,36 +245,40 @@ export function getAllTerms(filter?: TermFilter): TermRecord[] {
       conditions.push(`
         norm(t.term || ' ' || COALESCE(t.romanization, '') || ' ' || t.language || ' ' || t.language_group || ' ' || t.region || ' ' || t.era || ' ' || t.domain || ' ' || t.gloss) LIKE ?
       `)
-      params.push(`%${token}%`)
+      whereParams.push(`%${token}%`)
     }
   }
 
   if (filter?.domain && filter.domain.length > 0) {
     const placeholders = filter.domain.map(() => '?').join(', ')
     conditions.push(`t.domain IN (${placeholders})`)
-    params.push(...filter.domain)
+    whereParams.push(...filter.domain)
   }
 
   if (filter?.region && filter.region.length > 0) {
     const placeholders = filter.region.map(() => '?').join(', ')
     conditions.push(`t.region IN (${placeholders})`)
-    params.push(...filter.region)
+    whereParams.push(...filter.region)
   }
 
   if (filter?.era && filter.era.length > 0) {
     const placeholders = filter.era.map(() => '?').join(', ')
     conditions.push(`t.era IN (${placeholders})`)
-    params.push(...filter.era)
+    whereParams.push(...filter.era)
   }
 
   if (filter?.lg && filter.lg.length > 0) {
     const placeholders = filter.lg.map(() => '?').join(', ')
     conditions.push(`t.language_group IN (${placeholders})`)
-    params.push(...filter.lg)
+    whereParams.push(...filter.lg)
   }
 
   if (filter?.starred) {
-    conditions.push(`s.term_id IS NOT NULL`)
+    if (userId) {
+      conditions.push(`us.term_id IS NOT NULL`)
+    } else {
+      conditions.push(`s.term_id IS NOT NULL`)
+    }
   }
 
   let orderBy = `ORDER BY t.term COLLATE NOCASE ASC`
@@ -261,13 +308,14 @@ export function getAllTerms(filter?: TermFilter): TermRecord[] {
       t.domain,
       t.gloss,
       t.created_at,
-      CASE WHEN s.term_id IS NOT NULL THEN 1 ELSE 0 END as starred
+      ${starSelect}
     FROM terms t
-    LEFT JOIN stars s ON t.id = s.term_id
+    ${starJoin}
     ${whereClause}
     ${orderBy}
   `
 
+  const params = [...joinParams, ...whereParams]
   const rows = db.prepare(sql).all(...params) as Array<{
     id: number
     term: string
@@ -297,25 +345,52 @@ export function getAllTerms(filter?: TermFilter): TermRecord[] {
   }))
 }
 
-export function getTermById(id: number): TermRecord | null {
+export function getTermById(id: number, userId?: number): TermRecord | null {
   const db = getDb()
-  const row = db.prepare(`
-    SELECT 
-      t.id,
-      t.term,
-      t.romanization,
-      t.language,
-      t.language_group,
-      t.region,
-      t.era,
-      t.domain,
-      t.gloss,
-      t.created_at,
-      CASE WHEN s.term_id IS NOT NULL THEN 1 ELSE 0 END as starred
-    FROM terms t
-    LEFT JOIN stars s ON t.id = s.term_id
-    WHERE t.id = ?
-  `).get(id) as {
+  let sql = ''
+  let params: unknown[] = []
+
+  if (userId) {
+    sql = `
+      SELECT 
+        t.id,
+        t.term,
+        t.romanization,
+        t.language,
+        t.language_group,
+        t.region,
+        t.era,
+        t.domain,
+        t.gloss,
+        t.created_at,
+        CASE WHEN us.term_id IS NOT NULL THEN 1 ELSE 0 END as starred
+      FROM terms t
+      LEFT JOIN user_stars us ON t.id = us.term_id AND us.user_id = ?
+      WHERE t.id = ?
+    `
+    params = [userId, id]
+  } else {
+    sql = `
+      SELECT 
+        t.id,
+        t.term,
+        t.romanization,
+        t.language,
+        t.language_group,
+        t.region,
+        t.era,
+        t.domain,
+        t.gloss,
+        t.created_at,
+        CASE WHEN s.term_id IS NOT NULL THEN 1 ELSE 0 END as starred
+      FROM terms t
+      LEFT JOIN stars s ON t.id = s.term_id
+      WHERE t.id = ?
+    `
+    params = [id]
+  }
+
+  const row = db.prepare(sql).get(...params) as {
     id: number
     term: string
     romanization: string | null
@@ -429,11 +504,62 @@ export function getStarredTermIds(): number[] {
   return rows.map((r) => r.term_id)
 }
 
-export function getStats(): LexiconStats {
+export function getUserStarredTermIds(userId: number): number[] {
+  const db = getDb()
+  const rows = db.prepare('SELECT term_id FROM user_stars WHERE user_id = ? ORDER BY created_at DESC').all(userId) as Array<{ term_id: number }>
+  return rows.map((r) => r.term_id)
+}
+
+export function toggleUserStar(userId: number, termId: number, setStarred?: boolean): boolean {
+  const db = getDb()
+  const exists = db.prepare('SELECT 1 FROM user_stars WHERE user_id = ? AND term_id = ?').get(userId, termId)
+
+  const shouldStar = setStarred !== undefined ? setStarred : !exists
+
+  if (shouldStar) {
+    db.prepare('INSERT OR IGNORE INTO user_stars (user_id, term_id) VALUES (?, ?)').run(userId, termId)
+    return true
+  } else {
+    db.prepare('DELETE FROM user_stars WHERE user_id = ? AND term_id = ?').run(userId, termId)
+    return false
+  }
+}
+
+export function syncUserStars(userId: number, termIds: number[]): number {
+  if (!termIds || termIds.length === 0) return 0
+  const db = getDb()
+  const stmt = db.prepare('INSERT OR IGNORE INTO user_stars (user_id, term_id) VALUES (?, ?)')
+  let count = 0
+  db.exec('BEGIN')
+  try {
+    for (const tid of termIds) {
+      const num = Number(tid)
+      if (!isNaN(num) && num > 0) {
+        const res = stmt.run(userId, num)
+        if (Number(res.changes) > 0) count++
+      }
+    }
+    db.exec('COMMIT')
+  } catch (err) {
+    try { db.exec('ROLLBACK') } catch {}
+    throw err
+  }
+  return count
+}
+
+export function getUserStarredCount(userId: number): number {
+  const db = getDb()
+  const row = db.prepare('SELECT count(*) as count FROM user_stars WHERE user_id = ?').get(userId) as { count: number } | undefined
+  return row?.count || 0
+}
+
+export function getStats(userId?: number): LexiconStats {
   const db = getDb()
 
   const totalTermsRow = db.prepare('SELECT count(*) as count FROM terms').get() as { count: number }
-  const totalStarsRow = db.prepare('SELECT count(*) as count FROM stars').get() as { count: number }
+  const totalStarsRow = userId
+    ? (db.prepare('SELECT count(*) as count FROM user_stars WHERE user_id = ?').get(userId) as { count: number })
+    : (db.prepare('SELECT count(*) as count FROM stars').get() as { count: number })
 
   const domainRows = db.prepare('SELECT domain, count(*) as count FROM terms GROUP BY domain').all() as Array<{ domain: string; count: number }>
   const regionRows = db.prepare('SELECT region, count(*) as count FROM terms GROUP BY region').all() as Array<{ region: string; count: number }>
@@ -454,7 +580,7 @@ export function getStats(): LexiconStats {
 
   return {
     totalTerms: totalTermsRow.count,
-    totalStarred: totalStarsRow.count,
+    totalStarred: totalStarsRow ? totalStarsRow.count : 0,
     domains,
     regions,
     eras,

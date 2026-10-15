@@ -233,3 +233,29 @@ footer p{margin:10px 0 0}
   .lucky-overlay{padding:0}
   .lucky-card{min-height:100dvh;border-radius:0;border:none;padding:24px 20px 32px;justify-content:space-between}
 }
+
+/* User Authentication & Profile */
+.user-nav{display:inline-flex;align-items:center;gap:6px}
+.user-btn{display:inline-flex;align-items:center;gap:8px;padding:0 12px;height:44px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font-weight:500;transition:border-color .15s,background .15s}
+.user-btn:hover{border-color:var(--accent)}
+.user-btn.active{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.user-btn.active svg{fill:var(--star);color:var(--star)}
+.user-name{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logout-btn{height:44px;width:44px;padding:0;display:grid;place-items:center;border-radius:8px;color:var(--ink-3)}
+.logout-btn:hover{color:var(--ink);background:var(--surface-2)}
+
+.sheet.auth-sheet{max-width:440px}
+.auth-notice{margin:12px 0 6px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);border:1px solid var(--accent);color:var(--ink);font-size:13px;line-height:1.45}
+.auth-error{margin:12px 0 6px;padding:10px 12px;border-radius:8px;background:#fee2e2;border:1px solid #ef4444;color:#991b1b;font-size:13px}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .auth-error{background:#450a0a;border-color:#b91c1c;color:#fecaca}
+}
+.auth-form{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.auth-field{display:flex;flex-direction:column;gap:5px}
+.auth-field label{font:600 12px var(--font-mono);color:var(--ink-2);letter-spacing:.04em;text-transform:uppercase}
+.auth-field span.sublabel{font-weight:400;text-transform:none;color:var(--ink-3);margin-left:4px}
+.auth-input{height:42px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);color:var(--ink);font-size:14.5px;transition:border-color .15s}
+.auth-input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.auth-actions{margin-top:6px;display:flex;flex-direction:column;gap:10px}
+.auth-switch{text-align:center;font-size:13px;color:var(--ink-2)}
+.auth-switch button{background:none;border:none;color:var(--accent);font-weight:600;padding:0 4px;cursor:pointer;text-decoration:underline}

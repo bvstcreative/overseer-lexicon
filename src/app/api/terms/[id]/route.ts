@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getTermById, updateTerm, deleteTerm } from '@/lib/db'
+import { getUserFromRequest } from '@/lib/auth'
 
 type RouteContext = {
   params: Promise<{ id: string }>
@@ -7,13 +8,14 @@ type RouteContext = {
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
+    const user = getUserFromRequest(request)
     const { id } = await context.params
     const numId = parseInt(id, 10)
     if (isNaN(numId)) {
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 })
     }
 
-    const term = getTermById(numId)
+    const term = getTermById(numId, user?.id)
     if (!term) {
       return NextResponse.json({ error: 'Term not found' }, { status: 404 })
     }

@@ -44,6 +44,36 @@ db.exec(`
     FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE CASCADE
   );
 
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL COLLATE NOCASE,
+    email TEXT UNIQUE COLLATE NOCASE,
+    password_hash TEXT NOT NULL,
+    salt TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS sessions (
+    token TEXT PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    expires_at INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS user_stars (
+    user_id INTEGER NOT NULL,
+    term_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, term_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (term_id) REFERENCES terms(id) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_user_stars_user ON user_stars(user_id);
+  CREATE INDEX IF NOT EXISTS idx_user_stars_term ON user_stars(term_id);
+  CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+
   CREATE VIRTUAL TABLE IF NOT EXISTS terms_fts USING fts5(
     term,
     romanization,

@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllTerms, createTerm, TermFilter, NewTermInput } from '@/lib/db'
+import { getUserFromRequest } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
+    const user = getUserFromRequest(request)
     const { searchParams } = new URL(request.url)
 
     const q = searchParams.get('q') || undefined
@@ -33,11 +35,12 @@ export async function GET(request: NextRequest) {
       lg,
     }
 
-    const terms = getAllTerms(filter)
+    const terms = getAllTerms(filter, user?.id)
 
     return NextResponse.json({
       terms,
       total: terms.length,
+      authenticated: Boolean(user),
     })
   } catch (error: unknown) {
     if (typeof error === 'object' && error !== null && 'digest' in error && (error as { digest: string }).digest === 'NEXT_PRERENDER_INTERRUPTED') {

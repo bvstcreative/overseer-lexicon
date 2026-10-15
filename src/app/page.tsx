@@ -84,7 +84,26 @@ const ICON = {
       <circle cx="8.5" cy="15.5" r="1.5" fill="currentColor" />
       <circle cx="15.5" cy="15.5" r="1.5" fill="currentColor" />
     </svg>
+  ),
+  user: (props: IconProps) => (
+    <svg {...props} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  ),
+  logout: (props: IconProps) => (
+    <svg {...props} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
   )
+}
+
+interface AuthUser {
+  id: number
+  username: string
+  email: string | null
 }
 
 const PAGE_SIZE = 48
@@ -188,12 +207,37 @@ export default function Home() {
     setTimeout(() => setToast(null), 3500)
   }, [])
 
-  // Fetch terms and stars from SQLite backend
+  // User Authentication & Personal Bookmarks state
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null)
+  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const [authTab, setAuthTab] = useState<'signin' | 'register'>('signin')
+  const [authLoading, setAuthLoading] = useState(false)
+  const [authError, setAuthError] = useState<string | null>(null)
+  const [authNotice, setAuthNotice] = useState<string | null>(null)
+  const [signinIdent, setSigninIdent] = useState('')
+  const [signinPass, setSigninPass] = useState('')
+  const [regUsername, setRegUsername] = useState('')
+  const [regEmail, setRegEmail] = useState('')
+  const [regPass, setRegPass] = useState('')
+  const [regPassConfirm, setRegPassConfirm] = useState('')
+  const [pendingBookmark, setPendingBookmark] = useState<LexiconItem | null>(null)
+
+  // Fetch terms, authentication, and stars from SQLite backend
   useEffect(() => {
     let isMounted = true
 
     async function loadData() {
       try {
+        let authUser: AuthUser | null = null
+        try {
+          const authRes = await fetch('/api/auth/me')
+          const authData = await authRes.json()
+          if (authData.user) {
+            authUser = authData.user
+            if (isMounted) setCurrentUser(authUser)
+          }
+        } catch {}
+
         const res = await fetch('/api/terms')
         const data = await res.json()
         if (isMounted && Array.isArray(data.terms)) {
@@ -211,19 +255,30 @@ export default function Home() {
           setShuffleRank(rank)
 
           const starSet = new Set<string>()
-          data.terms.forEach((t: TermApiRecord) => {
-            if (t.starred) {
-              starSet.add(String(t.id))
-              starSet.add(t.term + '|' + t.language)
-            }
-          })
+          if (authUser) {
+            try {
+              const starsRes = await fetch('/api/stars')
+              const starsData = await starsRes.json()
+              if (Array.isArray(starsData.starredIds)) {
+                starsData.starredIds.forEach((id: number) => {
+                  starSet.add(String(id))
+                  const found = transformed.find(t => t.dbId === id)
+                  if (found) starSet.add(found.id)
+                })
+              }
+            } catch {}
+          } else {
+            // Unauthenticated: merge with localStorage if previous saved state exists
+            try {
+              const saved = JSON.parse(localStorage.getItem(KEY) || '{}')
+              if (Array.isArray(saved.stars)) {
+                saved.stars.forEach((s: string) => starSet.add(s))
+              }
+            } catch {}
+          }
 
-          // Merge with localStorage if previous saved state exists
           try {
             const saved = JSON.parse(localStorage.getItem(KEY) || '{}')
-            if (Array.isArray(saved.stars)) {
-              saved.stars.forEach((s: string) => starSet.add(s))
-            }
             if (saved.view === 'compact' || saved.view === 'cards') {
               setView(saved.view)
             }
@@ -262,6 +317,15 @@ export default function Home() {
   }, [stars])
 
   const toggleStarItem = useCallback(async (r: LexiconItem) => {
+    if (!currentUser) {
+      setPendingBookmark(r)
+      setAuthNotice(`Sign in or create an account to bookmark "${r.t}" to your personal collection.`)
+      setAuthTab('register')
+      setAuthError(null)
+      setAuthModalOpen(true)
+      return
+    }
+
     const currentlyStarred = isStarred(r)
     const nextStars = new Set(stars)
 
@@ -275,15 +339,186 @@ export default function Home() {
     setStars(nextStars)
 
     try {
-      await fetch('/api/stars', {
+      const res = await fetch('/api/stars', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ termId: r.dbId, starred: !currentlyStarred }),
       })
+      const data = await res.json()
+      if (!res.ok) {
+        setStars(stars)
+        showToast(data.error || 'Failed to update bookmark')
+      } else {
+        showToast(currentlyStarred ? `Removed "${r.t}" from bookmarks` : `Saved "${r.t}" to your bookmarks`)
+      }
     } catch (err) {
       console.error('Failed to sync star status to backend:', err)
+      setStars(stars)
+      showToast('Network error updating bookmark')
     }
-  }, [stars, isStarred])
+  }, [currentUser, stars, isStarred, showToast])
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAuthError(null)
+
+    if (!regUsername.trim()) {
+      setAuthError('Please enter a username.')
+      return
+    }
+    if (regUsername.trim().length < 3) {
+      setAuthError('Username must be at least 3 characters.')
+      return
+    }
+    if (!/^[a-zA-Z0-9_-]+$/.test(regUsername.trim())) {
+      setAuthError('Username can only contain letters, numbers, underscores, and hyphens.')
+      return
+    }
+    if (regPass.length < 6) {
+      setAuthError('Password must be at least 6 characters.')
+      return
+    }
+    if (regPass !== regPassConfirm) {
+      setAuthError('Passwords do not match.')
+      return
+    }
+
+    setAuthLoading(true)
+    try {
+      const initialStars: number[] = []
+      if (pendingBookmark) {
+        initialStars.push(pendingBookmark.dbId)
+      }
+      stars.forEach(s => {
+        const num = Number(s)
+        if (!isNaN(num) && num > 0 && !initialStars.includes(num)) {
+          initialStars.push(num)
+        }
+      })
+
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: regUsername.trim(),
+          email: regEmail.trim() || undefined,
+          password: regPass,
+          initialStars,
+        }),
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setAuthError(data.error || 'Registration failed.')
+        return
+      }
+
+      setCurrentUser(data.user)
+      setAuthModalOpen(false)
+      setRegUsername('')
+      setRegEmail('')
+      setRegPass('')
+      setRegPassConfirm('')
+
+      // Reload stars
+      const starsRes = await fetch('/api/stars')
+      const starsData = await starsRes.json()
+      if (Array.isArray(starsData.starredIds)) {
+        const newStarSet = new Set<string>()
+        starsData.starredIds.forEach((id: number) => {
+          newStarSet.add(String(id))
+          const found = rows.find(item => item.dbId === id)
+          if (found) newStarSet.add(found.id)
+        })
+        setStars(newStarSet)
+      }
+
+      if (pendingBookmark) {
+        showToast(`Welcome, ${data.user.username}! Saved "${pendingBookmark.t}" to your bookmarks.`)
+        setPendingBookmark(null)
+      } else {
+        showToast(`Welcome, ${data.user.username}! Account created.`)
+      }
+    } catch {
+      setAuthError('Network error during registration.')
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAuthError(null)
+
+    if (!signinIdent.trim() || !signinPass) {
+      setAuthError('Please enter your username/email and password.')
+      return
+    }
+
+    setAuthLoading(true)
+    try {
+      const initialStars: number[] = []
+      if (pendingBookmark) {
+        initialStars.push(pendingBookmark.dbId)
+      }
+
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          usernameOrEmail: signinIdent.trim(),
+          password: signinPass,
+          initialStars,
+        }),
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setAuthError(data.error || 'Invalid username or password.')
+        return
+      }
+
+      setCurrentUser(data.user)
+      setAuthModalOpen(false)
+      setSigninIdent('')
+      setSigninPass('')
+
+      // Reload stars
+      const starsRes = await fetch('/api/stars')
+      const starsData = await starsRes.json()
+      if (Array.isArray(starsData.starredIds)) {
+        const newStarSet = new Set<string>()
+        starsData.starredIds.forEach((id: number) => {
+          newStarSet.add(String(id))
+          const found = rows.find(item => item.dbId === id)
+          if (found) newStarSet.add(found.id)
+        })
+        setStars(newStarSet)
+      }
+
+      if (pendingBookmark) {
+        showToast(`Welcome back, ${data.user.username}! Saved "${pendingBookmark.t}" to your bookmarks.`)
+        setPendingBookmark(null)
+      } else {
+        showToast(`Welcome back, ${data.user.username}!`)
+      }
+    } catch {
+      setAuthError('Network error during sign in.')
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+      setCurrentUser(null)
+      setStars(new Set())
+      showToast('Signed out successfully.')
+    } catch (err) {
+      console.error('Logout error:', err)
+    }
+  }
 
   const reshuffle = useCallback(() => {
     setRows((prevRows) => {
@@ -557,6 +792,13 @@ export default function Home() {
     } else if (f === 'lg') {
       const s = new Set(lg); if (s.has(v)) s.delete(v); else s.add(v); setLg(s)
     } else if (f === 'star') {
+      if (!currentUser && !starred) {
+        setAuthNotice('Please sign in or create an account to view and save bookmarked terms.')
+        setAuthTab('signin')
+        setAuthError(null)
+        setAuthModalOpen(true)
+        return
+      }
       setStarred(s => !s)
     } else if (f === 'group') {
       setGroup(v)
@@ -620,6 +862,45 @@ export default function Home() {
             <ICON.import />
             <span>Import</span>
           </button>
+          {currentUser ? (
+            <div className="user-nav">
+              <button
+                type="button"
+                className={`btn user-btn ${starred ? 'active' : ''}`}
+                onClick={() => setStarred(s => !s)}
+                title={starred ? 'Show all terms' : 'Show only your bookmarks'}
+                aria-pressed={starred}
+              >
+                <ICON.star />
+                <span className="user-name">{currentUser.username}</span>
+                <span className="badge">{stars.size}</span>
+              </button>
+              <button
+                type="button"
+                className="btn quiet logout-btn"
+                onClick={handleLogout}
+                title="Sign out"
+                aria-label="Sign out"
+              >
+                <ICON.logout />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="btn"
+              id="openAuth"
+              onClick={() => {
+                setAuthTab('signin')
+                setAuthNotice(null)
+                setAuthError(null)
+                setAuthModalOpen(true)
+              }}
+            >
+              <ICON.user />
+              <span>Sign In</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -703,7 +984,19 @@ export default function Home() {
               <div className="empty"><p>Connecting to SQLite database...</p></div>
             ) : group === 'none' ? (
               list.length === 0 ? (
-                <div className="empty"><p>No terms match. Remove a filter or try a shorter search.</p><button className="btn primary" type="button" onClick={resetAll}>Reset everything</button></div>
+                starred ? (
+                  <div className="empty">
+                    <p><b>No bookmarks saved yet.</b></p>
+                    <p style={{ fontSize: 13.5, color: 'var(--ink-2)', maxWidth: 420 }}>
+                      Click the star icon on any term to save it to your personal collection.
+                    </p>
+                    <button className="btn primary" type="button" onClick={() => setStarred(false)}>
+                      Browse all terms
+                    </button>
+                  </div>
+                ) : (
+                  <div className="empty"><p>No terms match. Remove a filter or try a shorter search.</p><button className="btn primary" type="button" onClick={resetAll}>Reset everything</button></div>
+                )
               ) : (
                 <>
                   {view === 'compact' ? (
@@ -830,7 +1123,25 @@ export default function Home() {
             {!langQ && <button className="linkbtn" id="lmore" type="button" onClick={() => setLangExpanded(e => !e)}>{langExpanded ? 'Show fewer languages' : `Show all ${options.lg.length} languages`}</button>}
           </div>
           <div className="fgroup"><h3>Starred</h3><div className="chips" id="fStar">
-            <button className="chip" type="button" aria-pressed={starred} onClick={() => toggle('star', '1')}>Starred only <span className="n">{list.filter(r => isStarred(r)).length > 0 ? rows.filter(r => passes(r,'starred') && isStarred(r)).length : 0}</span></button>
+            {currentUser ? (
+              <button className="chip" type="button" aria-pressed={starred} onClick={() => toggle('star', '1')}>
+                My Bookmarks only <span className="n">{stars.size}</span>
+              </button>
+            ) : (
+              <button
+                className="chip"
+                type="button"
+                onClick={() => {
+                  setAuthNotice('Please sign in or create an account to view and save bookmarked terms.')
+                  setAuthTab('signin')
+                  setAuthError(null)
+                  setAuthModalOpen(true)
+                  setSheetOpen(false)
+                }}
+              >
+                Sign In to View Bookmarks
+              </button>
+            )}
           </div></div>
         </div>
         <div className="sheet-foot">
@@ -1195,6 +1506,185 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* Authentication Modal (Sign In / Register) */}
+      <div
+        className={`scrim ${authModalOpen ? 'open' : ''}`}
+        onClick={() => {
+          setAuthModalOpen(false)
+          setPendingBookmark(null)
+        }}
+      />
+      <section
+        className={`sheet auth-sheet ${authModalOpen ? 'open' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="authTitle"
+        aria-hidden={!authModalOpen}
+      >
+        <div className="sheet-head">
+          <h2 id="authTitle">{authTab === 'signin' ? 'Sign In' : 'Create Account'}</h2>
+          <button
+            className="ibtn"
+            type="button"
+            aria-label="Close dialog"
+            onClick={() => {
+              setAuthModalOpen(false)
+              setPendingBookmark(null)
+            }}
+          >
+            <ICON.x />
+          </button>
+        </div>
+
+        <div className="agent-tabs">
+          <button
+            type="button"
+            className={`agent-tab ${authTab === 'signin' ? 'active' : ''}`}
+            onClick={() => {
+              setAuthTab('signin')
+              setAuthError(null)
+            }}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            className={`agent-tab ${authTab === 'register' ? 'active' : ''}`}
+            onClick={() => {
+              setAuthTab('register')
+              setAuthError(null)
+            }}
+          >
+            Register
+          </button>
+        </div>
+
+        <div className="sheet-body">
+          {authNotice && <div className="auth-notice">{authNotice}</div>}
+          {authError && <div className="auth-error">{authError}</div>}
+
+          {authTab === 'signin' ? (
+            <form onSubmit={handleSignIn} className="auth-form">
+              <div className="auth-field">
+                <label htmlFor="signinIdent">Username or Email</label>
+                <input
+                  id="signinIdent"
+                  className="auth-input"
+                  type="text"
+                  autoComplete="username"
+                  required
+                  value={signinIdent}
+                  onChange={(e) => setSigninIdent(e.target.value)}
+                  placeholder="e.g. curator or user@example.com"
+                />
+              </div>
+              <div className="auth-field">
+                <label htmlFor="signinPass">Password</label>
+                <input
+                  id="signinPass"
+                  className="auth-input"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={signinPass}
+                  onChange={(e) => setSigninPass(e.target.value)}
+                />
+              </div>
+              <div className="auth-actions">
+                <button type="submit" className="btn primary" disabled={authLoading}>
+                  {authLoading ? 'Signing in...' : 'Sign In'}
+                </button>
+                <div className="auth-switch">
+                  Don&apos;t have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthTab('register')
+                      setAuthError(null)
+                    }}
+                  >
+                    Register here
+                  </button>
+                </div>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handleRegister} className="auth-form">
+              <div className="auth-field">
+                <label htmlFor="regUsername">Username</label>
+                <input
+                  id="regUsername"
+                  className="auth-input"
+                  type="text"
+                  autoComplete="username"
+                  required
+                  value={regUsername}
+                  onChange={(e) => setRegUsername(e.target.value)}
+                  placeholder="e.g. master_steward"
+                />
+              </div>
+              <div className="auth-field">
+                <label htmlFor="regEmail">
+                  Email <span className="sublabel">(optional)</span>
+                </label>
+                <input
+                  id="regEmail"
+                  className="auth-input"
+                  type="email"
+                  autoComplete="email"
+                  value={regEmail}
+                  onChange={(e) => setRegEmail(e.target.value)}
+                  placeholder="name@example.com"
+                />
+              </div>
+              <div className="auth-field">
+                <label htmlFor="regPass">
+                  Password <span className="sublabel">(min. 6 characters)</span>
+                </label>
+                <input
+                  id="regPass"
+                  className="auth-input"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={regPass}
+                  onChange={(e) => setRegPass(e.target.value)}
+                />
+              </div>
+              <div className="auth-field">
+                <label htmlFor="regPassConfirm">Confirm Password</label>
+                <input
+                  id="regPassConfirm"
+                  className="auth-input"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={regPassConfirm}
+                  onChange={(e) => setRegPassConfirm(e.target.value)}
+                />
+              </div>
+              <div className="auth-actions">
+                <button type="submit" className="btn primary" disabled={authLoading}>
+                  {authLoading ? 'Creating account...' : 'Create Account & Sign In'}
+                </button>
+                <div className="auth-switch">
+                  Already have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthTab('signin')
+                      setAuthError(null)
+                    }}
+                  >
+                    Sign in here
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
+        </div>
+      </section>
     </div>
   )
 }
