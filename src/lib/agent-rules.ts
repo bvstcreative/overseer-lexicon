@@ -209,15 +209,23 @@ export interface ParsedLine {
   error?: string
 }
 
+export interface ParseOptions {
+  duplicateMode?: 'term' | 'term_language'
+  existingTerms?: Set<string>
+}
+
 export function parseAgentOutput(
   text: string,
-  existingPairs?: Set<string>
+  existingPairs?: Set<string>,
+  options?: ParseOptions
 ): {
   valid: ParsedLine[]
   duplicates: ParsedLine[]
   invalid: ParsedLine[]
   all: ParsedLine[]
 } {
+  const duplicateMode = options?.duplicateMode || 'term'
+  const existingTerms = options?.existingTerms
   const lines = text.split(/\r?\n/)
   const all: ParsedLine[] = []
   const valid: ParsedLine[] = []
@@ -361,10 +369,12 @@ export function parseAgentOutput(
       continue
     }
 
-    const pairKey = `${term.toLowerCase()}|${language.toLowerCase()}`
+    const termKey = term.toLowerCase()
+    const pairKey = `${termKey}|${language.toLowerCase()}`
+    const checkKey = duplicateMode === 'term' ? termKey : pairKey
     const language_group = inferLanguageGroup(language)
 
-    if (batchSeen.has(pairKey)) {
+    if (batchSeen.has(checkKey)) {
       const parsedItem: ParsedLine = {
         raw: line,
         lineNumber: lineNum,
@@ -380,15 +390,21 @@ export function parseAgentOutput(
         domain_code: domCode,
         gloss,
         status: 'duplicate_batch',
-        error: 'Repeated term + language in this batch',
+        error: duplicateMode === 'term'
+          ? `Repeated term "${term}" in this batch`
+          : `Repeated term "${term}" in ${language} in this batch`,
       }
       all.push(parsedItem)
       duplicates.push(parsedItem)
       continue
     }
-    batchSeen.add(pairKey)
+    batchSeen.add(checkKey)
 
-    if (existingPairs && existingPairs.has(pairKey)) {
+    const isExistingDup = duplicateMode === 'term'
+      ? (existingTerms && existingTerms.has(termKey))
+      : (existingPairs && existingPairs.has(pairKey))
+
+    if (isExistingDup) {
       const parsedItem: ParsedLine = {
         raw: line,
         lineNumber: lineNum,
@@ -404,7 +420,9 @@ export function parseAgentOutput(
         domain_code: domCode,
         gloss,
         status: 'duplicate_existing',
-        error: 'Already exists in database',
+        error: duplicateMode === 'term'
+          ? `Term "${term}" already exists in database`
+          : `Term "${term}" (${language}) already exists in database`,
       }
       all.push(parsedItem)
       duplicates.push(parsedItem)

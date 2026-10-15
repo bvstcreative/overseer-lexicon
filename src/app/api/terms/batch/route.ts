@@ -4,7 +4,7 @@ import { createTermsBatch, NewTermInput } from '@/lib/db'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { terms } = body
+    const { terms, duplicateMode, onDuplicate } = body
 
     if (!Array.isArray(terms) || terms.length === 0) {
       return NextResponse.json({ error: 'Array of terms is required' }, { status: 400 })
@@ -31,11 +31,15 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    const result = createTermsBatch(validInputs)
+    const result = createTermsBatch(validInputs, {
+      duplicateMode: duplicateMode === 'term_language' ? 'term_language' : 'term',
+      onDuplicate: onDuplicate === 'update' ? 'update' : 'skip',
+    })
 
     return NextResponse.json({
       success: true,
       insertedCount: result.inserted.length,
+      updatedCount: result.updatedCount,
       skippedCount: result.skippedCount,
       terms: result.inserted,
     }, { status: 201 })

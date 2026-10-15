@@ -197,6 +197,11 @@ export default function Home() {
   const [importing, setImporting] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
 
+  // Storage & duplicate options
+  const [autoStoreSqlite, setAutoStoreSqlite] = useState(true)
+  const [duplicateMode, setDuplicateMode] = useState<'term' | 'term_language'>('term')
+  const [onDuplicate, setOnDuplicate] = useState<'skip' | 'update'>('skip')
+
   const showToast = useCallback((msg: string) => {
     setToast(msg)
     setTimeout(() => setToast(null), 3500)
@@ -322,14 +327,21 @@ export default function Home() {
   }, [])
 
   // Parse agent text whenever it changes
+  const existingTermSet = useMemo(() => {
+    return new Set(rows.map((r) => r.t.toLowerCase()))
+  }, [rows])
+
   const existingPairSet = useMemo(() => {
     return new Set(rows.map((r) => `${r.t.toLowerCase()}|${r.l.toLowerCase()}`))
   }, [rows])
 
   const parsedBatch = useMemo(() => {
     if (!agentText.trim()) return null
-    return parseAgentOutput(agentText, existingPairSet)
-  }, [agentText, existingPairSet])
+    return parseAgentOutput(agentText, existingPairSet, {
+      duplicateMode,
+      existingTerms: existingTermSet,
+    })
+  }, [agentText, existingPairSet, existingTermSet, duplicateMode])
 
   // Computed topic and count for Easy Mode
   const easyParsed = useMemo(() => {
@@ -342,12 +354,17 @@ export default function Home() {
 
   // Handle importing valid terms
   const handleImport = async () => {
-    if (!parsedBatch || parsedBatch.valid.length === 0) return
+    if (!parsedBatch) return
+    const itemsToImport = onDuplicate === 'update'
+      ? [...parsedBatch.valid, ...parsedBatch.duplicates.filter((d) => d.status === 'duplicate_existing')]
+      : parsedBatch.valid
+
+    if (itemsToImport.length === 0) return
     setImporting(true)
 
     try {
       const payload = {
-        terms: parsedBatch.valid.map((v) => ({
+        terms: itemsToImport.map((v) => ({
           term: v.term,
           romanization: v.romanization,
           language: v.language,
@@ -357,6 +374,8 @@ export default function Home() {
           domain: v.domain,
           gloss: v.gloss,
         })),
+        duplicateMode,
+        onDuplicate,
       }
 
       const res = await fetch('/api/terms/batch', {
@@ -366,12 +385,24 @@ export default function Home() {
       })
 
       const data = await res.json()
-      if (data.success && Array.isArray(data.terms)) {
-        const newLexiconItems = transformDbTerms(data.terms)
-        setRows((prev) => [...prev, ...newLexiconItems])
+      if (data.success) {
+        if (data.updatedCount > 0) {
+          const resAll = await fetch('/api/terms')
+          const allData = await resAll.json()
+          if (Array.isArray(allData.terms)) {
+            setRows(transformDbTerms(allData.terms))
+          }
+        } else if (Array.isArray(data.terms) && data.terms.length > 0) {
+          const newLexiconItems = transformDbTerms(data.terms)
+          setRows((prev) => [...prev, ...newLexiconItems])
+        }
         setAgentText('')
         setAgentOpen(false)
-        showToast(`Successfully added ${data.insertedCount} new term${data.insertedCount === 1 ? '' : 's'} to SQLite!`)
+        const parts: string[] = []
+        if (data.insertedCount > 0) parts.push(`${data.insertedCount} added`)
+        if (data.updatedCount > 0) parts.push(`${data.updatedCount} updated`)
+        if (data.skippedCount > 0) parts.push(`${data.skippedCount} skipped`)
+        showToast(`SQLite: ${parts.join(', ') || 'No changes'}`)
       } else {
         alert(data.error || 'Failed to import terms')
       }
@@ -414,6 +445,9 @@ export default function Home() {
           input: easyInput,
           count: easyParsed.count,
           apiKey: apiKey.trim() || undefined,
+          storeInSqlite: autoStoreSqlite,
+          duplicateMode,
+          onDuplicate,
         }),
       })
 
@@ -425,6 +459,25 @@ export default function Home() {
 
       if (data.rawText) {
         setAgentText(data.rawText)
+      }
+
+      if (data.storedInSqlite) {
+        if (data.updatedCount > 0) {
+          const resAll = await fetch('/api/terms')
+          const allData = await resAll.json()
+          if (Array.isArray(allData.terms)) {
+            setRows(transformDbTerms(allData.terms))
+          }
+        } else if (Array.isArray(data.storedTerms) && data.storedTerms.length > 0) {
+          const newItems = transformDbTerms(data.storedTerms)
+          setRows((prev) => [...prev, ...newItems])
+        }
+        const parts: string[] = []
+        if (data.storedCount > 0) parts.push(`${data.storedCount} added`)
+        if (data.updatedCount > 0) parts.push(`${data.updatedCount} updated`)
+        if (data.skippedCount > 0) parts.push(`${data.skippedCount} skipped`)
+        showToast(`Stored in SQLite: ${parts.join(', ') || 'No changes'}`)
+      } else {
         showToast(`Generated ${data.parsed?.valid?.length || 0} terms! Review below and click Import.`)
       }
     } catch (err) {
@@ -870,6 +923,50 @@ export default function Home() {
                 </div>
               </div>
 
+              <div className="settings-card">
+                <div className="settings-header">
+                  <div className="settings-title">
+                    <span>💾 Storage & Duplicate Check</span>
+                  </div>
+                  <label className="settings-toggle">
+                    <input
+                      type="checkbox"
+                      checked={autoStoreSqlite}
+                      onChange={(e) => setAutoStoreSqlite(e.target.checked)}
+                    />
+                    <span>Store directly in SQLite</span>
+                  </label>
+                </div>
+
+                <div className="settings-grid">
+                  <div className="settings-field">
+                    <label htmlFor="easyDupMode">Duplicate Detection</label>
+                    <select
+                      id="easyDupMode"
+                      className="settings-select"
+                      value={duplicateMode}
+                      onChange={(e) => setDuplicateMode(e.target.value as 'term' | 'term_language')}
+                    >
+                      <option value="term">By Exact Term Name</option>
+                      <option value="term_language">By Term + Language</option>
+                    </select>
+                  </div>
+
+                  <div className="settings-field">
+                    <label htmlFor="easyOnDup">On Duplicate</label>
+                    <select
+                      id="easyOnDup"
+                      className="settings-select"
+                      value={onDuplicate}
+                      onChange={(e) => setOnDuplicate(e.target.value as 'skip' | 'update')}
+                    >
+                      <option value="skip">Skip (Keep existing)</option>
+                      <option value="update">Update (Overwrite fields)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               <div className="easy-actions">
                 <button
                   type="button"
@@ -887,7 +984,7 @@ export default function Home() {
                   disabled={generating}
                   onClick={handleGenerateWithAI}
                 >
-                  <ICON.bolt /> {generating ? 'Generating with AI...' : 'Generate with Gemini API'}
+                  <ICON.bolt /> {generating ? 'Generating with AI...' : (autoStoreSqlite ? 'Generate & Save to SQLite' : 'Generate with Gemini API')}
                 </button>
               </div>
 
@@ -929,6 +1026,11 @@ export default function Home() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <span className="pill valid">✓ {parsedBatch.valid.length} Valid to Add</span>
+                      {onDuplicate === 'update' && parsedBatch.duplicates.filter((d) => d.status === 'duplicate_existing').length > 0 && (
+                        <span className="pill valid" style={{ background: '#e0f2fe', color: '#0369a1' }}>
+                          🔄 {parsedBatch.duplicates.filter((d) => d.status === 'duplicate_existing').length} Will Update
+                        </span>
+                      )}
                       {parsedBatch.duplicates.length > 0 && (
                         <span className="pill dup">⚠️ {parsedBatch.duplicates.length} Duplicates</span>
                       )}
@@ -1021,10 +1123,51 @@ export default function Home() {
                 spellCheck="false"
               />
 
+              <div className="settings-card">
+                <div className="settings-header">
+                  <div className="settings-title">
+                    <span>🔍 Duplicate Detection & Import Settings</span>
+                  </div>
+                </div>
+
+                <div className="settings-grid">
+                  <div className="settings-field">
+                    <label htmlFor="inputDupMode">Duplicate Detection</label>
+                    <select
+                      id="inputDupMode"
+                      className="settings-select"
+                      value={duplicateMode}
+                      onChange={(e) => setDuplicateMode(e.target.value as 'term' | 'term_language')}
+                    >
+                      <option value="term">By Exact Term Name</option>
+                      <option value="term_language">By Term + Language</option>
+                    </select>
+                  </div>
+
+                  <div className="settings-field">
+                    <label htmlFor="inputOnDup">If Duplicate Found In DB</label>
+                    <select
+                      id="inputOnDup"
+                      className="settings-select"
+                      value={onDuplicate}
+                      onChange={(e) => setOnDuplicate(e.target.value as 'skip' | 'update')}
+                    >
+                      <option value="skip">Skip (Keep existing)</option>
+                      <option value="update">Update (Overwrite fields)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               {parsedBatch && (
                 <div style={{ marginTop: 10 }}>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                     <span className="pill valid">✓ {parsedBatch.valid.length} Valid to Add</span>
+                    {onDuplicate === 'update' && parsedBatch.duplicates.filter((d) => d.status === 'duplicate_existing').length > 0 && (
+                      <span className="pill valid" style={{ background: '#e0f2fe', color: '#0369a1' }}>
+                        🔄 {parsedBatch.duplicates.filter((d) => d.status === 'duplicate_existing').length} Will Update
+                      </span>
+                    )}
                     {parsedBatch.duplicates.length > 0 && (
                       <span className="pill dup">⚠️ {parsedBatch.duplicates.length} Duplicates</span>
                     )}
@@ -1189,27 +1332,40 @@ export default function Home() {
         </div>
 
         <div className="sheet-foot">
-          {parsedBatch && parsedBatch.valid.length > 0 ? (
-            <>
-              <button className="btn" type="button" onClick={() => setAgentOpen(false)}>
-                Cancel
+          {(() => {
+            const updatableCount = onDuplicate === 'update' && parsedBatch
+              ? parsedBatch.duplicates.filter((d) => d.status === 'duplicate_existing').length
+              : 0
+            const totalActionable = (parsedBatch?.valid.length || 0) + updatableCount
+
+            if (totalActionable > 0) {
+              return (
+                <>
+                  <button className="btn" type="button" onClick={() => setAgentOpen(false)}>
+                    Cancel
+                  </button>
+                  <button
+                    className="btn primary"
+                    type="button"
+                    disabled={importing}
+                    onClick={handleImport}
+                  >
+                    {importing
+                      ? 'Importing into SQLite...'
+                      : updatableCount > 0
+                        ? `Import & Update ${totalActionable} Term${totalActionable === 1 ? '' : 's'} in SQLite`
+                        : `Import ${totalActionable} Valid Term${totalActionable === 1 ? '' : 's'} to SQLite`}
+                  </button>
+                </>
+              )
+            }
+
+            return (
+              <button className="btn primary" type="button" onClick={() => setAgentOpen(false)}>
+                Close
               </button>
-              <button
-                className="btn primary"
-                type="button"
-                disabled={importing}
-                onClick={handleImport}
-              >
-                {importing
-                  ? 'Importing into SQLite...'
-                  : `Import ${parsedBatch.valid.length} Valid Term${parsedBatch.valid.length === 1 ? '' : 's'} to SQLite`}
-              </button>
-            </>
-          ) : (
-            <button className="btn primary" type="button" onClick={() => setAgentOpen(false)}>
-              Close
-            </button>
-          )}
+            )
+          })()}
         </div>
       </section>
 

@@ -467,12 +467,42 @@ export function getExistingTermPairs(): Array<{ term: string; language: string }
   return db.prepare('SELECT term, language FROM terms ORDER BY id ASC').all() as Array<{ term: string; language: string }>
 }
 
-export function createTermsBatch(terms: NewTermInput[]): { inserted: TermRecord[]; skippedCount: number } {
+export function getAllTermKeys(): Array<{ id: number; term: string; language: string }> {
   const db = getDb()
+  return db.prepare('SELECT id, term, language FROM terms ORDER BY id ASC').all() as Array<{ id: number; term: string; language: string }>
+}
+
+export interface BatchOptions {
+  duplicateMode?: 'term' | 'term_language'
+  onDuplicate?: 'skip' | 'update'
+}
+
+export function createTermsBatch(
+  terms: NewTermInput[],
+  options?: BatchOptions
+): {
+  inserted: TermRecord[]
+  updatedCount: number
+  skippedCount: number
+} {
+  const db = getDb()
+  const duplicateMode = options?.duplicateMode || 'term'
+  const onDuplicate = options?.onDuplicate || 'skip'
+
   const inserted: TermRecord[] = []
+  let updatedCount = 0
   let skippedCount = 0
 
-  const checkStmt = db.prepare('SELECT id FROM terms WHERE lower(term) = lower(?) AND lower(language) = lower(?)')
+  const checkStmt = duplicateMode === 'term'
+    ? db.prepare('SELECT id, term, language FROM terms WHERE lower(term) = lower(?)')
+    : db.prepare('SELECT id, term, language FROM terms WHERE lower(term) = lower(?) AND lower(language) = lower(?)')
+
+  const updateStmt = db.prepare(`
+    UPDATE terms
+    SET romanization = ?, language = ?, language_group = ?, region = ?, era = ?, domain = ?, gloss = ?
+    WHERE id = ?
+  `)
+
   const insertStmt = db.prepare(`
     INSERT INTO terms (term, romanization, language, language_group, region, era, domain, gloss)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -483,9 +513,28 @@ export function createTermsBatch(terms: NewTermInput[]): { inserted: TermRecord[
     for (const input of terms) {
       const term = input.term.trim()
       const lang = input.language.trim()
-      const exists = checkStmt.get(term, lang)
-      if (exists) {
-        skippedCount++
+      const existing = (duplicateMode === 'term'
+        ? checkStmt.get(term)
+        : checkStmt.get(term, lang)) as { id: number; term: string; language: string } | undefined
+
+      if (existing) {
+        if (onDuplicate === 'update') {
+          updateStmt.run(
+            (input.romanization || '').trim(),
+            lang,
+            input.language_group.trim(),
+            input.region.trim(),
+            input.era.trim(),
+            input.domain.trim(),
+            input.gloss.trim(),
+            existing.id
+          )
+          updatedCount++
+          const updatedRecord = getTermById(existing.id)
+          if (updatedRecord) inserted.push(updatedRecord)
+        } else {
+          skippedCount++
+        }
         continue
       }
 
@@ -522,6 +571,7 @@ export function createTermsBatch(terms: NewTermInput[]): { inserted: TermRecord[
     throw err
   }
 
-  return { inserted, skippedCount }
+  return { inserted, updatedCount, skippedCount }
 }
+
 

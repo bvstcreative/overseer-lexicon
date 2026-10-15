@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getExistingTermPairs } from '@/lib/db'
+import { getExistingTermPairs, createTermsBatch, TermRecord } from '@/lib/db'
 import { generateEasyPrompt, parseAgentOutput, extractCountAndTopic } from '@/lib/agent-rules'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { input, topic: rawTopic, count: rawCount, apiKey: userKey } = body
+    const { input, topic: rawTopic, count: rawCount, apiKey: userKey, storeInSqlite, duplicateMode = 'term', onDuplicate = 'skip' } = body
 
     let topic = (rawTopic || '').trim()
     let count = typeof rawCount === 'number' ? rawCount : 100
@@ -53,8 +53,45 @@ export async function POST(request: NextRequest) {
     }
 
     const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
-    const existingSet = new Set(pairStrings.map((p) => p.toLowerCase()))
-    const parsed = parseAgentOutput(rawText, existingSet)
+    const existingPairsSet = new Set(pairStrings.map((p) => p.toLowerCase()))
+    const existingTermsSet = new Set(pairs.map((p) => p.term.toLowerCase()))
+
+    const parsed = parseAgentOutput(rawText, existingPairsSet, {
+      duplicateMode: duplicateMode === 'term_language' ? 'term_language' : 'term',
+      existingTerms: existingTermsSet,
+    })
+
+    let storedCount = 0
+    let updatedCount = 0
+    let skippedCount = 0
+    let storedTerms: TermRecord[] = []
+
+    const itemsToStore = onDuplicate === 'update'
+      ? [...parsed.valid, ...parsed.duplicates.filter((d) => d.status === 'duplicate_existing')]
+      : parsed.valid
+
+    if (storeInSqlite && itemsToStore.length > 0) {
+      const batchResult = createTermsBatch(
+        itemsToStore.map((v) => ({
+          term: v.term,
+          romanization: v.romanization,
+          language: v.language,
+          language_group: v.language_group,
+          region: v.region,
+          era: v.era,
+          domain: v.domain,
+          gloss: v.gloss,
+        })),
+        {
+          duplicateMode: duplicateMode === 'term_language' ? 'term_language' : 'term',
+          onDuplicate: onDuplicate === 'update' ? 'update' : 'skip',
+        }
+      )
+      storedCount = batchResult.inserted.length
+      updatedCount = batchResult.updatedCount
+      skippedCount = batchResult.skippedCount
+      storedTerms = batchResult.inserted
+    }
 
     return NextResponse.json({
       success: true,
@@ -62,6 +99,11 @@ export async function POST(request: NextRequest) {
       count,
       rawText,
       parsed,
+      storedInSqlite: Boolean(storeInSqlite),
+      storedCount,
+      updatedCount,
+      skippedCount,
+      storedTerms,
     })
   } catch (error: unknown) {
     console.error('Failed to generate with AI:', error)

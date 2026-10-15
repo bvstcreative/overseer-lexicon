@@ -181,3 +181,12 @@ footer p{margin:10px 0 0}
 .count-badge-btn.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .easy-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 .api-key-panel{margin-top:12px;padding:10px 12px;background:var(--surface-2);border:1px dashed var(--line);border-radius:8px;font-size:12.5px}
+.settings-card{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:12px 0}
+.settings-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px;flex-wrap:wrap}
+.settings-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;color:var(--ink)}
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-top:8px}
+.settings-field{display:flex;flex-direction:column;gap:4px}
+.settings-field label{font:600 11.5px var(--font-mono);text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3)}
+.settings-select{height:32px;padding:0 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);font-size:12.5px;outline:none}
+.settings-select:focus{border-color:var(--accent)}
+.settings-toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);cursor:pointer;user-select:none}
