@@ -7,6 +7,7 @@ import {
   ERA_CODES,
   DOMAIN_CODES,
 } from '@/lib/agent-rules'
+import { speakLexiconTerm, stopSpeaking, isSpeechSupported } from '@/lib/tts'
 
 interface TermApiRecord {
   id: number
@@ -96,6 +97,20 @@ const ICON = {
       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
       <polyline points="16 17 21 12 16 7" />
       <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  ),
+  speaker: (props: IconProps) => (
+    <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </svg>
+  ),
+  speakerActive: (props: IconProps) => (
+    <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
     </svg>
   )
 }
@@ -205,6 +220,38 @@ export default function Home() {
   const showToast = useCallback((msg: string) => {
     setToast(msg)
     setTimeout(() => setToast(null), 3500)
+  }, [])
+
+  // Text-to-speech native voice state and playback handler
+  const [speakingKey, setSpeakingKey] = useState<string | null>(null)
+
+  const handleToggleSpeak = useCallback((item: { t: string; r?: string; l: string }, key: string) => {
+    if (speakingKey === key) {
+      stopSpeaking()
+      setSpeakingKey(null)
+      return
+    }
+
+    if (!isSpeechSupported()) {
+      showToast('Speech synthesis is not supported on this device/browser.')
+      return
+    }
+
+    setSpeakingKey(key)
+    speakLexiconTerm({
+      term: item.t,
+      romanization: item.r,
+      language: item.l,
+      onStart: () => setSpeakingKey(key),
+      onEnd: () => setSpeakingKey((curr) => (curr === key ? null : curr)),
+      onError: () => setSpeakingKey((curr) => (curr === key ? null : curr)),
+    })
+  }, [speakingKey, showToast])
+
+  useEffect(() => {
+    return () => {
+      stopSpeaking()
+    }
   }, [])
 
   // User Authentication & Personal Bookmarks state
@@ -710,7 +757,15 @@ export default function Home() {
     setLuckyItem(pool[randomIndex])
   }, [list, rows])
 
+  const closeLucky = useCallback(() => {
+    stopSpeaking()
+    setSpeakingKey((curr) => (curr === 'lucky' ? null : curr))
+    setLuckyItem(null)
+  }, [])
+
   const rollAnotherLucky = useCallback(() => {
+    stopSpeaking()
+    setSpeakingKey((curr) => (curr === 'lucky' ? null : curr))
     const pool = list.length > 1 ? list : rows
     if (pool.length === 0) return
     let randomIndex = Math.floor(Math.random() * pool.length)
@@ -720,22 +775,25 @@ export default function Home() {
     setLuckyItem(pool[randomIndex])
   }, [list, rows, luckyItem])
 
-  // Keyboard controls for full-screen Lucky card (Esc to close, Space or R to roll another)
+  // Keyboard controls for full-screen Lucky card (Esc to close, Space/R to roll, P/L to pronounce)
   useEffect(() => {
     if (!luckyItem) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setLuckyItem(null)
+        closeLucky()
       } else if (e.key === ' ' || e.key === 'r' || e.key === 'R') {
         e.preventDefault()
         rollAnotherLucky()
+      } else if (e.key === 'p' || e.key === 'P' || e.key === 'l' || e.key === 'L') {
+        e.preventDefault()
+        handleToggleSpeak(luckyItem, 'lucky')
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [luckyItem, rollAnotherLucky])
+  }, [luckyItem, rollAnotherLucky, closeLucky, handleToggleSpeak])
 
   const total = useMemo(() => {
     const td: Record<string, number> = {}, tr: Record<string, number> = {}, te: Record<string, number> = {}, tl: Record<string, number> = {}
@@ -1012,9 +1070,20 @@ export default function Home() {
                             <div className="sub">{r.l} · {r.rg} · {r.d}</div>
                           </div>
                           <div className="side">
-                            <button className="star" type="button" aria-pressed={isStarred(r)} onClick={() => toggleStarItem(r)}>
-                              <ICON.star />
-                            </button>
+                            <div className="row-actions">
+                              <button
+                                className={`speak-btn ${speakingKey === r.id ? 'speaking' : ''}`}
+                                type="button"
+                                title={`Pronounce "${r.t}" in ${r.l}`}
+                                aria-label={`Pronounce "${r.t}" in ${r.l}`}
+                                onClick={() => handleToggleSpeak(r, r.id)}
+                              >
+                                {speakingKey === r.id ? <ICON.speakerActive /> : <ICON.speaker />}
+                              </button>
+                              <button className="star" type="button" aria-pressed={isStarred(r)} onClick={() => toggleStarItem(r)}>
+                                <ICON.star />
+                              </button>
+                            </div>
                             <span className={`era era-${r.e}`}>{r.e}</span>
                           </div>
                         </article>
@@ -1029,9 +1098,20 @@ export default function Home() {
                               <bdi className="term">{r.t}</bdi>
                               {r.r && r.r !== r.t && <span className="rom">{r.r}</span>}
                             </div>
-                            <button className="star" type="button" aria-pressed={isStarred(r)} onClick={() => toggleStarItem(r)}>
-                              <ICON.star />
-                            </button>
+                            <div className="card-actions">
+                              <button
+                                className={`speak-btn ${speakingKey === r.id ? 'speaking' : ''}`}
+                                type="button"
+                                title={`Pronounce "${r.t}" in ${r.l}`}
+                                aria-label={`Pronounce "${r.t}" in ${r.l}`}
+                                onClick={() => handleToggleSpeak(r, r.id)}
+                              >
+                                {speakingKey === r.id ? <ICON.speakerActive /> : <ICON.speaker />}
+                              </button>
+                              <button className="star" type="button" aria-pressed={isStarred(r)} onClick={() => toggleStarItem(r)}>
+                                <ICON.star />
+                              </button>
+                            </div>
                           </div>
                           <p className="gloss">{r.g}</p>
                           <div className="meta">
@@ -1408,7 +1488,7 @@ export default function Home() {
           aria-modal="true"
           aria-labelledby="luckyTermTitle"
           onClick={(e) => {
-            if (e.target === e.currentTarget) setLuckyItem(null)
+            if (e.target === e.currentTarget) closeLucky()
           }}
         >
           <div className="lucky-card">
@@ -1419,11 +1499,21 @@ export default function Home() {
               </div>
               <div className="lucky-top-actions">
                 <button
+                  className={`lucky-speak-btn ${speakingKey === 'lucky' ? 'speaking' : ''}`}
+                  type="button"
+                  title={`Pronounce in native tongue (${luckyItem.l}) [Press P or L]`}
+                  aria-label={`Pronounce in ${luckyItem.l}`}
+                  onClick={() => handleToggleSpeak(luckyItem, 'lucky')}
+                >
+                  {speakingKey === 'lucky' ? <ICON.speakerActive /> : <ICON.speaker />}
+                  <span>{speakingKey === 'lucky' ? 'Speaking...' : 'Pronounce'}</span>
+                </button>
+                <button
                   className="ibtn"
                   type="button"
                   aria-label="Close card (Esc)"
                   title="Close (Esc)"
-                  onClick={() => setLuckyItem(null)}
+                  onClick={closeLucky}
                 >
                   <ICON.x />
                 </button>
@@ -1432,9 +1522,20 @@ export default function Home() {
 
             <div className="lucky-body">
               <div>
-                <bdi id="luckyTermTitle" className="lucky-term" lang={luckyItem.tag || undefined}>
-                  {luckyItem.t}
-                </bdi>
+                <div className="lucky-term-header">
+                  <bdi id="luckyTermTitle" className="lucky-term" lang={luckyItem.tag || undefined}>
+                    {luckyItem.t}
+                  </bdi>
+                  <button
+                    className={`lucky-inline-speak ${speakingKey === 'lucky' ? 'speaking' : ''}`}
+                    type="button"
+                    title={`Listen to pronunciation in ${luckyItem.l}`}
+                    aria-label={`Listen to pronunciation in ${luckyItem.l}`}
+                    onClick={() => handleToggleSpeak(luckyItem, 'lucky')}
+                  >
+                    {speakingKey === 'lucky' ? <ICON.speakerActive /> : <ICON.speaker />}
+                  </button>
+                </div>
                 {luckyItem.r && luckyItem.r !== luckyItem.t && (
                   <div className="lucky-rom">{luckyItem.r}</div>
                 )}
@@ -1484,7 +1585,7 @@ export default function Home() {
                 <button
                   type="button"
                   className="btn quiet"
-                  onClick={() => setLuckyItem(null)}
+                  onClick={closeLucky}
                 >
                   Close
                 </button>
@@ -1499,7 +1600,7 @@ export default function Home() {
                 <ICON.dice />
                 <span>Roll Another Word</span>
                 <span style={{ opacity: 0.75, fontSize: 11, fontFamily: 'var(--font-mono)', marginLeft: 4 }}>
-                  [Space]
+                  [Space · P to Listen]
                 </span>
               </button>
             </div>
