@@ -2,9 +2,13 @@
  * Puter.js Multilingual Text-to-Speech (TTS) Integration
  *
  * Provides studio-quality human voice generation powered by Puter.js:
- * - Google Gemini TTS as the primary voice for every language (reads native script
- *   directly, no API key needed via Puter's "User Pays" model), with AWS Polly/OpenAI
- *   as a fallback if Gemini's preview endpoint errors
+ * - AWS Polly (explicit locale + neural voice) or OpenAI as the primary voice for any
+ *   language that has one — Gemini TTS has NO `language` parameter, so it can't be
+ *   trusted with accent-sensitive Latin-script languages (German, French, Turkish,
+ *   Indonesian, etc.) where it has no signal beyond the raw text to pick an accent.
+ * - Google Gemini TTS only for languages with no good Polly/OpenAI voice AND an
+ *   unambiguous non-Latin script (Greek, Hebrew, Cyrillic, Devanagari/Tamil/Bengali/
+ *   Telugu) — there, script alone reliably tells Gemini which language to speak.
  * - Word-only recitation (no prompts or instructions spoken)
  * - Server disk & SQLite caching integration
  */
@@ -74,16 +78,18 @@ export function resolvePuterVoice(
   }
 
   // 2. Latin & Classical Philology (Latin, Late Latin, Medieval Latin)
+  // Latin alphabet is ambiguous to Gemini (no language signal), so Polly's explicit
+  // it-IT locale leads; Gemini is only the fallback.
   if (lang.includes('latin') || group.includes('latin')) {
     return {
-      options: geminiOptions('Orus'),
-      fallbackOptions: {
+      options: {
         provider: 'aws-polly',
         language: 'it-IT',
         voice: 'Adriano',
         engine: 'neural',
       },
-      speakerName: 'Orus (Classical Latin, Gemini)',
+      fallbackOptions: geminiOptions('Orus'),
+      speakerName: 'Adriano (Classical Latin)',
       languageCategory: 'Latin',
     }
   }
@@ -91,14 +97,18 @@ export function resolvePuterVoice(
   // 3. Japanese & Ainu
   if (lang.includes('japan') || group.includes('japan') || lang === 'ainu') {
     return {
-      options: geminiOptions('Puck'),
-      fallbackOptions: {
+      options: {
         provider: 'aws-polly',
         language: 'ja-JP',
         voice: 'Takumi',
         engine: 'neural',
       },
-      speakerName: 'Puck (Japanese, Gemini)',
+      fallbackOptions: {
+        provider: 'openai',
+        model: 'gpt-4o-mini-tts',
+        voice: 'nova',
+      },
+      speakerName: 'Takumi (Japanese Neural)',
       languageCategory: 'Japanese',
     }
   }
@@ -106,14 +116,14 @@ export function resolvePuterVoice(
   // 4. Sinitic & East Asian (Chinese, Classical Chinese, Han Chinese, Ming Chinese, Tang Chinese)
   if (lang.includes('chinese') || group.includes('chinese') || lang === 'taiwanese') {
     return {
-      options: geminiOptions('Zephyr'),
-      fallbackOptions: {
+      options: {
         provider: 'aws-polly',
         language: 'cmn-CN',
         voice: 'Zhiyu',
         engine: 'neural',
       },
-      speakerName: 'Zephyr (Mandarin, Gemini)',
+      fallbackOptions: generalFallback,
+      speakerName: 'Zhiyu (Mandarin Neural)',
       languageCategory: 'Chinese',
     }
   }
@@ -121,19 +131,23 @@ export function resolvePuterVoice(
   // 5. Korean
   if (lang.includes('korean') || group.includes('korean')) {
     return {
-      options: geminiOptions('Aoede'),
-      fallbackOptions: {
+      options: {
         provider: 'aws-polly',
         language: 'ko-KR',
         voice: 'Seoyeon',
         engine: 'neural',
       },
-      speakerName: 'Aoede (Korean, Gemini)',
+      fallbackOptions: generalFallback,
+      speakerName: 'Seoyeon (Korean Neural)',
       languageCategory: 'Korean',
     }
   }
 
   // 6. Austronesian & Southeast Asian (Indonesian, Malay, Javanese, Balinese, Sundanese, Tagalog, Hawaiian, Maori)
+  // Latin alphabet, no Polly voice exists for any of these — but Gemini also has no
+  // `language` param to disambiguate Latin-script text, so it defaults toward an
+  // English-leaning read. OpenAI's multilingual model (no instructions needed) handles
+  // this better in practice; Polly's English voice is the last-resort fallback.
   if (
     lang.includes('indones') ||
     lang.includes('malay') ||
@@ -150,9 +164,18 @@ export function resolvePuterVoice(
     lang === 'samoan'
   ) {
     return {
-      options: geminiOptions('Kore'),
-      fallbackOptions: generalFallback,
-      speakerName: 'Kore (Austronesian/Indonesian, Gemini)',
+      options: {
+        provider: 'openai',
+        model: 'gpt-4o-mini-tts',
+        voice: 'alloy',
+      },
+      fallbackOptions: {
+        provider: 'aws-polly',
+        language: 'en-US',
+        voice: 'Matthew',
+        engine: 'neural',
+      },
+      speakerName: 'Alloy (Austronesian/Indonesian)',
       languageCategory: 'Austronesian',
     }
   }
@@ -196,6 +219,7 @@ export function resolvePuterVoice(
   }
 
   // 8. Germanic & Nordic (German, Dutch, Danish, Swedish, Norwegian, Old Norse, Finnish, etc.)
+  // Latin alphabet — Polly's explicit de-DE locale leads so the accent stays German.
   if (
     lang.includes('german') ||
     group.includes('german') ||
@@ -207,71 +231,77 @@ export function resolvePuterVoice(
     group.includes('scandinavian')
   ) {
     return {
-      options: geminiOptions('Fenrir'),
-      fallbackOptions: {
+      options: {
         provider: 'aws-polly',
         language: 'de-DE',
         voice: 'Vicki',
         engine: 'neural',
       },
-      speakerName: 'Fenrir (Germanic, Gemini)',
+      fallbackOptions: {
+        provider: 'aws-polly',
+        language: 'de-DE',
+        voice: 'Daniel',
+        engine: 'neural',
+      },
+      speakerName: 'Vicki (Germanic Neural)',
       languageCategory: 'Germanic',
     }
   }
 
   // 9. Romance (French, Spanish, Italian, Portuguese, Romanian)
+  // Latin alphabet — explicit Polly locale keeps the correct accent for each.
   if (lang.includes('french') || group.includes('french')) {
     return {
-      options: geminiOptions('Leda'),
-      fallbackOptions: {
+      options: {
         provider: 'aws-polly',
         language: 'fr-FR',
         voice: 'Lea',
         engine: 'neural',
       },
-      speakerName: 'Leda (French, Gemini)',
+      fallbackOptions: generalFallback,
+      speakerName: 'Lea (French Neural)',
       languageCategory: 'French',
     }
   }
 
   if (lang.includes('spanish') || group.includes('spanish')) {
     return {
-      options: geminiOptions('Despina'),
-      fallbackOptions: {
+      options: {
         provider: 'aws-polly',
         language: 'es-ES',
         voice: 'Lucia',
         engine: 'neural',
       },
-      speakerName: 'Despina (Spanish, Gemini)',
+      fallbackOptions: generalFallback,
+      speakerName: 'Lucia (Spanish Neural)',
       languageCategory: 'Spanish',
     }
   }
 
   if (lang.includes('italian') || group.includes('italian') || lang === 'venetian') {
     return {
-      options: geminiOptions('Callirrhoe'),
-      fallbackOptions: {
+      options: {
         provider: 'aws-polly',
         language: 'it-IT',
         voice: 'Bianca',
         engine: 'neural',
       },
-      speakerName: 'Callirrhoe (Italian, Gemini)',
+      fallbackOptions: generalFallback,
+      speakerName: 'Bianca (Italian Neural)',
       languageCategory: 'Italian',
     }
   }
 
   if (lang.includes('portuguese') || group.includes('portuguese')) {
     return {
-      options: geminiOptions('Autonoe'),
-      fallbackOptions: {
+      options: {
         provider: 'aws-polly',
         language: 'pt-PT',
         voice: 'Ines',
         engine: 'neural',
       },
-      speakerName: 'Autonoe (Portuguese, Gemini)',
+      fallbackOptions: generalFallback,
+      speakerName: 'Ines (Portuguese Neural)',
       languageCategory: 'Portuguese',
     }
   }
@@ -316,31 +346,31 @@ export function resolvePuterVoice(
     }
   }
 
-  // 12. Turkish
+  // 12. Turkish — Latin alphabet, so Polly's explicit tr-TR locale leads.
   if (lang.includes('turkish')) {
     return {
-      options: geminiOptions('Achernar'),
-      fallbackOptions: {
+      options: {
         provider: 'aws-polly',
         language: 'tr-TR',
         voice: 'Burcu',
         engine: 'neural',
       },
-      speakerName: 'Achernar (Turkish, Gemini)',
+      fallbackOptions: geminiOptions('Achernar'),
+      speakerName: 'Burcu (Turkish Neural)',
       languageCategory: 'Turkish',
     }
   }
 
   // 13. Default English Narrator
   return {
-    options: geminiOptions('Puck'),
-    fallbackOptions: {
+    options: {
       provider: 'aws-polly',
       language: 'en-US',
       voice: 'Matthew',
       engine: 'neural',
     },
-    speakerName: 'Puck (English, Gemini)',
+    fallbackOptions: generalFallback,
+    speakerName: 'Matthew (English Neural)',
     languageCategory: 'English',
   }
 }
