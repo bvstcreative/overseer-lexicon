@@ -85,6 +85,20 @@ term|romanization|language|region|era|domain|meaning
 ### Domain (Field 6)
 | Code | Covers |
 |---|---|
+| `FAUNA` | animals, mammals, birds, marine life, insects, wildlife, zoology |
+| `FLORA` | plants, trees, flowers, fungi, herbs, botany |
+| `MYTH` | mythology, folklore, legendary beings, sacred tales |
+| `FICTION` | literature, animation, film, games, fictional characters & lore |
+| `NATURE` | landscapes, weather, geology, astronomy, natural phenomena |
+| `SCIENCE` | science, medicine, anatomy, mathematics, scholarly terms |
+| `FOOD` | cuisine, ingredients, culinary arts, beverages |
+| `CULTURE` | society, customs, traditions, kinship, everyday life |
+| `CRAFT` | tools, weapons, textiles, pottery, material culture |
+| `TECH` | technology, engineering, computing, modern systems |
+| `SPORT` | sports, martial arts, traditional games, competition |
+| `ARCH` | architecture, buildings, monuments, urban spaces |
+| `LANG` | linguistics, proverbs, idioms, rhetoric, writing systems |
+| `LAW` | law, justice, treaties, customary rights |
 | `STUDIO` | workshop, atelier, studio, building site, craft master, foreman |
 | `GALLERY` | gallery, museum, collection, curator, exhibition |
 | `OFFICE` | office, company, administration, secretary, manager |
@@ -100,7 +114,7 @@ term|romanization|language|region|era|domain|meaning
 | `MILITARY` | garrison, camp, supply, army or navy command |
 | `LEAD` | general head, chief or leader with managing duties that fit no other domain |
 
-*Rule:* Choose the single best fit.
+*Rule:* Choose the single best fit (custom uppercase domain codes are also dynamically accepted by the backend importer).
 
 ---
 

@@ -27,6 +27,16 @@ const instrumentSans = Instrument_Sans({
 export const metadata: Metadata = {
   title: "Overseer Lexicon",
   description: "Words for the person who runs the place",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/sunrise.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
 };
 
 export default function RootLayout({

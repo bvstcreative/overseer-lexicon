@@ -43,6 +43,9 @@ interface LexiconItem {
 type IconProps = React.SVGProps<SVGSVGElement>
 
 const ICON = {
+  logo: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
+    <img src="/sunrise.svg" alt="Overseer Lexicon" {...props} />
+  ),
   star: (props: IconProps) => (
     <svg {...props} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true">
       <path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z" />
@@ -125,7 +128,36 @@ const PAGE_SIZE = 48
 
 const ERA_ORDER: Record<string, number> = { Ancient: 0, Historic: 1, Modern: 2 }
 const ERA_NOTE: Record<string, string> = { Ancient: 'to c. 500 CE', Historic: 'c. 500 to 1900', Modern: 'current or recent' }
-const DOMAIN_ORDER = ['Workshop & studio', 'Gallery & museum', 'Office & business', 'Household & estate', 'Leadership', 'State & civil', 'Treasury & finance', 'Trade & market', 'Land & farming', 'Religious & temple', 'Library & school', 'Performing arts', 'Ships & ports', 'Military']
+const DOMAIN_ORDER = [
+  'Fauna & wildlife',
+  'Flora & botany',
+  'Mythology & folklore',
+  'Fiction & pop culture',
+  'Nature & cosmos',
+  'Science & medicine',
+  'Food & culinary',
+  'Culture & society',
+  'Tools & craft',
+  'Technology & computing',
+  'Sports & games',
+  'Architecture & places',
+  'Language & idioms',
+  'Law & justice',
+  'Workshop & studio',
+  'Gallery & museum',
+  'Office & business',
+  'Household & estate',
+  'Leadership',
+  'State & civil',
+  'Treasury & finance',
+  'Trade & market',
+  'Land & farming',
+  'Religious & temple',
+  'Library & school',
+  'Performing arts',
+  'Ships & ports',
+  'Military',
+]
 const REGION_ORDER = ['Europe', 'Middle East', 'Central Asia & Caucasus', 'South Asia', 'East Asia', 'Southeast Asia', 'Oceania', 'Africa', 'Americas']
 
 const LANG_TAGS: Array<[string, string]> = [
@@ -179,11 +211,35 @@ function transformDbTerms(terms: TermApiRecord[]): LexiconItem[] {
 
 const KEY = 'overseer-lexicon-v1'
 
-const SAMPLE_AI_OUTPUT = `Baumeister|Baumeister|German|EUR|M|STUDIO|master builder who oversees masonry and construction
-学芸員|gakugeiin|Japanese|EAS|N|GALLERY|museum curator who manages collections and exhibitions
-pochtecatl|pōchtēcatl|Nahuatl|AME|M|TRADE|merchant leader directing guild trade caravans
-pemangku|pemangku|Balinese|SEAS|M|RELIGION|temple priest managing ritual offerings and temple grounds
-shahbandar|shāhbandar|Persian|MEA|M|PORT|harbour master overseeing port trade and foreign merchants`
+const SAMPLE_AI_OUTPUT = `[
+  {
+    "term": "σκίουρος",
+    "romanization": "skíouros",
+    "language": "Ancient Greek",
+    "region": "EUR",
+    "era": "A",
+    "domain": "FAUNA",
+    "meaning": "tree rodent; literally shadow-tail, from skia (shadow) and oura (tail)"
+  },
+  {
+    "term": "Baumeister",
+    "romanization": "Baumeister",
+    "language": "German",
+    "region": "EUR",
+    "era": "M",
+    "domain": "STUDIO",
+    "meaning": "master builder who oversees masonry and construction"
+  },
+  {
+    "term": "学芸員",
+    "romanization": "gakugeiin",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "GALLERY",
+    "meaning": "museum curator who manages collections and exhibitions"
+  }
+]`
 
 export default function Home() {
   const [rows, setRows] = useState<LexiconItem[]>([])
@@ -216,7 +272,7 @@ export default function Home() {
   const luckyItem = luckyIndex >= 0 ? luckyHistory[luckyIndex] ?? null : null
 
   // Duplicate options
-  const [duplicateMode, setDuplicateMode] = useState<'term' | 'term_language'>('term')
+  const [duplicateMode, setDuplicateMode] = useState<'term' | 'term_language'>('term_language')
   const [onDuplicate, setOnDuplicate] = useState<'skip' | 'update'>('skip')
 
   const showToast = useCallback((msg: string) => {
@@ -899,7 +955,16 @@ export default function Home() {
     <div>
       <header className="hero">
         <div className="in">
-          <h1>Overseer Lexicon</h1>
+          <div className="hero-brand">
+            <img
+              src="/sunrise.svg"
+              alt="Overseer Lexicon logo"
+              className="hero-logo"
+              width="48"
+              height="48"
+            />
+            <h1>Overseer Lexicon</h1>
+          </div>
           <p className="lede">Words for the person who runs the place: stewards, foremen, workshop heads, gallery curators, harbour masters and village headmen, from ancient and modern languages.</p>
           <ul className="stats" id="stats">
             <li><b>{rows.length}</b> terms</li>
@@ -1175,6 +1240,10 @@ export default function Home() {
 
       <footer>
         <div className="in">
+          <div className="footer-brand">
+            <img src="/sunrise.svg" alt="" width="22" height="22" />
+            <span>Overseer Lexicon</span>
+          </div>
           <details>
             <summary>About this list</summary>
             <p>Era is approximate. Ancient means before about 500 CE, Historic runs to about 1900, and Modern covers terms in current use. Meanings are simplified to the sense of managing, keeping or overseeing something.</p>
@@ -1255,7 +1324,10 @@ export default function Home() {
       <div className={`scrim ${importOpen ? 'open' : ''}`} onClick={() => setImportOpen(false)} />
       <section className={`sheet agent-sheet ${importOpen ? 'open' : ''}`} role="dialog" aria-modal="true" aria-labelledby="importTitle" aria-hidden={!importOpen}>
         <div className="sheet-head">
-          <h2 id="importTitle">Import Lexicon Terms</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <img src="/sunrise.svg" alt="" width="26" height="26" style={{ borderRadius: 6 }} />
+            <h2 id="importTitle">Import Lexicon Terms</h2>
+          </div>
           <button className="ibtn" type="button" aria-label="Close Import dialog" onClick={() => setImportOpen(false)}>
             <ICON.x />
           </button>
@@ -1282,24 +1354,49 @@ export default function Home() {
           {/* TAB 1: MANUAL PASTE & IMPORT */}
           {importTab === 'paste' && (
             <div className="agent-box">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 6 }}>
                 <label htmlFor="importInput" style={{ fontWeight: 600, fontSize: 13.5 }}>
-                  Paste generated lines (pipe-separated)
+                  Paste JSON array or pipe-separated lines
                 </label>
-                <button
-                  type="button"
-                  className="linkbtn"
-                  style={{ fontSize: 12, padding: 0 }}
-                  onClick={() => setImportText(SAMPLE_AI_OUTPUT)}
-                >
-                  Paste sample output
-                </button>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <label
+                    className="linkbtn"
+                    style={{ fontSize: 12, padding: 0, cursor: 'pointer' }}
+                  >
+                    📂 Load .json / .txt file
+                    <input
+                      type="file"
+                      accept=".json,.txt,.csv,application/json,text/plain"
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (!file) return
+                        const reader = new FileReader()
+                        reader.onload = () => {
+                          if (typeof reader.result === 'string') {
+                            setImportText(reader.result)
+                          }
+                        }
+                        reader.readAsText(file)
+                        e.target.value = ''
+                      }}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    className="linkbtn"
+                    style={{ fontSize: 12, padding: 0 }}
+                    onClick={() => setImportText(SAMPLE_AI_OUTPUT)}
+                  >
+                    Paste sample JSON
+                  </button>
+                </div>
               </div>
 
               <textarea
                 id="importInput"
                 className="agent-textarea"
-                placeholder="term|romanization|language|region|era|domain|meaning&#10;e.g. Baumeister|Baumeister|German|EUR|M|STUDIO|master builder who oversees masonry"
+                placeholder={'[\n  {\n    "term": "squirrel",\n    "romanization": "squirrel",\n    "language": "English",\n    "region": "EUR",\n    "era": "N",\n    "domain": "FAUNA",\n    "meaning": "bushy-tailed tree-climbing rodent of the family Sciuridae"\n  }\n]\n\nor pipe-separated: term|romanization|language|region|era|domain|meaning'}
                 value={importText}
                 onChange={(e) => setImportText(e.target.value)}
                 autoComplete="off"
@@ -1655,7 +1752,10 @@ export default function Home() {
         aria-hidden={!authModalOpen}
       >
         <div className="sheet-head">
-          <h2 id="authTitle">{authTab === 'signin' ? 'Sign In' : 'Create Account'}</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <img src="/sunrise.svg" alt="" width="26" height="26" style={{ borderRadius: 6 }} />
+            <h2 id="authTitle">{authTab === 'signin' ? 'Sign In' : 'Create Account'}</h2>
+          </div>
           <button
             className="ibtn"
             type="button"

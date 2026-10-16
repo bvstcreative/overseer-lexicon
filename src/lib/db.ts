@@ -1,6 +1,7 @@
 import { DatabaseSync } from 'node:sqlite'
 import fs from 'node:fs'
 import path from 'node:path'
+import { inferLanguageGroup, resolveRegion, resolveEra, resolveDomain } from './agent-rules'
 
 export interface TermRecord {
   id: number
@@ -12,6 +13,7 @@ export interface TermRecord {
   era: string
   domain: string
   gloss: string
+  meaning?: string
   created_at: string
   starred: boolean
 }
@@ -20,11 +22,57 @@ export interface NewTermInput {
   term: string
   romanization?: string
   language: string
+  language_group?: string
+  region: string
+  era: string
+  domain: string
+  gloss?: string
+  meaning?: string
+  definition?: string
+}
+
+export function normalizeTermInput(input: NewTermInput): {
+  term: string
+  romanization: string
+  language: string
   language_group: string
   region: string
   era: string
   domain: string
   gloss: string
+} {
+  const term = String(input.term || '').trim()
+  const romanization = String(input.romanization || '').trim() || term
+  const language = String(input.language || '').trim()
+  const rawLangGroup = String(input.language_group || '').trim()
+  const language_group =
+    rawLangGroup && rawLangGroup !== language
+      ? rawLangGroup
+      : inferLanguageGroup(language) || rawLangGroup || language
+
+  const regionResolved = resolveRegion(input.region)
+  const region = regionResolved ? regionResolved.label : String(input.region || '').trim()
+
+  const eraResolved = resolveEra(input.era)
+  const era = eraResolved ? eraResolved.label : String(input.era || '').trim()
+
+  const domainResolved = resolveDomain(input.domain, true)
+  const domain = domainResolved ? domainResolved.label : String(input.domain || '').trim()
+
+  const gloss = String(input.gloss ?? input.meaning ?? input.definition ?? '')
+    .trim()
+    .replace(/\.$/, '')
+
+  return {
+    term,
+    romanization,
+    language,
+    language_group,
+    region,
+    era,
+    domain,
+    gloss,
+  }
 }
 
 export interface TermFilter {
@@ -190,9 +238,10 @@ export function getDb(): DatabaseSync {
 
 function seedDatabaseFromPath(db: DatabaseSync, filePath: string) {
   try {
-    const raw = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Array<[
-      string, string, string, string, string, string, string, string
-    ]>
+    const raw = JSON.parse(fs.readFileSync(filePath, 'utf8')) as Array<
+      | [string, string, string, string, string, string, string, string]
+      | NewTermInput
+    >
 
     const insertStmt = db.prepare(`
       INSERT INTO terms (term, romanization, language, language_group, region, era, domain, gloss)
@@ -201,16 +250,30 @@ function seedDatabaseFromPath(db: DatabaseSync, filePath: string) {
 
     db.exec('BEGIN')
     for (const item of raw) {
-      insertStmt.run(
-        item[0] || '',
-        item[1] || '',
-        item[2] || '',
-        item[3] || '',
-        item[4] || '',
-        item[5] || '',
-        item[6] || '',
-        item[7] || ''
-      )
+      if (Array.isArray(item)) {
+        insertStmt.run(
+          item[0] || '',
+          item[1] || '',
+          item[2] || '',
+          item[3] || inferLanguageGroup(item[2] || ''),
+          item[4] || '',
+          item[5] || '',
+          item[6] || '',
+          item[7] || ''
+        )
+      } else if (item && typeof item === 'object') {
+        const normalized = normalizeTermInput(item)
+        insertStmt.run(
+          normalized.term,
+          normalized.romanization,
+          normalized.language,
+          normalized.language_group,
+          normalized.region,
+          normalized.era,
+          normalized.domain,
+          normalized.gloss
+        )
+      }
     }
     db.exec('COMMIT')
   } catch (err) {
@@ -435,19 +498,20 @@ export function getTermById(id: number, userId?: number): TermRecord | null {
 
 export function createTerm(input: NewTermInput): TermRecord {
   const db = getDb()
+  const normalized = normalizeTermInput(input)
   const stmt = db.prepare(`
     INSERT INTO terms (term, romanization, language, language_group, region, era, domain, gloss)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `)
   const result = stmt.run(
-    input.term.trim(),
-    (input.romanization || '').trim(),
-    input.language.trim(),
-    input.language_group.trim(),
-    input.region.trim(),
-    input.era.trim(),
-    input.domain.trim(),
-    input.gloss.trim()
+    normalized.term,
+    normalized.romanization,
+    normalized.language,
+    normalized.language_group,
+    normalized.region,
+    normalized.era,
+    normalized.domain,
+    normalized.gloss
   )
 
   const id = Number(result.lastInsertRowid)
@@ -459,16 +523,24 @@ export function updateTerm(id: number, input: Partial<NewTermInput>): TermRecord
   const existing = getTermById(id)
   if (!existing) return null
 
-  const updated = {
-    term: input.term !== undefined ? input.term.trim() : existing.term,
-    romanization: input.romanization !== undefined ? (input.romanization || '').trim() : existing.romanization,
-    language: input.language !== undefined ? input.language.trim() : existing.language,
-    language_group: input.language_group !== undefined ? input.language_group.trim() : existing.language_group,
-    region: input.region !== undefined ? input.region.trim() : existing.region,
-    era: input.era !== undefined ? input.era.trim() : existing.era,
-    domain: input.domain !== undefined ? input.domain.trim() : existing.domain,
-    gloss: input.gloss !== undefined ? input.gloss.trim() : existing.gloss,
+  const merged: NewTermInput = {
+    term: input.term !== undefined ? input.term : existing.term,
+    romanization: input.romanization !== undefined ? input.romanization : existing.romanization,
+    language: input.language !== undefined ? input.language : existing.language,
+    language_group: input.language_group !== undefined ? input.language_group : existing.language_group,
+    region: input.region !== undefined ? input.region : existing.region,
+    era: input.era !== undefined ? input.era : existing.era,
+    domain: input.domain !== undefined ? input.domain : existing.domain,
+    gloss:
+      input.gloss !== undefined
+        ? input.gloss
+        : input.meaning !== undefined
+          ? input.meaning
+          : input.definition !== undefined
+            ? input.definition
+            : existing.gloss,
   }
+  const updated = normalizeTermInput(merged)
 
   db.prepare(`
     UPDATE terms
@@ -624,7 +696,7 @@ export function createTermsBatch(
   skippedCount: number
 } {
   const db = getDb()
-  const duplicateMode = options?.duplicateMode || 'term'
+  const duplicateMode = options?.duplicateMode || 'term_language'
   const onDuplicate = options?.onDuplicate || 'skip'
 
   const inserted: TermRecord[] = []
@@ -649,22 +721,21 @@ export function createTermsBatch(
   db.exec('BEGIN')
   try {
     for (const input of terms) {
-      const term = input.term.trim()
-      const lang = input.language.trim()
+      const normalized = normalizeTermInput(input)
       const existing = (duplicateMode === 'term'
-        ? checkStmt.get(term)
-        : checkStmt.get(term, lang)) as { id: number; term: string; language: string } | undefined
+        ? checkStmt.get(normalized.term)
+        : checkStmt.get(normalized.term, normalized.language)) as { id: number; term: string; language: string } | undefined
 
       if (existing) {
         if (onDuplicate === 'update') {
           updateStmt.run(
-            (input.romanization || '').trim(),
-            lang,
-            input.language_group.trim(),
-            input.region.trim(),
-            input.era.trim(),
-            input.domain.trim(),
-            input.gloss.trim(),
+            normalized.romanization,
+            normalized.language,
+            normalized.language_group,
+            normalized.region,
+            normalized.era,
+            normalized.domain,
+            normalized.gloss,
             existing.id
           )
           updatedCount++
@@ -677,26 +748,26 @@ export function createTermsBatch(
       }
 
       const res = insertStmt.run(
-        term,
-        (input.romanization || '').trim(),
-        lang,
-        input.language_group.trim(),
-        input.region.trim(),
-        input.era.trim(),
-        input.domain.trim(),
-        input.gloss.trim()
+        normalized.term,
+        normalized.romanization,
+        normalized.language,
+        normalized.language_group,
+        normalized.region,
+        normalized.era,
+        normalized.domain,
+        normalized.gloss
       )
       const id = Number(res.lastInsertRowid)
       inserted.push({
         id,
-        term,
-        romanization: (input.romanization || '').trim(),
-        language: lang,
-        language_group: input.language_group.trim(),
-        region: input.region.trim(),
-        era: input.era.trim(),
-        domain: input.domain.trim(),
-        gloss: input.gloss.trim(),
+        term: normalized.term,
+        romanization: normalized.romanization,
+        language: normalized.language,
+        language_group: normalized.language_group,
+        region: normalized.region,
+        era: normalized.era,
+        domain: normalized.domain,
+        gloss: normalized.gloss,
         created_at: new Date().toISOString(),
         starred: false,
       })

@@ -9,6 +9,7 @@
     "lint": "eslint",
     "seed": "node scripts/seed.mjs",
     "seed:creatures": "node scripts/generate-terms.mjs --import=data/mythological-creatures.txt --save",
+    "seed:squirrels": "node scripts/generate-terms.mjs --import=public/squirrel-terms.json --save",
     "generate": "node scripts/generate-terms.mjs"
   },
   "dependencies": {

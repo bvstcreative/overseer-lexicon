@@ -44,6 +44,22 @@ const ERA_CODES = {
 }
 
 const DOMAIN_CODES = {
+  // Universal nature, science & culture domains
+  FAUNA: 'Fauna & wildlife',
+  FLORA: 'Flora & botany',
+  MYTH: 'Mythology & folklore',
+  FICTION: 'Fiction & pop culture',
+  NATURE: 'Nature & cosmos',
+  SCIENCE: 'Science & medicine',
+  FOOD: 'Food & culinary',
+  CULTURE: 'Culture & society',
+  CRAFT: 'Tools & craft',
+  TECH: 'Technology & computing',
+  SPORT: 'Sports & games',
+  ARCH: 'Architecture & places',
+  LANG: 'Language & idioms',
+  LAW: 'Law & justice',
+  // Classical institutional, civic & workplace domains
   STUDIO: 'Workshop & studio',
   GALLERY: 'Gallery & museum',
   OFFICE: 'Office & business',
@@ -58,6 +74,240 @@ const DOMAIN_CODES = {
   PORT: 'Ships & ports',
   MILITARY: 'Military',
   LEAD: 'Leadership',
+}
+
+const KNOWN_LANGUAGE_GROUPS = {
+  'Ancient Greek': 'Greek',
+  'Byzantine Greek': 'Greek',
+  'Modern Greek': 'Greek',
+  Greek: 'Greek',
+  Latin: 'Latin',
+  'Late Latin': 'Latin',
+  'Medieval Latin': 'Latin',
+  'Scientific Latin': 'Latin',
+  'Old French': 'French',
+  'Quebec French': 'French',
+  French: 'French',
+  English: 'English',
+  'American English': 'English',
+  'British English': 'English',
+  'Old English': 'English',
+  'Middle English': 'English',
+  German: 'German',
+  'Middle High German': 'German',
+  'Old High German': 'German',
+  Bavarian: 'German',
+  Luxembourgish: 'German',
+  Dutch: 'Dutch',
+  Afrikaans: 'Dutch',
+  Italian: 'Italian',
+  Venetian: 'Italian',
+  Spanish: 'Spanish',
+  Catalan: 'Spanish',
+  Galician: 'Portuguese',
+  Occitan: 'French',
+  Portuguese: 'Portuguese',
+  'Brazilian Portuguese': 'Portuguese',
+  'Old Norse': 'Scandinavian',
+  Swedish: 'Scandinavian',
+  Danish: 'Scandinavian',
+  Norwegian: 'Scandinavian',
+  Icelandic: 'Scandinavian',
+  Finnish: 'Finnish',
+  'Old East Slavic': 'Russian & East Slavic',
+  Slavic: 'Russian & East Slavic',
+  'Old Russian': 'Russian & East Slavic',
+  Russian: 'Russian & East Slavic',
+  Ukrainian: 'Russian & East Slavic',
+  Belarusian: 'Russian & East Slavic',
+  Polish: 'Polish',
+  Czech: 'Czech',
+  Slovak: 'Czech',
+  Slovene: 'South Slavic',
+  Croatian: 'South Slavic',
+  Serbian: 'South Slavic',
+  Bulgarian: 'South Slavic',
+  Macedonian: 'South Slavic',
+  Lithuanian: 'Baltic',
+  Latvian: 'Baltic',
+  Estonian: 'Estonian',
+  Hungarian: 'Hungarian',
+  Romanian: 'Romanian',
+  Irish: 'Celtic',
+  'Scottish Gaelic': 'Celtic',
+  Welsh: 'Celtic',
+  'Ottoman Turkish': 'Turkish',
+  Turkish: 'Turkish',
+  Azerbaijani: 'Turkic & Mongolic',
+  Kazakh: 'Turkic & Mongolic',
+  Kyrgyz: 'Turkic & Mongolic',
+  Uzbek: 'Turkic & Mongolic',
+  Armenian: 'Armenian',
+  Georgian: 'Georgian',
+  'Ancient Egyptian': 'Ancient Egyptian',
+  Coptic: 'Ancient Egyptian',
+  Sumerian: 'Sumerian',
+  Akkadian: 'Akkadian',
+  Babylonian: 'Akkadian',
+  Assyrian: 'Akkadian',
+  'Biblical Hebrew': 'Hebrew',
+  Hebrew: 'Hebrew',
+  'Modern Hebrew': 'Hebrew',
+  Aramaic: 'Aramaic',
+  Syriac: 'Aramaic',
+  Arabic: 'Arabic',
+  'Classical Arabic': 'Arabic',
+  Persian: 'Persian',
+  'Middle Persian': 'Persian',
+  'Old Persian': 'Persian',
+  Tajik: 'Persian',
+  Mongolian: 'Turkic & Mongolic',
+  Turkic: 'Turkic & Mongolic',
+  Sanskrit: 'Sanskrit & Pali',
+  Prakrit: 'Sanskrit & Pali',
+  Pali: 'Sanskrit & Pali',
+  Hindi: 'Hindi & Urdu',
+  Urdu: 'Hindi & Urdu',
+  Punjabi: 'Punjabi',
+  Gujarati: 'Gujarati',
+  Tamil: 'Tamil',
+  Bengali: 'Bengali',
+  Marathi: 'Marathi',
+  Malayalam: 'Malayalam',
+  Telugu: 'Telugu',
+  Kannada: 'Kannada',
+  Sinhala: 'Sinhala',
+  Nepali: 'Nepali',
+  'Classical Chinese': 'Chinese',
+  'Han Chinese': 'Chinese',
+  'Tang Chinese': 'Chinese',
+  'Song Chinese': 'Chinese',
+  'Ming Chinese': 'Chinese',
+  'Qing Chinese': 'Chinese',
+  'Mandarin Chinese': 'Chinese',
+  Chinese: 'Chinese',
+  Mandarin: 'Chinese',
+  Cantonese: 'Chinese',
+  Japanese: 'Japanese',
+  'Classical Japanese': 'Japanese',
+  Korean: 'Korean',
+  'Middle Korean': 'Korean',
+  Vietnamese: 'Vietnamese',
+  Indonesian: 'Indonesian & Malay',
+  Malay: 'Indonesian & Malay',
+  'Old Javanese': 'Javanese',
+  Javanese: 'Javanese',
+  Balinese: 'Balinese',
+  Sundanese: 'Indonesian & Malay',
+  Tagalog: 'Tagalog',
+  Thai: 'Thai',
+  Lao: 'Thai',
+  Khmer: 'Khmer',
+  Burmese: 'Burmese',
+  Hawaiian: 'Hawaiian',
+  'Māori': 'Māori',
+  Samoan: 'Samoan',
+  Fijian: 'Fijian',
+  Swahili: 'Swahili',
+  Amharic: 'Amharic',
+  Geʻez: 'Amharic',
+  Hausa: 'Hausa',
+  Yoruba: 'Yoruba',
+  Igbo: 'Igbo',
+  Akan: 'Akan',
+  Zulu: 'Zulu',
+  Xhosa: 'Zulu',
+  Shona: 'Shona',
+  Wolof: 'Wolof',
+  Berber: 'Berber',
+  Tamazight: 'Berber',
+  Nahuatl: 'Nahuatl',
+  'Classical Nahuatl': 'Nahuatl',
+  Quechua: 'Quechua',
+  'Classic Maya': 'Maya',
+  'Yucatec Maya': 'Maya',
+}
+
+function inferLanguageGroup(language) {
+  const trimmed = String(language || '').trim()
+  if (!trimmed) return ''
+  if (KNOWN_LANGUAGE_GROUPS[trimmed]) return KNOWN_LANGUAGE_GROUPS[trimmed]
+  const lower = trimmed.toLowerCase()
+  if (lower.includes('english')) return 'English'
+  if (lower.includes('greek')) return 'Greek'
+  if (lower.includes('latin')) return 'Latin'
+  if (lower.includes('french')) return 'French'
+  if (lower.includes('german')) return 'German'
+  if (lower.includes('dutch')) return 'Dutch'
+  if (lower.includes('italian')) return 'Italian'
+  if (lower.includes('spanish')) return 'Spanish'
+  if (lower.includes('portuguese')) return 'Portuguese'
+  if (lower.includes('norse') || lower.includes('scandi')) return 'Scandinavian'
+  if (lower.includes('slavic') || lower.includes('russian')) return 'Russian & East Slavic'
+  if (lower.includes('gaelic') || lower.includes('celtic')) return 'Celtic'
+  if (lower.includes('hebrew')) return 'Hebrew'
+  if (lower.includes('arabic')) return 'Arabic'
+  if (lower.includes('persian')) return 'Persian'
+  if (lower.includes('chinese') || lower.includes('mandarin') || lower.includes('cantonese')) return 'Chinese'
+  if (lower.includes('japanese')) return 'Japanese'
+  if (lower.includes('korean')) return 'Korean'
+  if (lower.includes('turkish') || lower.includes('turkic')) return 'Turkish'
+  if (lower.includes('sanskrit') || lower.includes('prakrit') || lower.includes('pali')) return 'Sanskrit & Pali'
+  if (lower.includes('hindi') || lower.includes('urdu')) return 'Hindi & Urdu'
+  if (lower.includes('malay') || lower.includes('indonesian')) return 'Indonesian & Malay'
+  if (lower.includes('nahuatl')) return 'Nahuatl'
+  if (lower.includes('maya')) return 'Maya'
+  return trimmed
+}
+
+function resolveRegion(raw) {
+  const trimmed = String(raw || '').trim()
+  if (!trimmed) return null
+  const upper = trimmed.toUpperCase()
+  if (REGION_CODES[upper]) return REGION_CODES[upper]
+  const lower = trimmed.toLowerCase().replace(/\band\b/g, '&')
+  for (const label of Object.values(REGION_CODES)) {
+    if (label.toLowerCase() === lower || label.toLowerCase().replace('&', 'and') === trimmed.toLowerCase()) {
+      return label
+    }
+  }
+  return null
+}
+
+function resolveEra(raw) {
+  const trimmed = String(raw || '').trim()
+  if (!trimmed) return null
+  const upper = trimmed.toUpperCase()
+  if (ERA_CODES[upper]) return ERA_CODES[upper]
+  const lower = trimmed.toLowerCase()
+  for (const label of Object.values(ERA_CODES)) {
+    if (label.toLowerCase() === lower) return label
+  }
+  if (lower === 'medieval' || lower === 'historical' || lower === 'folklore') return ERA_CODES.M
+  if (lower === 'contemporary' || lower === 'current') return ERA_CODES.N
+  return null
+}
+
+function resolveDomain(raw, allowCustom = true) {
+  const trimmed = String(raw || '').trim()
+  if (!trimmed) return null
+  const upper = trimmed.toUpperCase()
+  if (DOMAIN_CODES[upper]) return DOMAIN_CODES[upper]
+  const lower = trimmed.toLowerCase()
+  for (const label of Object.values(DOMAIN_CODES)) {
+    if (label.toLowerCase() === lower) return label
+  }
+  if (allowCustom) {
+    if (/^[A-Z0-9_-]+$/.test(trimmed)) {
+      const words = trimmed.toLowerCase().split(/[_-]+/).filter(Boolean)
+      if (words.length > 0) {
+        words[0] = words[0].charAt(0).toUpperCase() + words[0].slice(1)
+        return words.join(' ')
+      }
+    }
+    return trimmed
+  }
+  return null
 }
 
 function getDb() {
@@ -94,7 +344,7 @@ ${existingPairs.length > 300 ? `... (+ ${existingPairs.length - 300} more in dat
 }
 
 function parseAndValidate(rawText, existingPairsSet, options = {}) {
-  const { duplicateMode = 'term_language' } = options
+  const { duplicateMode = 'term_language', allowCustomDomains = true } = options
   const lines = rawText.split(/\r?\n/)
   const valid = []
   const duplicates = []
@@ -116,9 +366,9 @@ function parseAndValidate(rawText, existingPairsSet, options = {}) {
     const term = parts[0].trim()
     const romanization = parts[1].trim() || term
     const language = parts[2].trim()
-    const regCode = parts[3].trim().toUpperCase()
-    const eraCode = parts[4].trim().toUpperCase()
-    const domCode = parts[5].trim().toUpperCase()
+    const regRaw = parts[3].trim()
+    const eraRaw = parts[4].trim()
+    const domRaw = parts[5].trim()
     const gloss = parts[6].trim().replace(/\.$/, '')
 
     if (!term || !language) {
@@ -126,21 +376,25 @@ function parseAndValidate(rawText, existingPairsSet, options = {}) {
       continue
     }
 
-    if (!REGION_CODES[regCode]) {
-      errors.push({ line: i + 1, raw: rawLine, error: `Invalid region code: ${regCode}` })
+    const region = resolveRegion(regRaw)
+    if (!region) {
+      errors.push({ line: i + 1, raw: rawLine, error: `Invalid region code: ${regRaw}` })
       continue
     }
 
-    if (!ERA_CODES[eraCode]) {
-      errors.push({ line: i + 1, raw: rawLine, error: `Invalid era code: ${eraCode}` })
+    const era = resolveEra(eraRaw)
+    if (!era) {
+      errors.push({ line: i + 1, raw: rawLine, error: `Invalid era code: ${eraRaw}` })
       continue
     }
 
-    if (!DOMAIN_CODES[domCode]) {
-      errors.push({ line: i + 1, raw: rawLine, error: `Invalid domain code: ${domCode}` })
+    const domain = resolveDomain(domRaw, allowCustomDomains)
+    if (!domain) {
+      errors.push({ line: i + 1, raw: rawLine, error: `Invalid domain code: ${domRaw}` })
       continue
     }
 
+    const language_group = inferLanguageGroup(language)
     const checkKey = duplicateMode === 'term'
       ? term.toLowerCase()
       : `${term.toLowerCase()}|${language.toLowerCase()}`
@@ -157,9 +411,10 @@ function parseAndValidate(rawText, existingPairsSet, options = {}) {
         term,
         romanization,
         language,
-        region: REGION_CODES[regCode],
-        era: ERA_CODES[eraCode],
-        domain: DOMAIN_CODES[domCode],
+        language_group,
+        region,
+        era,
+        domain,
         gloss,
         type: 'in_database',
       })
@@ -170,10 +425,10 @@ function parseAndValidate(rawText, existingPairsSet, options = {}) {
       term,
       romanization,
       language,
-      language_group: language,
-      region: REGION_CODES[regCode],
-      era: ERA_CODES[eraCode],
-      domain: DOMAIN_CODES[domCode],
+      language_group,
+      region,
+      era,
+      domain,
       gloss,
     })
   }
@@ -182,22 +437,33 @@ function parseAndValidate(rawText, existingPairsSet, options = {}) {
 }
 
 function parseJsonAndValidate(rawText, existingPairsSet, options = {}) {
-  const { duplicateMode = 'term_language' } = options
+  const { duplicateMode = 'term_language', allowCustomDomains = true } = options
   const valid = []
   const duplicates = []
   const errors = []
   const batchSeen = new Set()
 
-  let data
+  let parsed
   try {
-    data = JSON.parse(rawText)
+    const cleaned = rawText.trim().replace(/^```(?:json)?\s*\r?\n?/i, '').replace(/\r?\n?```\s*$/, '').trim()
+    parsed = JSON.parse(cleaned)
   } catch (err) {
     errors.push({ line: 0, raw: '', error: `Invalid JSON: ${err.message}` })
     return { valid, duplicates, errors }
   }
 
+  const data = Array.isArray(parsed)
+    ? parsed
+    : Array.isArray(parsed?.terms)
+      ? parsed.terms
+      : Array.isArray(parsed?.entries)
+        ? parsed.entries
+        : Array.isArray(parsed?.data)
+          ? parsed.data
+          : null
+
   if (!Array.isArray(data)) {
-    errors.push({ line: 0, raw: '', error: 'JSON root must be an array of entries' })
+    errors.push({ line: 0, raw: '', error: 'JSON root must be an array of entries (or { terms: [...] })' })
     return { valid, duplicates, errors }
   }
 
@@ -211,27 +477,34 @@ function parseJsonAndValidate(rawText, existingPairsSet, options = {}) {
     const term = String(item.term ?? '').trim()
     const romanization = String(item.romanization ?? '').trim() || term
     const language = String(item.language ?? '').trim()
-    const regCode = String(item.region ?? '').trim().toUpperCase()
-    const eraCode = String(item.era ?? '').trim().toUpperCase()
-    const domCode = String(item.domain ?? '').trim().toUpperCase()
-    const gloss = String(item.meaning ?? item.gloss ?? '').trim().replace(/\.$/, '')
+    const regRaw = String(item.region ?? '').trim()
+    const eraRaw = String(item.era ?? '').trim()
+    const domRaw = String(item.domain ?? '').trim()
+    const gloss = String(item.meaning ?? item.gloss ?? item.definition ?? '').trim().replace(/\.$/, '')
 
     if (!term || !language) {
       errors.push({ line: lineNum, raw: JSON.stringify(item), error: 'term and language cannot be empty' })
       return
     }
-    if (!REGION_CODES[regCode]) {
-      errors.push({ line: lineNum, raw: JSON.stringify(item), error: `Invalid region code: ${regCode}` })
+    const region = resolveRegion(regRaw)
+    if (!region) {
+      errors.push({ line: lineNum, raw: JSON.stringify(item), error: `Invalid region code: ${regRaw}` })
       return
     }
-    if (!ERA_CODES[eraCode]) {
-      errors.push({ line: lineNum, raw: JSON.stringify(item), error: `Invalid era code: ${eraCode}` })
+    const era = resolveEra(eraRaw)
+    if (!era) {
+      errors.push({ line: lineNum, raw: JSON.stringify(item), error: `Invalid era code: ${eraRaw}` })
       return
     }
-    if (!DOMAIN_CODES[domCode]) {
-      errors.push({ line: lineNum, raw: JSON.stringify(item), error: `Invalid domain code: ${domCode}` })
+    const domain = resolveDomain(domRaw, allowCustomDomains)
+    if (!domain) {
+      errors.push({ line: lineNum, raw: JSON.stringify(item), error: `Invalid domain code: ${domRaw}` })
       return
     }
+
+    const language_group = item.language_group
+      ? String(item.language_group).trim()
+      : inferLanguageGroup(language)
 
     const checkKey = duplicateMode === 'term'
       ? term.toLowerCase()
@@ -249,9 +522,10 @@ function parseJsonAndValidate(rawText, existingPairsSet, options = {}) {
         term,
         romanization,
         language,
-        region: REGION_CODES[regCode],
-        era: ERA_CODES[eraCode],
-        domain: DOMAIN_CODES[domCode],
+        language_group,
+        region,
+        era,
+        domain,
         gloss,
         type: 'in_database',
       })
@@ -262,10 +536,10 @@ function parseJsonAndValidate(rawText, existingPairsSet, options = {}) {
       term,
       romanization,
       language,
-      language_group: language,
-      region: REGION_CODES[regCode],
-      era: ERA_CODES[eraCode],
-      domain: DOMAIN_CODES[domCode],
+      language_group,
+      region,
+      era,
+      domain,
       gloss,
     })
   })
@@ -377,11 +651,6 @@ async function main() {
     }
   }
 
-  const db = getDb()
-  const existingRows = getExistingTerms(db)
-  const existingPairs = existingRows.map(r => `${r.term}|${r.language}`)
-  const existingPairsSet = new Set(existingPairs.map(p => p.toLowerCase()))
-
   const count = parseInt(argMap.count, 10) || 50
   const focus = argMap.focus || ''
   const model = argMap.model || 'gemini-2.5-flash'
@@ -389,7 +658,16 @@ async function main() {
   const dupMode = argMap['dup-mode'] || 'term_language'
   const onDup = argMap['on-dup'] || 'skip'
 
-  console.log(`\n📚 Overseer Lexicon Term Generator`)
+  const db = getDb()
+  const existingRows = getExistingTerms(db)
+  const existingPairs = existingRows.map(r => `${r.term}|${r.language}`)
+  const existingPairsSet = new Set(
+    dupMode === 'term'
+      ? existingRows.map(r => r.term.toLowerCase())
+      : existingPairs.map(p => p.toLowerCase())
+  )
+
+  console.log(`\n📚 The Lexicon — Universal Term Generator & Importer`)
   console.log(`Current terms in database: ${existingRows.length}\n`)
 
   if (argMap.help) {
@@ -401,9 +679,9 @@ Options:
   --out=<file>           Write prompt or generated output to file
   --generate             Generate using Gemini API
   --count=<N>            Number of terms to request (default: 50)
-  --focus="<focus>"      Focus topic/domain/region (e.g. "maritime & port masters")
+  --focus="<focus>"      Focus topic/domain/region (e.g. "squirrel species & folklore")
   --model=<name>         Gemini model (default: gemini-2.5-flash)
-  --import=<file>        Import entries from a file into the database (pipe-delimited .txt, or JSON array via .json extension / [ ] content — auto-detected)
+  --import=<file>        Import entries from a file into the database (JSON array or pipe-delimited .txt — auto-detected)
   --save                 Persist valid generated or imported terms into SQLite
   --dup-mode=<term|term_language>  Check duplicates by exact term or term+language (default: term_language)
   --on-dup=<skip|update> Skip or update existing duplicates (default: skip)
@@ -431,12 +709,20 @@ Options:
     }
     console.log(`Importing from file: ${filePath}`)
     const text = fs.readFileSync(filePath, 'utf8')
-    const isJson = filePath.toLowerCase().endsWith('.json') || text.trim().startsWith('[')
+    const trimmed = text.trim()
+    const isJson = filePath.toLowerCase().endsWith('.json') || trimmed.startsWith('[') || trimmed.startsWith('{')
     const { valid, duplicates, errors } = isJson
       ? parseJsonAndValidate(text, existingPairsSet, { duplicateMode: dupMode })
       : parseAndValidate(text, existingPairsSet, { duplicateMode: dupMode, onDuplicate: onDup })
     console.log(`Format detected: ${isJson ? 'JSON' : 'pipe-delimited'}`)
     console.log(`\nResults: ${valid.length} valid, ${duplicates.length} duplicates, ${errors.length} formatting errors`)
+
+    if (errors.length > 0) {
+      console.log(`\nSample errors:`)
+      for (const e of errors.slice(0, 5)) {
+        console.log(`  ✕ Line/Entry ${e.line}: ${e.error}`)
+      }
+    }
 
     if (save && (valid.length > 0 || (onDup === 'update' && duplicates.length > 0))) {
       const itemsToSave = onDup === 'update' ? [...valid, ...duplicates.filter(d => d.type === 'in_database')] : valid
@@ -467,7 +753,11 @@ Options:
       console.log(`Raw output saved to: ${argMap.out}`)
     }
 
-    const { valid, duplicates, errors } = parseAndValidate(rawOutput, existingPairsSet, { duplicateMode: dupMode, onDuplicate: onDup })
+    const cleanedOut = rawOutput.trim().replace(/^```(?:json)?\s*\r?\n?/i, '').trim()
+    const isJsonOut = cleanedOut.startsWith('[') || cleanedOut.startsWith('{')
+    const { valid, duplicates, errors } = isJsonOut
+      ? parseJsonAndValidate(rawOutput, existingPairsSet, { duplicateMode: dupMode })
+      : parseAndValidate(rawOutput, existingPairsSet, { duplicateMode: dupMode, onDuplicate: onDup })
     console.log(`\nParsing result:`)
     console.log(`  ✓ Valid:      ${valid.length}`)
     console.log(`  ⚠️ Duplicates: ${duplicates.length}`)

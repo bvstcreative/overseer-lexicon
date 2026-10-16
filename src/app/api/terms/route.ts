@@ -55,22 +55,26 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    const requiredFields = ['term', 'language', 'language_group', 'region', 'era', 'domain', 'gloss'] as const
+    const glossVal = body.gloss ?? body.meaning ?? body.definition
+    const requiredFields = ['term', 'language', 'region', 'era', 'domain'] as const
     for (const field of requiredFields) {
       if (!body[field] || typeof body[field] !== 'string' || !body[field].trim()) {
         return NextResponse.json({ error: `Field '${field}' is required.` }, { status: 400 })
       }
     }
+    if (!glossVal || typeof glossVal !== 'string' || !glossVal.trim()) {
+      return NextResponse.json({ error: `Field 'meaning' (or 'gloss') is required.` }, { status: 400 })
+    }
 
     const input: NewTermInput = {
       term: body.term,
-      romanization: body.romanization ?? '',
+      romanization: body.romanization ?? body.term,
       language: body.language,
       language_group: body.language_group,
       region: body.region,
       era: body.era,
       domain: body.domain,
-      gloss: body.gloss,
+      gloss: glossVal,
     }
 
     const created = createTerm(input)

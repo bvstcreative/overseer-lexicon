@@ -1,0 +1,3818 @@
+[
+  {
+    "term": "squirrel",
+    "romanization": "squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "bushy-tailed tree-climbing rodent of the family Sciuridae"
+  },
+  {
+    "term": "flying squirrel",
+    "romanization": "flying squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding rodent with a skin membrane stretched between its limbs"
+  },
+  {
+    "term": "ground squirrel",
+    "romanization": "ground squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "burrowing rodent of open country, close kin of marmots and chipmunks"
+  },
+  {
+    "term": "red squirrel",
+    "romanization": "red squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "reddish, tufted-eared tree rodent native to Eurasian conifer forests"
+  },
+  {
+    "term": "grey squirrel",
+    "romanization": "grey squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "large tree rodent from North America, invasive across Britain and Italy"
+  },
+  {
+    "term": "fox squirrel",
+    "romanization": "fox squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "large reddish-brown tree rodent of eastern North American woodlands"
+  },
+  {
+    "term": "black squirrel",
+    "romanization": "black squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "dark colour form of the eastern grey tree rodent"
+  },
+  {
+    "term": "palm squirrel",
+    "romanization": "palm squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "small South Asian tree rodent with three pale stripes down its back"
+  },
+  {
+    "term": "giant squirrel",
+    "romanization": "giant squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "very large, long-tailed tree rodent of tropical Asian forests"
+  },
+  {
+    "term": "pygmy squirrel",
+    "romanization": "pygmy squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "tiny tree rodent of tropical forests, some barely mouse-sized"
+  },
+  {
+    "term": "Pallas's squirrel",
+    "romanization": "Pallas's squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "red-bellied tree rodent of East and Southeast Asia, introduced in Europe"
+  },
+  {
+    "term": "plantain squirrel",
+    "romanization": "plantain squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Southeast Asian tree rodent of gardens, orchards and plantations"
+  },
+  {
+    "term": "Prevost's squirrel",
+    "romanization": "Prevost's squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "boldly tricoloured tree rodent of Malay, Sumatran and Bornean forests"
+  },
+  {
+    "term": "tufted ground squirrel",
+    "romanization": "tufted ground squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "forest rodent of Borneo with an exceptionally bushy tail"
+  },
+  {
+    "term": "Cape ground squirrel",
+    "romanization": "Cape ground squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "social African burrower that shades itself with its umbrella-like tail"
+  },
+  {
+    "term": "Arctic ground squirrel",
+    "romanization": "Arctic ground squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "hibernating rodent of tundra and northern North American meadows"
+  },
+  {
+    "term": "northern flying squirrel",
+    "romanization": "northern flying squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "nocturnal gliding rodent of North American boreal and mixed forests"
+  },
+  {
+    "term": "Siberian flying squirrel",
+    "romanization": "Siberian flying squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "small gliding rodent of northern Eurasian taiga, also found in Finland"
+  },
+  {
+    "term": "giant flying squirrel",
+    "romanization": "giant flying squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "large Asian gliding rodent of the genus Petaurista"
+  },
+  {
+    "term": "Indian giant squirrel",
+    "romanization": "Indian giant squirrel",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "large, colourful tree rodent of Indian forests, called shekru in Maharashtra"
+  },
+  {
+    "term": "Siberian chipmunk",
+    "romanization": "Siberian chipmunk",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "small striped rodent of northern Asian forests, now introduced in Europe"
+  },
+  {
+    "term": "marmot",
+    "romanization": "marmot",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "large, heavy-bodied ground rodent that hibernates in burrows on mountain slopes"
+  },
+  {
+    "term": "Alpine marmot",
+    "romanization": "Alpine marmot",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "social burrowing rodent of European mountain meadows, famed for its whistle"
+  },
+  {
+    "term": "prairie dog",
+    "romanization": "prairie dog",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "social burrowing rodent of North American grasslands, living in underground towns"
+  },
+  {
+    "term": "tree shrew",
+    "romanization": "tree shrew",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel-like omnivorous mammal of tropical Asian forests, unrelated to true shrews"
+  },
+  {
+    "term": "colugo",
+    "romanization": "colugo",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding mammal of Southeast Asia, nicknamed the flying lemur"
+  },
+  {
+    "term": "flying lemur",
+    "romanization": "flying lemur",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "colugo, a gliding Southeast Asian mammal that is neither lemur nor true flier"
+  },
+  {
+    "term": "sugar glider",
+    "romanization": "sugar glider",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "small Australasian gliding marsupial resembling a flying squirrel"
+  },
+  {
+    "term": "dormouse",
+    "romanization": "dormouse",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "small nocturnal rodent with a bushy tail that hibernates for months"
+  },
+  {
+    "term": "hazel dormouse",
+    "romanization": "hazel dormouse",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "small golden-furred woodland rodent that nests in hazel and bramble"
+  },
+  {
+    "term": "edible dormouse",
+    "romanization": "edible dormouse",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "large grey European rodent that Romans once fattened and ate"
+  },
+  {
+    "term": "garden dormouse",
+    "romanization": "garden dormouse",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "masked European dormouse with a black-and-white tipped tail"
+  },
+  {
+    "term": "anomalure",
+    "romanization": "anomalure",
+    "language": "English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding African rodent with scaly tail base, unrelated to true squirrels"
+  },
+  {
+    "term": "chipmunk",
+    "romanization": "chipmunk",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "small striped North American ground rodent with large cheek pouches"
+  },
+  {
+    "term": "woodchuck",
+    "romanization": "woodchuck",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot of North America, also called groundhog, from an Algonquian name"
+  },
+  {
+    "term": "groundhog",
+    "romanization": "groundhog",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "stout burrowing marmot of eastern North America that hibernates through winter"
+  },
+  {
+    "term": "whistle-pig",
+    "romanization": "whistle-pig",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "folk name for the groundhog, from its shrill alarm whistle"
+  },
+  {
+    "term": "gopher",
+    "romanization": "gopher",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "burrowing North American rodent, loosely applied to ground squirrels and cheek-pouched diggers"
+  },
+  {
+    "term": "flickertail",
+    "romanization": "flickertail",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "nickname of Richardson's ground squirrel, emblem of North Dakota"
+  },
+  {
+    "term": "chickaree",
+    "romanization": "chickaree",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "western North American conifer squirrel named for its scolding chatter"
+  },
+  {
+    "term": "gray squirrel",
+    "romanization": "gray squirrel",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common North American tree rodent, spelled with an a in American usage"
+  },
+  {
+    "term": "thirteen-lined ground squirrel",
+    "romanization": "thirteen-lined ground squirrel",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "striped prairie hibernator with spotted back lines, common across the Midwest"
+  },
+  {
+    "term": "golden-mantled ground squirrel",
+    "romanization": "golden-mantled ground squirrel",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk-like mountain rodent with copper head and white side stripes"
+  },
+  {
+    "term": "rock squirrel",
+    "romanization": "rock squirrel",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "large ground-dwelling rodent of rocky terrain in the American Southwest"
+  },
+  {
+    "term": "tassel-eared squirrel",
+    "romanization": "tassel-eared squirrel",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "tree rodent of southwestern pine forests with long ear tufts"
+  },
+  {
+    "term": "southern flying squirrel",
+    "romanization": "southern flying squirrel",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "small nocturnal gliding rodent of eastern American forests"
+  },
+  {
+    "term": "Scrat",
+    "romanization": "Scrat",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "saber-toothed squirrel forever chasing an acorn in the Ice Age films"
+  },
+  {
+    "term": "Secret Squirrel",
+    "romanization": "Secret Squirrel",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "cartoon spy squirrel in a trench coat and fedora from 1960s television"
+  },
+  {
+    "term": "Sandy Cheeks",
+    "romanization": "Sandy Cheeks",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "squirrel scientist from Texas who lives underwater in SpongeBob SquarePants"
+  },
+  {
+    "term": "Chip 'n' Dale",
+    "romanization": "Chip 'n' Dale",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "pair of mischievous chipmunk characters from Disney cartoons"
+  },
+  {
+    "term": "Rocky the Flying Squirrel",
+    "romanization": "Rocky the Flying Squirrel",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "aviator-capped glider and sidekick of Bullwinkle moose in an American cartoon"
+  },
+  {
+    "term": "Squirrel Girl",
+    "romanization": "Squirrel Girl",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "comic-book superheroine from Marvel who has squirrel-like powers and allies"
+  },
+  {
+    "term": "Hammy",
+    "romanization": "Hammy",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "hyperactive red squirrel in the animated film Over the Hedge"
+  },
+  {
+    "term": "Alvin and the Chipmunks",
+    "romanization": "Alvin and the Chipmunks",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "singing chipmunk trio created by Ross Bagdasarian"
+  },
+  {
+    "term": "Surly",
+    "romanization": "Surly",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "grumpy squirrel protagonist of the animated film The Nut Job"
+  },
+  {
+    "term": "Sally Acorn",
+    "romanization": "Sally Acorn",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "chipmunk freedom fighter in the Sonic the Hedgehog franchise"
+  },
+  {
+    "term": "Punxsutawney Phil",
+    "romanization": "Punxsutawney Phil",
+    "language": "American English",
+    "region": "AME",
+    "era": "N",
+    "domain": "MYTH",
+    "meaning": "groundhog said to forecast spring weather each Groundhog Day"
+  },
+  {
+    "term": "skug",
+    "romanization": "skug",
+    "language": "British English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "southern English dialect word for a squirrel"
+  },
+  {
+    "term": "Squirrel Nutkin",
+    "romanization": "Squirrel Nutkin",
+    "language": "British English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "impertinent red squirrel in Beatrix Potter's 1903 tale"
+  },
+  {
+    "term": "Timmy Tiptoes",
+    "romanization": "Timmy Tiptoes",
+    "language": "British English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "grey squirrel hero of a Beatrix Potter picture book"
+  },
+  {
+    "term": "Goody Tiptoes",
+    "romanization": "Goody Tiptoes",
+    "language": "British English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "squirrel wife of Timmy in a Beatrix Potter story"
+  },
+  {
+    "term": "Conker",
+    "romanization": "Conker",
+    "language": "British English",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "foul-mouthed red squirrel starring in a Rare video game"
+  },
+  {
+    "term": "ācweorna",
+    "romanization": "ācweorna",
+    "language": "Old English",
+    "region": "EUR",
+    "era": "M",
+    "domain": "FAUNA",
+    "meaning": "word for a squirrel in Anglo-Saxon England, first element meaning oak"
+  },
+  {
+    "term": "squirel",
+    "romanization": "squirel",
+    "language": "Middle English",
+    "region": "EUR",
+    "era": "M",
+    "domain": "FAUNA",
+    "meaning": "medieval English spelling of the animal name, borrowed from Old French"
+  },
+  {
+    "term": "Eichhörnchen",
+    "romanization": "Eichhörnchen",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "standard German word for the squirrel, first element meaning oak"
+  },
+  {
+    "term": "Eichkätzchen",
+    "romanization": "Eichkätzchen",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "regional name for the squirrel, literally little oak cat"
+  },
+  {
+    "term": "Streifenhörnchen",
+    "romanization": "Streifenhörnchen",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk, literally striped little squirrel"
+  },
+  {
+    "term": "Flughörnchen",
+    "romanization": "Flughörnchen",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel of forests, literally flight squirrel"
+  },
+  {
+    "term": "Erdhörnchen",
+    "romanization": "Erdhörnchen",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel, literally earth squirrel"
+  },
+  {
+    "term": "Ziesel",
+    "romanization": "Ziesel",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel of European steppe grasslands and dry meadows"
+  },
+  {
+    "term": "Murmeltier",
+    "romanization": "Murmeltier",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot, literally murmuring animal, of Alpine meadows"
+  },
+  {
+    "term": "Präriehund",
+    "romanization": "Präriehund",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "prairie dog, literally prairie hound"
+  },
+  {
+    "term": "Spitzhörnchen",
+    "romanization": "Spitzhörnchen",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "tree shrew, literally pointed little squirrel"
+  },
+  {
+    "term": "Siebenschläfer",
+    "romanization": "Siebenschläfer",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "edible dormouse, named for its long hibernation of about seven months"
+  },
+  {
+    "term": "Haselmaus",
+    "romanization": "Haselmaus",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "hazel dormouse, literally hazel mouse"
+  },
+  {
+    "term": "Gartenschläfer",
+    "romanization": "Gartenschläfer",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "garden dormouse, literally garden sleeper"
+  },
+  {
+    "term": "Baumschläfer",
+    "romanization": "Baumschläfer",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "forest dormouse, literally tree sleeper"
+  },
+  {
+    "term": "Grauhörnchen",
+    "romanization": "Grauhörnchen",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "grey squirrel from North America, now established in Europe"
+  },
+  {
+    "term": "Baumhörnchen",
+    "romanization": "Baumhörnchen",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "tree squirrel, general term for arboreal squirrels"
+  },
+  {
+    "term": "Riesenhörnchen",
+    "romanization": "Riesenhörnchen",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "giant squirrel of the tropical Asian genus Ratufa"
+  },
+  {
+    "term": "Chip und Chap",
+    "romanization": "Chip und Chap",
+    "language": "German",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "name used in German for Disney's chipmunk duo"
+  },
+  {
+    "term": "eichorn",
+    "romanization": "eichorn",
+    "language": "Middle High German",
+    "region": "EUR",
+    "era": "M",
+    "domain": "FAUNA",
+    "meaning": "medieval German word for the squirrel"
+  },
+  {
+    "term": "eihhurno",
+    "romanization": "eihhurno",
+    "language": "Old High German",
+    "region": "EUR",
+    "era": "M",
+    "domain": "FAUNA",
+    "meaning": "early medieval German word for the squirrel"
+  },
+  {
+    "term": "Eichkatzl",
+    "romanization": "Eichkatzl",
+    "language": "Bavarian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "name for the squirrel in Austro-Bavarian, literally little oak cat"
+  },
+  {
+    "term": "Kaweechelchen",
+    "romanization": "Kaweechelchen",
+    "language": "Luxembourgish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "word for the squirrel in Luxembourgish, a diminutive form"
+  },
+  {
+    "term": "eekhoorn",
+    "romanization": "eekhoorn",
+    "language": "Dutch",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Dutch word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "grondeekhoorn",
+    "romanization": "grondeekhoorn",
+    "language": "Dutch",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel or chipmunk, literally earth squirrel"
+  },
+  {
+    "term": "Siberische grondeekhoorn",
+    "romanization": "Siberische grondeekhoorn",
+    "language": "Dutch",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk from Siberia, widely kept as a pet in the Netherlands"
+  },
+  {
+    "term": "grijze eekhoorn",
+    "romanization": "grijze eekhoorn",
+    "language": "Dutch",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "grey squirrel, an introduced North American species"
+  },
+  {
+    "term": "vliegende eekhoorn",
+    "romanization": "vliegende eekhoorn",
+    "language": "Dutch",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel of forests, literally flying squirrel"
+  },
+  {
+    "term": "marmot",
+    "romanization": "marmot",
+    "language": "Dutch",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "large mountain rodent of the Alps, borrowed from French"
+  },
+  {
+    "term": "prairiehond",
+    "romanization": "prairiehond",
+    "language": "Dutch",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "prairie dog, literally prairie hound"
+  },
+  {
+    "term": "slaapmuis",
+    "romanization": "slaapmuis",
+    "language": "Dutch",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "dormouse, literally a sleep mouse in Dutch"
+  },
+  {
+    "term": "relmuis",
+    "romanization": "relmuis",
+    "language": "Dutch",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "edible dormouse, a rare Dutch rodent"
+  },
+  {
+    "term": "hazelmuis",
+    "romanization": "hazelmuis",
+    "language": "Dutch",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "hazel dormouse, literally hazel mouse"
+  },
+  {
+    "term": "Knabbel en Babbel",
+    "romanization": "Knabbel en Babbel",
+    "language": "Dutch",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "name of Disney's chipmunk duo in Dutch"
+  },
+  {
+    "term": "eekhoring",
+    "romanization": "eekhoring",
+    "language": "Afrikaans",
+    "region": "AFR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Afrikaans word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "grondeekhoring",
+    "romanization": "grondeekhoring",
+    "language": "Afrikaans",
+    "region": "AFR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel, such as the Cape species of dry country"
+  },
+  {
+    "term": "ekorre",
+    "romanization": "ekorre",
+    "language": "Swedish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Swedish word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "flygekorre",
+    "romanization": "flygekorre",
+    "language": "Swedish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel, literally flying squirrel, of northern forests"
+  },
+  {
+    "term": "jordekorre",
+    "romanization": "jordekorre",
+    "language": "Swedish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk, literally a ground squirrel in Swedish"
+  },
+  {
+    "term": "gråekorre",
+    "romanization": "gråekorre",
+    "language": "Swedish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "grey squirrel, an introduced North American species"
+  },
+  {
+    "term": "murmeldjur",
+    "romanization": "murmeldjur",
+    "language": "Swedish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot, literally murmuring animal in Swedish"
+  },
+  {
+    "term": "hasselmus",
+    "romanization": "hasselmus",
+    "language": "Swedish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "hazel dormouse, literally hazel mouse"
+  },
+  {
+    "term": "sjusovare",
+    "romanization": "sjusovare",
+    "language": "Swedish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "edible dormouse, literally seven sleeper"
+  },
+  {
+    "term": "Piff och Puff",
+    "romanization": "Piff och Puff",
+    "language": "Swedish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "name of Disney's chipmunk duo in Swedish"
+  },
+  {
+    "term": "Ratatosk",
+    "romanization": "Ratatosk",
+    "language": "Swedish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "MYTH",
+    "meaning": "form in Swedish of the Norse squirrel that runs along the world tree"
+  },
+  {
+    "term": "egern",
+    "romanization": "egern",
+    "language": "Danish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Danish word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "murmeldyr",
+    "romanization": "murmeldyr",
+    "language": "Danish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot, literally murmuring animal in Danish"
+  },
+  {
+    "term": "hasselmus",
+    "romanization": "hasselmus",
+    "language": "Danish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "hazel dormouse, literally hazel mouse"
+  },
+  {
+    "term": "ekorn",
+    "romanization": "ekorn",
+    "language": "Norwegian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Norwegian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "íkorni",
+    "romanization": "íkorni",
+    "language": "Icelandic",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Icelandic word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "Ratatoskur",
+    "romanization": "Ratatoskur",
+    "language": "Icelandic",
+    "region": "EUR",
+    "era": "N",
+    "domain": "MYTH",
+    "meaning": "form in Icelandic of the Norse squirrel that carries insults on the world tree"
+  },
+  {
+    "term": "íkorni",
+    "romanization": "íkorni",
+    "language": "Old Norse",
+    "region": "EUR",
+    "era": "M",
+    "domain": "FAUNA",
+    "meaning": "word for the squirrel in Old Norse, also its name in Eddic verse"
+  },
+  {
+    "term": "Ratatoskr",
+    "romanization": "Ratatoskr",
+    "language": "Old Norse",
+    "region": "EUR",
+    "era": "M",
+    "domain": "MYTH",
+    "meaning": "squirrel of Yggdrasil that carries insults between eagle and serpent"
+  },
+  {
+    "term": "orava",
+    "romanization": "orava",
+    "language": "Finnish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Finnish word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "liito-orava",
+    "romanization": "liito-orava",
+    "language": "Finnish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel of Finnish old forests, literally gliding squirrel"
+  },
+  {
+    "term": "maaorava",
+    "romanization": "maaorava",
+    "language": "Finnish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel or chipmunk, literally earth squirrel"
+  },
+  {
+    "term": "siperianmaaorava",
+    "romanization": "siperianmaaorava",
+    "language": "Finnish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk from Siberia, literally Siberian ground squirrel"
+  },
+  {
+    "term": "harmaaorava",
+    "romanization": "harmaaorava",
+    "language": "Finnish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "grey squirrel, literally grey squirrel, an introduced American species"
+  },
+  {
+    "term": "pähkinähiiri",
+    "romanization": "pähkinähiiri",
+    "language": "Finnish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "hazel dormouse, literally nut mouse"
+  },
+  {
+    "term": "murmeli",
+    "romanization": "murmeli",
+    "language": "Finnish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot, a large hibernating mountain rodent"
+  },
+  {
+    "term": "Tiku ja Taku",
+    "romanization": "Tiku ja Taku",
+    "language": "Finnish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "name of Disney's chipmunk duo in Finnish"
+  },
+  {
+    "term": "orav",
+    "romanization": "orav",
+    "language": "Estonian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Estonian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "lendorav",
+    "romanization": "lendorav",
+    "language": "Estonian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel of Estonian forests, literally flying squirrel"
+  },
+  {
+    "term": "mókus",
+    "romanization": "mókus",
+    "language": "Hungarian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Hungarian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "repülőmókus",
+    "romanization": "repülőmókus",
+    "language": "Hungarian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel, literally flying squirrel"
+  },
+  {
+    "term": "ürge",
+    "romanization": "ürge",
+    "language": "Hungarian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel of European steppe, living on Hungarian pasture"
+  },
+  {
+    "term": "mormota",
+    "romanization": "mormota",
+    "language": "Hungarian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot, a large hibernating mountain rodent"
+  },
+  {
+    "term": "pele",
+    "romanization": "pele",
+    "language": "Hungarian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "dormouse, a small hibernating rodent of woods"
+  },
+  {
+    "term": "prérikutya",
+    "romanization": "prérikutya",
+    "language": "Hungarian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "prairie dog, literally prairie dog"
+  },
+  {
+    "term": "voverė",
+    "romanization": "voverė",
+    "language": "Lithuanian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Lithuanian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "miegapelė",
+    "romanization": "miegapelė",
+    "language": "Lithuanian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "dormouse, literally sleeping mouse in Lithuanian"
+  },
+  {
+    "term": "vāvere",
+    "romanization": "vāvere",
+    "language": "Latvian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Latvian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "белка",
+    "romanization": "belka",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel; its pelts once served as a unit of value"
+  },
+  {
+    "term": "летяга",
+    "romanization": "letyaga",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "flying squirrel of Siberian and northern forests"
+  },
+  {
+    "term": "бурундук",
+    "romanization": "burunduk",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk of Siberia, a word borrowed from Turkic languages"
+  },
+  {
+    "term": "суслик",
+    "romanization": "suslik",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel of steppes and fields"
+  },
+  {
+    "term": "сурок",
+    "romanization": "surok",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot of mountain meadows and steppe"
+  },
+  {
+    "term": "тарбаган",
+    "romanization": "tarbagan",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot of Mongolia, a Central Asian burrowing rodent"
+  },
+  {
+    "term": "бобак",
+    "romanization": "bobak",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "steppe marmot of Eurasian grasslands"
+  },
+  {
+    "term": "байбак",
+    "romanization": "baybak",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "steppe marmot, a variant name of the bobak"
+  },
+  {
+    "term": "соня",
+    "romanization": "sonya",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "dormouse, a small hibernating rodent; also a sleepyhead"
+  },
+  {
+    "term": "соня-полчок",
+    "romanization": "sonya-polchok",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "edible dormouse, the largest European dormouse"
+  },
+  {
+    "term": "лесная соня",
+    "romanization": "lesnaya sonya",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "forest dormouse, a small masked rodent of woodland"
+  },
+  {
+    "term": "садовая соня",
+    "romanization": "sadovaya sonya",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "garden dormouse, a masked rodent of orchards and woods"
+  },
+  {
+    "term": "орешниковая соня",
+    "romanization": "oreshnikovaya sonya",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "hazel dormouse, a golden woodland rodent"
+  },
+  {
+    "term": "тупайя",
+    "romanization": "tupayya",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "tree shrew, from Malay tupai"
+  },
+  {
+    "term": "шерстокрыл",
+    "romanization": "sherstokryl",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "colugo, literally wool-wing, a gliding mammal of Southeast Asia"
+  },
+  {
+    "term": "Рататоск",
+    "romanization": "Ratatosk",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "MYTH",
+    "meaning": "form in Russian of the Norse squirrel that runs along the world tree"
+  },
+  {
+    "term": "Чип и Дейл",
+    "romanization": "Chip i Deyl",
+    "language": "Russian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "name of Disney's chipmunk duo in Russian"
+  },
+  {
+    "term": "векша",
+    "romanization": "veksha",
+    "language": "Old East Slavic",
+    "region": "EUR",
+    "era": "M",
+    "domain": "FAUNA",
+    "meaning": "squirrel; also a small old Russian coin or pelt-value unit"
+  },
+  {
+    "term": "вѣверица",
+    "romanization": "věverica",
+    "language": "Old East Slavic",
+    "region": "EUR",
+    "era": "M",
+    "domain": "FAUNA",
+    "meaning": "squirrel in medieval Rus, ancestor of modern Slavic forms"
+  },
+  {
+    "term": "білка",
+    "romanization": "bilka",
+    "language": "Ukrainian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Ukrainian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "ховрах",
+    "romanization": "khovrakh",
+    "language": "Ukrainian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel of Ukrainian steppe"
+  },
+  {
+    "term": "бабак",
+    "romanization": "babak",
+    "language": "Ukrainian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot, a large burrowing rodent of steppe"
+  },
+  {
+    "term": "летяга",
+    "romanization": "letyaha",
+    "language": "Ukrainian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "flying squirrel, a gliding rodent of forests"
+  },
+  {
+    "term": "бурундук",
+    "romanization": "burunduk",
+    "language": "Ukrainian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk of Siberia, a small striped ground rodent"
+  },
+  {
+    "term": "вавёрка",
+    "romanization": "vavyorka",
+    "language": "Belarusian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Belarusian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "wiewiórka",
+    "romanization": "wiewiórka",
+    "language": "Polish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Polish word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "polatucha",
+    "romanization": "polatucha",
+    "language": "Polish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel of eastern forests, a word from Russian"
+  },
+  {
+    "term": "suseł",
+    "romanization": "suseł",
+    "language": "Polish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel of Polish steppe and fields"
+  },
+  {
+    "term": "świstak",
+    "romanization": "świstak",
+    "language": "Polish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot of the Tatra mountains"
+  },
+  {
+    "term": "popielica",
+    "romanization": "popielica",
+    "language": "Polish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "edible dormouse, a grey tree-dwelling rodent"
+  },
+  {
+    "term": "pręgowiec",
+    "romanization": "pręgowiec",
+    "language": "Polish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk, a small striped ground rodent"
+  },
+  {
+    "term": "orzesznica",
+    "romanization": "orzesznica",
+    "language": "Polish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "hazel dormouse, a golden woodland rodent"
+  },
+  {
+    "term": "veverka",
+    "romanization": "veverka",
+    "language": "Czech",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Czech word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "poletucha",
+    "romanization": "poletucha",
+    "language": "Czech",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel of eastern forests"
+  },
+  {
+    "term": "sysel",
+    "romanization": "sysel",
+    "language": "Czech",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel of European dry grassland"
+  },
+  {
+    "term": "svišť",
+    "romanization": "svišť",
+    "language": "Czech",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot of high mountain meadows"
+  },
+  {
+    "term": "plch",
+    "romanization": "plch",
+    "language": "Czech",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "dormouse, a small hibernating rodent of woods"
+  },
+  {
+    "term": "plšík",
+    "romanization": "plšík",
+    "language": "Czech",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "hazel dormouse, a small golden woodland rodent"
+  },
+  {
+    "term": "veverička",
+    "romanization": "veverička",
+    "language": "Slovak",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Slovak word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "svišť",
+    "romanization": "svišť",
+    "language": "Slovak",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot of the Tatra mountains"
+  },
+  {
+    "term": "plch",
+    "romanization": "plch",
+    "language": "Slovak",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "dormouse, a small hibernating rodent of woods"
+  },
+  {
+    "term": "veverica",
+    "romanization": "veverica",
+    "language": "Slovene",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Slovene word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "polh",
+    "romanization": "polh",
+    "language": "Slovene",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "edible dormouse, traditionally hunted and eaten in Slovenia"
+  },
+  {
+    "term": "svizec",
+    "romanization": "svizec",
+    "language": "Slovene",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot of the Alpine mountains"
+  },
+  {
+    "term": "vjeverica",
+    "romanization": "vjeverica",
+    "language": "Croatian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Croatian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "puh",
+    "romanization": "puh",
+    "language": "Croatian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "edible dormouse, a grey tree-dwelling rodent"
+  },
+  {
+    "term": "svizac",
+    "romanization": "svizac",
+    "language": "Croatian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot, a large mountain burrowing rodent"
+  },
+  {
+    "term": "веверица",
+    "romanization": "veverica",
+    "language": "Serbian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Serbian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "текуница",
+    "romanization": "tekunica",
+    "language": "Serbian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel of Balkan grasslands"
+  },
+  {
+    "term": "пух",
+    "romanization": "puh",
+    "language": "Serbian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "edible dormouse, a grey tree-dwelling rodent"
+  },
+  {
+    "term": "катерица",
+    "romanization": "katerica",
+    "language": "Bulgarian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Bulgarian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "сънливец",
+    "romanization": "sănlivec",
+    "language": "Bulgarian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "dormouse, literally a sleepy one"
+  },
+  {
+    "term": "верверица",
+    "romanization": "ververica",
+    "language": "Macedonian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Macedonian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "veveriță",
+    "romanization": "veveriță",
+    "language": "Romanian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Romanian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "popândău",
+    "romanization": "popândău",
+    "language": "Romanian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel of Romanian steppe"
+  },
+  {
+    "term": "marmotă",
+    "romanization": "marmotă",
+    "language": "Romanian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot, a large hibernating mountain rodent"
+  },
+  {
+    "term": "pârș",
+    "romanization": "pârș",
+    "language": "Romanian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "dormouse, a small hibernating woodland rodent"
+  },
+  {
+    "term": "sciūrus",
+    "romanization": "sciūrus",
+    "language": "Latin",
+    "region": "EUR",
+    "era": "A",
+    "domain": "FAUNA",
+    "meaning": "squirrel, borrowed from Greek and ancestor of Romance forms"
+  },
+  {
+    "term": "glīs",
+    "romanization": "glīs",
+    "language": "Latin",
+    "region": "EUR",
+    "era": "A",
+    "domain": "FAUNA",
+    "meaning": "dormouse, a Roman delicacy fattened in special jars"
+  },
+  {
+    "term": "σκίουρος",
+    "romanization": "skiouros",
+    "language": "Ancient Greek",
+    "region": "EUR",
+    "era": "A",
+    "domain": "FAUNA",
+    "meaning": "squirrel, literally shadow-tail, source of many European words"
+  },
+  {
+    "term": "ἐλειός",
+    "romanization": "eleios",
+    "language": "Ancient Greek",
+    "region": "EUR",
+    "era": "A",
+    "domain": "FAUNA",
+    "meaning": "dormouse, a small hibernating rodent known to ancient authors"
+  },
+  {
+    "term": "σκίουρος",
+    "romanization": "skíouros",
+    "language": "Modern Greek",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Greek word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "escuireul",
+    "romanization": "escuireul",
+    "language": "Old French",
+    "region": "EUR",
+    "era": "M",
+    "domain": "FAUNA",
+    "meaning": "medieval French word for the squirrel, from Vulgar Latin"
+  },
+  {
+    "term": "écureuil",
+    "romanization": "écureuil",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common French word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "écureuil roux",
+    "romanization": "écureuil roux",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "reddish tree rodent of Eurasia with ear tufts"
+  },
+  {
+    "term": "écureuil gris",
+    "romanization": "écureuil gris",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "grey tree rodent introduced from North America"
+  },
+  {
+    "term": "écureuil volant",
+    "romanization": "écureuil volant",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel of forests, literally flying squirrel"
+  },
+  {
+    "term": "tamia",
+    "romanization": "tamia",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk, from the Greek word meaning steward or storer"
+  },
+  {
+    "term": "marmotte",
+    "romanization": "marmotte",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot of the Alps and Pyrenees"
+  },
+  {
+    "term": "spermophile",
+    "romanization": "spermophile",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel of the genus Spermophilus"
+  },
+  {
+    "term": "chien de prairie",
+    "romanization": "chien de prairie",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "social burrowing rodent of the North American plains"
+  },
+  {
+    "term": "loir",
+    "romanization": "loir",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "edible dormouse, a Roman-era delicacy in Europe"
+  },
+  {
+    "term": "lérot",
+    "romanization": "lérot",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "garden dormouse with a black face mask"
+  },
+  {
+    "term": "muscardin",
+    "romanization": "muscardin",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "hazel dormouse, a small golden woodland rodent"
+  },
+  {
+    "term": "toupaye",
+    "romanization": "toupaye",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "tree shrew, from Malay tupai"
+  },
+  {
+    "term": "polatouche",
+    "romanization": "polatouche",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel of Siberia, a word borrowed from Russian"
+  },
+  {
+    "term": "Spip",
+    "romanization": "Spip",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "pet squirrel in the Franco-Belgian comic Spirou et Fantasio"
+  },
+  {
+    "term": "Tic et Tac",
+    "romanization": "Tic et Tac",
+    "language": "French",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "name of Disney's chipmunk duo in French"
+  },
+  {
+    "term": "suisse",
+    "romanization": "suisse",
+    "language": "Quebec French",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk, nicknamed for stripes recalling Swiss Guard uniforms"
+  },
+  {
+    "term": "scoiattolo",
+    "romanization": "scoiattolo",
+    "language": "Italian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Italian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "scoiattolo volante",
+    "romanization": "scoiattolo volante",
+    "language": "Italian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel of forests, literally flying squirrel"
+  },
+  {
+    "term": "scoiattolo rosso",
+    "romanization": "scoiattolo rosso",
+    "language": "Italian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "reddish tree rodent of Eurasia with ear tufts"
+  },
+  {
+    "term": "scoiattolo grigio",
+    "romanization": "scoiattolo grigio",
+    "language": "Italian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "grey tree rodent from America, invasive in Italy"
+  },
+  {
+    "term": "marmotta",
+    "romanization": "marmotta",
+    "language": "Italian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot of the Italian Alps and Apennines"
+  },
+  {
+    "term": "ghiro",
+    "romanization": "ghiro",
+    "language": "Italian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "edible dormouse, eaten in ancient Rome"
+  },
+  {
+    "term": "moscardino",
+    "romanization": "moscardino",
+    "language": "Italian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "hazel dormouse, a small golden woodland rodent"
+  },
+  {
+    "term": "tamia",
+    "romanization": "tamia",
+    "language": "Italian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk, a small striped ground rodent"
+  },
+  {
+    "term": "citello",
+    "romanization": "citello",
+    "language": "Italian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel of the genus Spermophilus"
+  },
+  {
+    "term": "cane della prateria",
+    "romanization": "cane della prateria",
+    "language": "Italian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "social burrowing rodent of the North American plains"
+  },
+  {
+    "term": "tupaia",
+    "romanization": "tupaia",
+    "language": "Italian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "tree shrew, from Malay tupai"
+  },
+  {
+    "term": "Cip e Ciop",
+    "romanization": "Cip e Ciop",
+    "language": "Italian",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "name of Disney's chipmunk duo in Italian"
+  },
+  {
+    "term": "ardilla",
+    "romanization": "ardilla",
+    "language": "Spanish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Spanish word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "ardilla voladora",
+    "romanization": "ardilla voladora",
+    "language": "Spanish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel, literally flying squirrel"
+  },
+  {
+    "term": "ardilla listada",
+    "romanization": "ardilla listada",
+    "language": "Spanish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk, literally striped squirrel in Spanish"
+  },
+  {
+    "term": "ardilla terrestre",
+    "romanization": "ardilla terrestre",
+    "language": "Spanish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel, literally earth squirrel"
+  },
+  {
+    "term": "ardilla roja",
+    "romanization": "ardilla roja",
+    "language": "Spanish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "reddish Eurasian tree rodent with ear tufts"
+  },
+  {
+    "term": "ardilla gris",
+    "romanization": "ardilla gris",
+    "language": "Spanish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "grey tree rodent introduced from North America"
+  },
+  {
+    "term": "marmota",
+    "romanization": "marmota",
+    "language": "Spanish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot, a large hibernating mountain rodent"
+  },
+  {
+    "term": "perrito de las praderas",
+    "romanization": "perrito de las praderas",
+    "language": "Spanish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "social burrowing rodent of the North American plains"
+  },
+  {
+    "term": "lirón",
+    "romanization": "lirón",
+    "language": "Spanish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "dormouse, a small hibernating woodland rodent"
+  },
+  {
+    "term": "Chip y Dale",
+    "romanization": "Chip y Dale",
+    "language": "Spanish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "name of Disney's chipmunk duo in Spanish"
+  },
+  {
+    "term": "esquirol",
+    "romanization": "esquirol",
+    "language": "Catalan",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel; also Catalan slang for a strikebreaker"
+  },
+  {
+    "term": "marmota",
+    "romanization": "marmota",
+    "language": "Catalan",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot living in the Pyrenees mountains"
+  },
+  {
+    "term": "liró",
+    "romanization": "liró",
+    "language": "Catalan",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "edible dormouse, a small grey woodland rodent"
+  },
+  {
+    "term": "esquío",
+    "romanization": "esquío",
+    "language": "Galician",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Galician word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "esquiròl",
+    "romanization": "esquiròl",
+    "language": "Occitan",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Occitan word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "esquilo",
+    "romanization": "esquilo",
+    "language": "Portuguese",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Portuguese word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "esquilo-cinzento",
+    "romanization": "esquilo-cinzento",
+    "language": "Portuguese",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "grey tree rodent introduced from North America"
+  },
+  {
+    "term": "esquilo-vermelho",
+    "romanization": "esquilo-vermelho",
+    "language": "Portuguese",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "reddish tree rodent of Eurasia with ear tufts"
+  },
+  {
+    "term": "marmota",
+    "romanization": "marmota",
+    "language": "Portuguese",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot, a large hibernating mountain rodent"
+  },
+  {
+    "term": "cão-da-pradaria",
+    "romanization": "cão-da-pradaria",
+    "language": "Portuguese",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "social burrowing rodent of the North American plains"
+  },
+  {
+    "term": "leirão",
+    "romanization": "leirão",
+    "language": "Portuguese",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "edible dormouse, a small grey woodland rodent"
+  },
+  {
+    "term": "serelepe",
+    "romanization": "serelepe",
+    "language": "Brazilian Portuguese",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel of Brazil; also slang for a restless, lively person"
+  },
+  {
+    "term": "caxinguelê",
+    "romanization": "caxinguelê",
+    "language": "Brazilian Portuguese",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Brazilian squirrel of forests and gardens"
+  },
+  {
+    "term": "quatipuru",
+    "romanization": "quatipuru",
+    "language": "Brazilian Portuguese",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "small Brazilian squirrel of Amazonian forests, from Tupi"
+  },
+  {
+    "term": "Tico e Teco",
+    "romanization": "Tico e Teco",
+    "language": "Brazilian Portuguese",
+    "region": "AME",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "name of Disney's chipmunk duo in Brazilian Portuguese"
+  },
+  {
+    "term": "katagorri",
+    "romanization": "katagorri",
+    "language": "Basque",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "red squirrel, literally red cat"
+  },
+  {
+    "term": "sciuro",
+    "romanization": "sciuro",
+    "language": "Esperanto",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Esperanto word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "gwiwer",
+    "romanization": "gwiwer",
+    "language": "Welsh",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Welsh word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "gwiwer goch",
+    "romanization": "gwiwer goch",
+    "language": "Welsh",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "red tree rodent, literally red squirrel, a Welsh conservation emblem"
+  },
+  {
+    "term": "gwiwer lwyd",
+    "romanization": "gwiwer lwyd",
+    "language": "Welsh",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "grey tree rodent, literally grey squirrel, an introduced species"
+  },
+  {
+    "term": "iora",
+    "romanization": "iora",
+    "language": "Irish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Irish word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "iora rua",
+    "romanization": "iora rua",
+    "language": "Irish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "red tree rodent, literally red squirrel"
+  },
+  {
+    "term": "iora glas",
+    "romanization": "iora glas",
+    "language": "Irish",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "grey tree rodent, literally grey squirrel"
+  },
+  {
+    "term": "feòrag",
+    "romanization": "feòrag",
+    "language": "Scottish Gaelic",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Gaelic word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "feòrag ruadh",
+    "romanization": "feòrag ruadh",
+    "language": "Scottish Gaelic",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "red tree rodent, literally red squirrel"
+  },
+  {
+    "term": "feòrag ghlas",
+    "romanization": "feòrag ghlas",
+    "language": "Scottish Gaelic",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "grey tree rodent, literally grey squirrel"
+  },
+  {
+    "term": "سنجاب",
+    "romanization": "sinjāb",
+    "language": "Arabic",
+    "region": "MEA",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel; also the soft grey fur of the animal"
+  },
+  {
+    "term": "مرموط",
+    "romanization": "marmūṭ",
+    "language": "Arabic",
+    "region": "MEA",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot, a large hibernating mountain rodent"
+  },
+  {
+    "term": "كلب البراري",
+    "romanization": "kalb al-barārī",
+    "language": "Arabic",
+    "region": "MEA",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "prairie dog, literally dog of the prairies"
+  },
+  {
+    "term": "סנאי",
+    "romanization": "senai",
+    "language": "Hebrew",
+    "region": "MEA",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Hebrew word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "سنجاب",
+    "romanization": "sanjāb",
+    "language": "Persian",
+    "region": "MEA",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel; the Persian source of Arabic and Turkish forms"
+  },
+  {
+    "term": "sincap",
+    "romanization": "sincap",
+    "language": "Turkish",
+    "region": "MEA",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel, borrowed from Arabic sinjāb"
+  },
+  {
+    "term": "yer sincabı",
+    "romanization": "yer sincabı",
+    "language": "Turkish",
+    "region": "MEA",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel, literally earth squirrel"
+  },
+  {
+    "term": "uçan sincap",
+    "romanization": "uçan sincap",
+    "language": "Turkish",
+    "region": "MEA",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel, literally flying squirrel"
+  },
+  {
+    "term": "سنجاب",
+    "romanization": "sincâb",
+    "language": "Ottoman Turkish",
+    "region": "MEA",
+    "era": "M",
+    "domain": "FAUNA",
+    "meaning": "squirrel; also the fur of the animal used in court dress"
+  },
+  {
+    "term": "dələ",
+    "romanization": "dələ",
+    "language": "Azerbaijani",
+    "region": "CAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Azerbaijani word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "սկյուռ",
+    "romanization": "skyuṙ",
+    "language": "Armenian",
+    "region": "CAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel, borrowed from Greek skiouros"
+  },
+  {
+    "term": "ციყვი",
+    "romanization": "ciqvi",
+    "language": "Georgian",
+    "region": "CAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Georgian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "тиін",
+    "romanization": "tiin",
+    "language": "Kazakh",
+    "region": "CAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel; the old coin tiyn was named after its pelt"
+  },
+  {
+    "term": "тийин",
+    "romanization": "tiyin",
+    "language": "Kyrgyz",
+    "region": "CAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel; also a small monetary unit named after its pelt"
+  },
+  {
+    "term": "санҷоб",
+    "romanization": "sanjob",
+    "language": "Tajik",
+    "region": "CAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel in Tajik, a Persian-derived word"
+  },
+  {
+    "term": "松鼠",
+    "romanization": "sōngshǔ",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel in Mandarin, literally pine rodent"
+  },
+  {
+    "term": "飞鼠",
+    "romanization": "fēishǔ",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel, literally flying rodent"
+  },
+  {
+    "term": "鼯鼠",
+    "romanization": "wúshǔ",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "flying squirrel, a literary and zoological term"
+  },
+  {
+    "term": "花鼠",
+    "romanization": "huāshǔ",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk in Mandarin, literally flower rodent"
+  },
+  {
+    "term": "旱獭",
+    "romanization": "hàntǎ",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot of Himalayan and Central Asian grasslands"
+  },
+  {
+    "term": "黄鼠",
+    "romanization": "huángshǔ",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel of the Daurian steppe, literally yellow rodent"
+  },
+  {
+    "term": "草原犬鼠",
+    "romanization": "cǎoyuán quǎnshǔ",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "prairie dog, literally grassland dog rodent"
+  },
+  {
+    "term": "树鼩",
+    "romanization": "shùqú",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "tree shrew, a squirrel-like mammal of tropical forests"
+  },
+  {
+    "term": "鼯猴",
+    "romanization": "wúhóu",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "colugo, literally flying squirrel monkey"
+  },
+  {
+    "term": "睡鼠",
+    "romanization": "shuìshǔ",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "dormouse in Mandarin, literally sleeping rodent"
+  },
+  {
+    "term": "红松鼠",
+    "romanization": "hóngsōngshǔ",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "reddish tree rodent of northern forests"
+  },
+  {
+    "term": "灰松鼠",
+    "romanization": "huīsōngshǔ",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "grey tree rodent introduced from North America"
+  },
+  {
+    "term": "红腹松鼠",
+    "romanization": "hóngfù sōngshǔ",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "red-bellied tree rodent of southern China"
+  },
+  {
+    "term": "岩松鼠",
+    "romanization": "yánsōngshǔ",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "rock-dwelling rodent of northern China, named for Père David"
+  },
+  {
+    "term": "巨松鼠",
+    "romanization": "jùsōngshǔ",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "giant tropical tree rodent of southern Yunnan forests"
+  },
+  {
+    "term": "奇奇和蒂蒂",
+    "romanization": "qíqí hé dìdì",
+    "language": "Mandarin Chinese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "name of Disney's chipmunk duo in Chinese"
+  },
+  {
+    "term": "鼯",
+    "romanization": "wú",
+    "language": "Classical Chinese",
+    "region": "EAS",
+    "era": "A",
+    "domain": "FAUNA",
+    "meaning": "flying squirrel, mentioned in early classics and the Xunzi"
+  },
+  {
+    "term": "リス",
+    "romanization": "risu",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel; its kanji spelling means chestnut rodent"
+  },
+  {
+    "term": "キタリス",
+    "romanization": "kitarisu",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "reddish tree rodent of Eurasia, also living on Hokkaido"
+  },
+  {
+    "term": "エゾリス",
+    "romanization": "ezorisu",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "reddish tree rodent of Hokkaido, a regional subspecies"
+  },
+  {
+    "term": "ニホンリス",
+    "romanization": "nihon risu",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "tree rodent endemic to Japan, literally Japanese squirrel"
+  },
+  {
+    "term": "クリハラリス",
+    "romanization": "kurihararisu",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "red-bellied tree rodent introduced to Japan from Taiwan"
+  },
+  {
+    "term": "トウブハイイロリス",
+    "romanization": "tōbuhaiirorisu",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "eastern grey tree rodent, a species from North America"
+  },
+  {
+    "term": "シマリス",
+    "romanization": "shimarisu",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk in Japanese, literally striped squirrel"
+  },
+  {
+    "term": "エゾシマリス",
+    "romanization": "ezoshimarisu",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk of Hokkaido, a regional subspecies"
+  },
+  {
+    "term": "ジリス",
+    "romanization": "jirisu",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel, literally earth squirrel"
+  },
+  {
+    "term": "プレーリードッグ",
+    "romanization": "purērīdoggu",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "prairie dog, borrowed from English"
+  },
+  {
+    "term": "マーモット",
+    "romanization": "māmotto",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot, borrowed from European languages"
+  },
+  {
+    "term": "ムササビ",
+    "romanization": "musasabi",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "large Japanese forest glider, the giant flying squirrel"
+  },
+  {
+    "term": "モモンガ",
+    "romanization": "momonga",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "small Japanese flying squirrel; also slang for a cute glider"
+  },
+  {
+    "term": "ニホンモモンガ",
+    "romanization": "nihonmomonga",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "small glider endemic to Honshu and Shikoku"
+  },
+  {
+    "term": "エゾモモンガ",
+    "romanization": "ezomomonga",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding rodent of Siberian type living on Hokkaido"
+  },
+  {
+    "term": "ヤマネ",
+    "romanization": "yamane",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "dormouse endemic to Japan, a rare hibernating tree-dwelling rodent"
+  },
+  {
+    "term": "ヒヨケザル",
+    "romanization": "hiyokezaru",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "colugo in Japanese, literally sun-shade monkey"
+  },
+  {
+    "term": "ツパイ",
+    "romanization": "tsupai",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "tree shrew, from Malay tupai"
+  },
+  {
+    "term": "野衾",
+    "romanization": "nobusuma",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "M",
+    "domain": "MYTH",
+    "meaning": "folklore creature like a flying squirrel or bat that ambushes travellers"
+  },
+  {
+    "term": "パチリス",
+    "romanization": "pachirisu",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "squirrel Pokémon of the Electric type from the Sinnoh region"
+  },
+  {
+    "term": "エモンガ",
+    "romanization": "emonga",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "flying-squirrel Pokémon of the Electric type in the Pokémon franchise"
+  },
+  {
+    "term": "チップとデール",
+    "romanization": "chippu to dēru",
+    "language": "Japanese",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FICTION",
+    "meaning": "name of Disney's chipmunk duo in Japanese"
+  },
+  {
+    "term": "다람쥐",
+    "romanization": "daramjwi",
+    "language": "Korean",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "chipmunk, the small striped ground rodent of Korea"
+  },
+  {
+    "term": "청설모",
+    "romanization": "cheongseolmo",
+    "language": "Korean",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "reddish tree rodent of Eurasia, named from squirrel-fur brush hair"
+  },
+  {
+    "term": "날다람쥐",
+    "romanization": "naldaramjwi",
+    "language": "Korean",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel, literally flying chipmunk"
+  },
+  {
+    "term": "하늘다람쥐",
+    "romanization": "haneul-daramjwi",
+    "language": "Korean",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding rodent of Siberia, literally sky chipmunk"
+  },
+  {
+    "term": "마멋",
+    "romanization": "mameot",
+    "language": "Korean",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot in Korean, borrowed from English"
+  },
+  {
+    "term": "프레리도그",
+    "romanization": "peureridogeu",
+    "language": "Korean",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "prairie dog, borrowed from English"
+  },
+  {
+    "term": "나무두더지",
+    "romanization": "namududeoji",
+    "language": "Korean",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "tree shrew, literally tree mole"
+  },
+  {
+    "term": "청서",
+    "romanization": "cheongseo",
+    "language": "Korean",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel in older literary Korean, from Sino-Korean roots"
+  },
+  {
+    "term": "겨울잠쥐",
+    "romanization": "gyeouljamjwi",
+    "language": "Korean",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "dormouse in Korean, literally winter-sleep rodent"
+  },
+  {
+    "term": "хэрэм",
+    "romanization": "kherem",
+    "language": "Mongolian",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Mongolian word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "тарвага",
+    "romanization": "tarvaga",
+    "language": "Mongolian",
+    "region": "EAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "marmot of Mongolia, a large steppe burrowing rodent"
+  },
+  {
+    "term": "गिलहरी",
+    "romanization": "gilaharī",
+    "language": "Hindi",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel; the striped palm species is familiar across India"
+  },
+  {
+    "term": "उड़न गिलहरी",
+    "romanization": "uṛan gilaharī",
+    "language": "Hindi",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel of Himalayan and tropical forests"
+  },
+  {
+    "term": "گلہری",
+    "romanization": "gilahrī",
+    "language": "Urdu",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Urdu word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "ਗਿਲਹਰੀ",
+    "romanization": "gilaharī",
+    "language": "Punjabi",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Punjabi word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "কাঠবিড়ালি",
+    "romanization": "kāṭhabiṛāli",
+    "language": "Bengali",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel in Bengali, literally wood cat"
+  },
+  {
+    "term": "खार",
+    "romanization": "khār",
+    "language": "Marathi",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Marathi word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "शेकरू",
+    "romanization": "śekarū",
+    "language": "Marathi",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "giant tree rodent of India, the state animal of Maharashtra"
+  },
+  {
+    "term": "ખિસકોલી",
+    "romanization": "khiskolī",
+    "language": "Gujarati",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Gujarati word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "लोखर्के",
+    "romanization": "lokharke",
+    "language": "Nepali",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Nepali word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "ලේනා",
+    "romanization": "lēnā",
+    "language": "Sinhala",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Sinhala word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "அணில்",
+    "romanization": "aṇil",
+    "language": "Tamil",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel; in Rāmāyaṇa lore it bears Rama's three stripes"
+  },
+  {
+    "term": "பறக்கும் அணில்",
+    "romanization": "paṟakkum aṇil",
+    "language": "Tamil",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel, literally flying squirrel"
+  },
+  {
+    "term": "അണ്ണാൻ",
+    "romanization": "aṇṇān",
+    "language": "Malayalam",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Malayalam word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "മലയണ്ണാൻ",
+    "romanization": "malayaṇṇān",
+    "language": "Malayalam",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "giant tree rodent of the Malabar region, literally hill squirrel"
+  },
+  {
+    "term": "ಅಳಿಲು",
+    "romanization": "aḷilu",
+    "language": "Kannada",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Kannada word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "ఉడుత",
+    "romanization": "uḍuta",
+    "language": "Telugu",
+    "region": "SAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Telugu word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "कलन्दक",
+    "romanization": "kalandaka",
+    "language": "Pali",
+    "region": "SAS",
+    "era": "A",
+    "domain": "FAUNA",
+    "meaning": "squirrel; Buddhist texts name a squirrel feeding ground at Veluvana"
+  },
+  {
+    "term": "tupai",
+    "romanization": "tupai",
+    "language": "Indonesian",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel or tree shrew; the Malay word behind the genus name"
+  },
+  {
+    "term": "bajing",
+    "romanization": "bajing",
+    "language": "Indonesian",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel, especially the palm squirrel, a word from Javanese"
+  },
+  {
+    "term": "bajing kelapa",
+    "romanization": "bajing kelapa",
+    "language": "Indonesian",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "plantain or palm squirrel that raids coconut trees"
+  },
+  {
+    "term": "bajing loncat",
+    "romanization": "bajing loncat",
+    "language": "Indonesian",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "jumping squirrel; also slang for a thief striking from moving vehicles"
+  },
+  {
+    "term": "tupai terbang",
+    "romanization": "tupai terbang",
+    "language": "Indonesian",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel seen in Indonesian forests"
+  },
+  {
+    "term": "bajing terbang",
+    "romanization": "bajing terbang",
+    "language": "Indonesian",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel of Indonesian forests, literally flying squirrel"
+  },
+  {
+    "term": "tupai tanah",
+    "romanization": "tupai tanah",
+    "language": "Indonesian",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "large ground-foraging tree shrew of Sumatra and Borneo"
+  },
+  {
+    "term": "bajing tanah",
+    "romanization": "bajing tanah",
+    "language": "Indonesian",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground-dwelling squirrel of the genus Lariscus"
+  },
+  {
+    "term": "jelarang",
+    "romanization": "jelarang",
+    "language": "Indonesian",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "giant black squirrel of Southeast Asian forests"
+  },
+  {
+    "term": "kubung",
+    "romanization": "kubung",
+    "language": "Indonesian",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "colugo, the gliding flying lemur of Sumatra and Java"
+  },
+  {
+    "term": "tupai",
+    "romanization": "tupai",
+    "language": "Malay",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Malay word for squirrels and squirrel-like tree shrews"
+  },
+  {
+    "term": "tupai terbang",
+    "romanization": "tupai terbang",
+    "language": "Malay",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel or colugo of Malaysian forests"
+  },
+  {
+    "term": "jelarang",
+    "romanization": "jelarang",
+    "language": "Malay",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "giant black squirrel of Malay forests"
+  },
+  {
+    "term": "kubung",
+    "romanization": "kubung",
+    "language": "Malay",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "colugo, the gliding mammal called flying lemur"
+  },
+  {
+    "term": "bajing",
+    "romanization": "bajing",
+    "language": "Javanese",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Javanese word for the squirrel, source of the Indonesian term"
+  },
+  {
+    "term": "bajing luncat",
+    "romanization": "bajing luncat",
+    "language": "Javanese",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "jumping squirrel; also slang for a thief"
+  },
+  {
+    "term": "bajing",
+    "romanization": "bajing",
+    "language": "Sundanese",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Sundanese word for the squirrel of West Java"
+  },
+  {
+    "term": "ardilya",
+    "romanization": "ardilya",
+    "language": "Tagalog",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel, borrowed from Spanish ardilla"
+  },
+  {
+    "term": "kagwang",
+    "romanization": "kagwang",
+    "language": "Tagalog",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "colugo of the Philippines, a gliding mammal called flying lemur"
+  },
+  {
+    "term": "กระรอก",
+    "romanization": "krarok",
+    "language": "Thai",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Thai word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "กระรอกบิน",
+    "romanization": "krarok bin",
+    "language": "Thai",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel, literally flying squirrel"
+  },
+  {
+    "term": "กระแต",
+    "romanization": "kratae",
+    "language": "Thai",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "tree shrew, a squirrel-like mammal of Thai forests"
+  },
+  {
+    "term": "กระรอกดิน",
+    "romanization": "krarok din",
+    "language": "Thai",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel of Thai open country"
+  },
+  {
+    "term": "กระรอกหลากสี",
+    "romanization": "krarok lak si",
+    "language": "Thai",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "variable squirrel of Thailand with many colour forms"
+  },
+  {
+    "term": "กระรอกท้องแดง",
+    "romanization": "krarok thong daeng",
+    "language": "Thai",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "red-bellied tree rodent of Thai forests"
+  },
+  {
+    "term": "ກະຮອກ",
+    "romanization": "karok",
+    "language": "Lao",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Lao word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "ရှဉ့်",
+    "romanization": "shin",
+    "language": "Burmese",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Burmese word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "sóc",
+    "romanization": "sóc",
+    "language": "Vietnamese",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Vietnamese word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "sóc bay",
+    "romanization": "sóc bay",
+    "language": "Vietnamese",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "gliding squirrel, literally flying squirrel"
+  },
+  {
+    "term": "sóc đất",
+    "romanization": "sóc đất",
+    "language": "Vietnamese",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel, literally earth squirrel"
+  },
+  {
+    "term": "sóc chuột",
+    "romanization": "sóc chuột",
+    "language": "Vietnamese",
+    "region": "SEAS",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "small striped squirrel, literally mouse squirrel"
+  },
+  {
+    "term": "kindi",
+    "romanization": "kindi",
+    "language": "Swahili",
+    "region": "AFR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Swahili word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "ọkẹ́rẹ́",
+    "romanization": "ọkẹ́rẹ́",
+    "language": "Yoruba",
+    "region": "AFR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Yoruba word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "ʻiole lāʻau",
+    "romanization": "ʻiole lāʻau",
+    "language": "Hawaiian",
+    "region": "OCE",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "squirrel in Hawaiian, literally tree rat"
+  },
+  {
+    "term": "techalotl",
+    "romanization": "techalotl",
+    "language": "Classical Nahuatl",
+    "region": "AME",
+    "era": "M",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel in Classical Nahuatl sources"
+  },
+  {
+    "term": "ᏌᎳ",
+    "romanization": "sala",
+    "language": "Cherokee",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "common Cherokee word for the bushy-tailed tree rodent"
+  },
+  {
+    "term": "ajidamoo",
+    "romanization": "ajidamoo",
+    "language": "Ojibwe",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "red squirrel; related to the source of the word chipmunk"
+  },
+  {
+    "term": "pispíza",
+    "romanization": "pispíza",
+    "language": "Lakota",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "prairie dog of the Great Plains"
+  },
+  {
+    "term": "ᓯᒃᓯᒃ",
+    "romanization": "siksik",
+    "language": "Inuktitut",
+    "region": "AME",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "ground squirrel of the Arctic, a word borrowed into northern English"
+  },
+  {
+    "term": "Sciuridae",
+    "romanization": "Sciuridae",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "family of rodents including tree squirrels, chipmunks, marmots and prairie dogs"
+  },
+  {
+    "term": "Gliridae",
+    "romanization": "Gliridae",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "family of dormice, small rodents that hibernate"
+  },
+  {
+    "term": "Tupaiidae",
+    "romanization": "Tupaiidae",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "family of tree shrews, squirrel-like mammals of Asian forests"
+  },
+  {
+    "term": "Anomaluridae",
+    "romanization": "Anomaluridae",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "family of African scaly-tailed gliding rodents"
+  },
+  {
+    "term": "Dermoptera",
+    "romanization": "Dermoptera",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "order of colugos, gliding mammals of Southeast Asia"
+  },
+  {
+    "term": "Scandentia",
+    "romanization": "Scandentia",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "order of tree shrews, squirrel-like mammals of Asia"
+  },
+  {
+    "term": "Sciurus",
+    "romanization": "Sciurus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of tree squirrels including the Eurasian red and eastern grey"
+  },
+  {
+    "term": "Tamias",
+    "romanization": "Tamias",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of chipmunks, named from Greek for steward"
+  },
+  {
+    "term": "Neotamias",
+    "romanization": "Neotamias",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of western North American chipmunks"
+  },
+  {
+    "term": "Marmota",
+    "romanization": "Marmota",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of marmots and groundhogs"
+  },
+  {
+    "term": "Pteromys",
+    "romanization": "Pteromys",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of Eurasian flying squirrels"
+  },
+  {
+    "term": "Petaurista",
+    "romanization": "Petaurista",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of large Asian giant flying squirrels"
+  },
+  {
+    "term": "Glaucomys",
+    "romanization": "Glaucomys",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of North American flying squirrels"
+  },
+  {
+    "term": "Ratufa",
+    "romanization": "Ratufa",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of giant tree squirrels of tropical Asia"
+  },
+  {
+    "term": "Funambulus",
+    "romanization": "Funambulus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of striped Indian palm squirrels"
+  },
+  {
+    "term": "Callosciurus",
+    "romanization": "Callosciurus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of brightly coloured tree squirrels of tropical Asia"
+  },
+  {
+    "term": "Cynomys",
+    "romanization": "Cynomys",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of prairie dogs, social burrowing rodents of North America"
+  },
+  {
+    "term": "Spermophilus",
+    "romanization": "Spermophilus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of ground squirrels of Eurasia and North America"
+  },
+  {
+    "term": "Urocitellus",
+    "romanization": "Urocitellus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of ground squirrels including the Arctic species"
+  },
+  {
+    "term": "Xerus",
+    "romanization": "Xerus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of African ground squirrels"
+  },
+  {
+    "term": "Tamiasciurus",
+    "romanization": "Tamiasciurus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of American red squirrels, including the chickaree"
+  },
+  {
+    "term": "Tupaia",
+    "romanization": "Tupaia",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of tree shrews, named from Malay tupai"
+  },
+  {
+    "term": "Cynocephalus",
+    "romanization": "Cynocephalus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of colugos living in the Philippines"
+  },
+  {
+    "term": "Petaurus",
+    "romanization": "Petaurus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of sugar gliders and related Australasian gliders"
+  },
+  {
+    "term": "Glis",
+    "romanization": "Glis",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of the edible dormouse"
+  },
+  {
+    "term": "Muscardinus",
+    "romanization": "Muscardinus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of the hazel dormouse"
+  },
+  {
+    "term": "Eliomys",
+    "romanization": "Eliomys",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of garden dormice, masked hibernating rodents of Europe"
+  },
+  {
+    "term": "Anomalurus",
+    "romanization": "Anomalurus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of African scaly-tailed gliding rodents"
+  },
+  {
+    "term": "Rheithrosciurus",
+    "romanization": "Rheithrosciurus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of the Bornean tufted ground squirrel"
+  },
+  {
+    "term": "Sciurillus",
+    "romanization": "Sciurillus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of the tiny neotropical pygmy squirrel"
+  },
+  {
+    "term": "Hylopetes",
+    "romanization": "Hylopetes",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of small Asian arboreal flying squirrels"
+  },
+  {
+    "term": "Eupetaurus",
+    "romanization": "Eupetaurus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of woolly flying squirrels of the Himalaya"
+  },
+  {
+    "term": "Heliosciurus",
+    "romanization": "Heliosciurus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of African sun squirrels"
+  },
+  {
+    "term": "Paraxerus",
+    "romanization": "Paraxerus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of African bush squirrels"
+  },
+  {
+    "term": "Sundasciurus",
+    "romanization": "Sundasciurus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of Sunda squirrels of Southeast Asia"
+  },
+  {
+    "term": "Ammospermophilus",
+    "romanization": "Ammospermophilus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of antelope ground squirrels of American deserts"
+  },
+  {
+    "term": "Dremomys",
+    "romanization": "Dremomys",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of red-cheeked squirrels of Asia"
+  },
+  {
+    "term": "Sciurotamias",
+    "romanization": "Sciurotamias",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of Chinese rock squirrels"
+  },
+  {
+    "term": "Rhinosciurus",
+    "romanization": "Rhinosciurus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of the long-nosed squirrel of the Malay region"
+  },
+  {
+    "term": "Epixerus",
+    "romanization": "Epixerus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of African palm squirrels"
+  },
+  {
+    "term": "Trogopterus",
+    "romanization": "Trogopterus",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of complex-toothed flying squirrels of China"
+  },
+  {
+    "term": "Aeromys",
+    "romanization": "Aeromys",
+    "language": "Scientific Latin",
+    "region": "EUR",
+    "era": "N",
+    "domain": "FAUNA",
+    "meaning": "genus of black flying squirrels of Southeast Asia"
+  }
+]
