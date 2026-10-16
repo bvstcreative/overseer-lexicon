@@ -23,7 +23,7 @@ term|romanization|language|region|era|domain|meaning
 
 | # | Field | Rule |
 |---|---|---|
-| 1 | `term` | The word in its **native script** (Greek, Arabic, 漢字, Devanagari, Cyrillic, Thai, etc.). For Latin-script languages, the normal spelling with its diacritics. |
+| 1 | `term` | The word in its **native script** (Greek, Arabic, 漢字, Devanagari, Cyrillic, Thai, etc.). For Latin-script languages, the normal spelling with its diacritics. If the concept is only known to you by a generic English descriptive phrase (for example "the dragon machete"), do **not** put that phrase, or a literal translation of it, in this field — find and use the actual native-language word speakers of that language use for it (for example `golok naga` in Indonesian). If you cannot find the real native word, leave the entry out (see section 6). |
 | 2 | `romanization` | A Latin-letter reading for non-Latin scripts. For Latin-script terms, repeat the term exactly. |
 | 3 | `language` | The specific variety in English: `Ancient Greek`, `Classical Chinese`, `Ottoman Turkish`, `Old Norse`, `Medieval Latin`, `Javanese`, etc. |
 | 4 | `region` | One region code from section 3 (`EUR`, `MEA`, `CAS`, `SAS`, `EAS`, `SEAS`, `OCE`, `AFR`, `AME`). |
@@ -130,6 +130,7 @@ Rulers, priests and generals are acceptable only when the title carries administ
 ## 6. Accuracy Rules (Most Important)
 
 - **Never invent a word.** Do not translate an English word into another language by guess. Do not blend roots or create plausible-sounding titles.
+- **Never output an English descriptive phrase as the `term`.** If a concept is only nameable in English through a description (for example "the dragon machete"), the `term` must be the real native-language word for it (for example `golok naga` in Indonesian) — not a translation of the English phrase and not the phrase itself. This applies even when the source material (a request, an import file, existing data) gives you the concept only as an English description.
 - If you are not sure a term exists, is spelled that way, or means that, **leave it out**.
 - Do not guess the script of a language you cannot write reliably. Skip it.
 - Prefer terms with clear historical or current use over obscure ones you cannot verify.

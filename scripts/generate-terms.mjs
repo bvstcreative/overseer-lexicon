@@ -181,6 +181,98 @@ function parseAndValidate(rawText, existingPairsSet, options = {}) {
   return { valid, duplicates, errors }
 }
 
+function parseJsonAndValidate(rawText, existingPairsSet, options = {}) {
+  const { duplicateMode = 'term_language' } = options
+  const valid = []
+  const duplicates = []
+  const errors = []
+  const batchSeen = new Set()
+
+  let data
+  try {
+    data = JSON.parse(rawText)
+  } catch (err) {
+    errors.push({ line: 0, raw: '', error: `Invalid JSON: ${err.message}` })
+    return { valid, duplicates, errors }
+  }
+
+  if (!Array.isArray(data)) {
+    errors.push({ line: 0, raw: '', error: 'JSON root must be an array of entries' })
+    return { valid, duplicates, errors }
+  }
+
+  data.forEach((item, idx) => {
+    const lineNum = idx + 1
+    if (!item || typeof item !== 'object') {
+      errors.push({ line: lineNum, raw: JSON.stringify(item), error: 'Entry is not an object' })
+      return
+    }
+
+    const term = String(item.term ?? '').trim()
+    const romanization = String(item.romanization ?? '').trim() || term
+    const language = String(item.language ?? '').trim()
+    const regCode = String(item.region ?? '').trim().toUpperCase()
+    const eraCode = String(item.era ?? '').trim().toUpperCase()
+    const domCode = String(item.domain ?? '').trim().toUpperCase()
+    const gloss = String(item.meaning ?? item.gloss ?? '').trim().replace(/\.$/, '')
+
+    if (!term || !language) {
+      errors.push({ line: lineNum, raw: JSON.stringify(item), error: 'term and language cannot be empty' })
+      return
+    }
+    if (!REGION_CODES[regCode]) {
+      errors.push({ line: lineNum, raw: JSON.stringify(item), error: `Invalid region code: ${regCode}` })
+      return
+    }
+    if (!ERA_CODES[eraCode]) {
+      errors.push({ line: lineNum, raw: JSON.stringify(item), error: `Invalid era code: ${eraCode}` })
+      return
+    }
+    if (!DOMAIN_CODES[domCode]) {
+      errors.push({ line: lineNum, raw: JSON.stringify(item), error: `Invalid domain code: ${domCode}` })
+      return
+    }
+
+    const checkKey = duplicateMode === 'term'
+      ? term.toLowerCase()
+      : `${term.toLowerCase()}|${language.toLowerCase()}`
+
+    if (batchSeen.has(checkKey)) {
+      duplicates.push({ line: lineNum, term, language, type: 'batch_repeat' })
+      return
+    }
+    batchSeen.add(checkKey)
+
+    if (existingPairsSet.has(checkKey)) {
+      duplicates.push({
+        line: lineNum,
+        term,
+        romanization,
+        language,
+        region: REGION_CODES[regCode],
+        era: ERA_CODES[eraCode],
+        domain: DOMAIN_CODES[domCode],
+        gloss,
+        type: 'in_database',
+      })
+      return
+    }
+
+    valid.push({
+      term,
+      romanization,
+      language,
+      language_group: language,
+      region: REGION_CODES[regCode],
+      era: ERA_CODES[eraCode],
+      domain: DOMAIN_CODES[domCode],
+      gloss,
+    })
+  })
+
+  return { valid, duplicates, errors }
+}
+
 function saveToDatabase(db, items, options = {}) {
   const { duplicateMode = 'term_language', onDuplicate = 'skip' } = options
 
@@ -311,7 +403,7 @@ Options:
   --count=<N>            Number of terms to request (default: 50)
   --focus="<focus>"      Focus topic/domain/region (e.g. "maritime & port masters")
   --model=<name>         Gemini model (default: gemini-2.5-flash)
-  --import=<file>        Import raw pipe-separated lines from file into database
+  --import=<file>        Import entries from a file into the database (pipe-delimited .txt, or JSON array via .json extension / [ ] content — auto-detected)
   --save                 Persist valid generated or imported terms into SQLite
   --dup-mode=<term|term_language>  Check duplicates by exact term or term+language (default: term_language)
   --on-dup=<skip|update> Skip or update existing duplicates (default: skip)
@@ -339,7 +431,11 @@ Options:
     }
     console.log(`Importing from file: ${filePath}`)
     const text = fs.readFileSync(filePath, 'utf8')
-    const { valid, duplicates, errors } = parseAndValidate(text, existingPairsSet, { duplicateMode: dupMode, onDuplicate: onDup })
+    const isJson = filePath.toLowerCase().endsWith('.json') || text.trim().startsWith('[')
+    const { valid, duplicates, errors } = isJson
+      ? parseJsonAndValidate(text, existingPairsSet, { duplicateMode: dupMode })
+      : parseAndValidate(text, existingPairsSet, { duplicateMode: dupMode, onDuplicate: onDup })
+    console.log(`Format detected: ${isJson ? 'JSON' : 'pipe-delimited'}`)
     console.log(`\nResults: ${valid.length} valid, ${duplicates.length} duplicates, ${errors.length} formatting errors`)
 
     if (save && (valid.length > 0 || (onDup === 'update' && duplicates.length > 0))) {
