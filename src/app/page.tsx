@@ -830,14 +830,21 @@ export default function Home() {
     setSpeakingKey((curr) => (curr === 'lucky' ? null : curr))
     const pool = list.length > 1 ? list : rows
     if (pool.length === 0) return
-    let randomIndex = Math.floor(Math.random() * pool.length)
-    if (pool.length > 1 && luckyItem && pool[randomIndex].id === luckyItem.id) {
-      randomIndex = (randomIndex + 1) % pool.length
+
+    // Avoid repeating anything already seen in this run (not just the immediately
+    // previous card). Once the whole pool has been exhausted, allow repeats again but
+    // still skip an immediate back-to-back repeat of the current card.
+    const seenIds = new Set(luckyHistory.slice(0, luckyIndex + 1).map((item) => item.id))
+    let candidates = pool.filter((item) => !seenIds.has(item.id))
+    if (candidates.length === 0) {
+      candidates = luckyItem ? pool.filter((item) => item.id !== luckyItem.id) : pool
+      if (candidates.length === 0) candidates = pool
     }
-    const nextItem = pool[randomIndex]
+
+    const nextItem = candidates[Math.floor(Math.random() * candidates.length)]
     setLuckyHistory((prev) => [...prev.slice(0, luckyIndex + 1), nextItem])
     setLuckyIndex((i) => i + 1)
-  }, [list, rows, luckyItem, luckyIndex])
+  }, [list, rows, luckyItem, luckyIndex, luckyHistory])
 
   const rollPreviousLucky = useCallback(() => {
     if (!hasPreviousLucky) return
