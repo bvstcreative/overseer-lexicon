@@ -35,6 +35,7 @@ interface LexiconItem {
   d: string
   g: string
   key: string
+  alpha: string
   hay: string
   id: string
   tag: string
@@ -125,6 +126,7 @@ interface AuthUser {
 }
 
 const PAGE_SIZE = 48
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
 const ERA_ORDER: Record<string, number> = { Ancient: 0, Historic: 1, Modern: 2 }
 const ERA_NOTE: Record<string, string> = { Ancient: 'to c. 500 CE', Historic: 'c. 500 to 1900', Modern: 'current or recent' }
@@ -188,6 +190,8 @@ function transformDbTerms(terms: TermApiRecord[]): LexiconItem[] {
     const term = item.term || ''
     const roman = item.romanization || ''
     const keyNorm = norm(roman || term).replace(/[^a-z0-9 ]/g, '').trim() || norm(term)
+    const alphaRaw = (keyNorm.replace(/[^a-z0-9]/g, '')[0] || '').toUpperCase()
+    const alpha = /^[A-Z]$/.test(alphaRaw) ? alphaRaw : '#'
     const hay = norm([term, roman, item.language, item.language_group, item.region, item.era, item.domain, item.gloss].join(' '))
     const uniqueKey = term + '|' + (item.language || '')
     return {
@@ -202,6 +206,7 @@ function transformDbTerms(terms: TermApiRecord[]): LexiconItem[] {
       d: item.domain || '',
       g: item.gloss || '',
       key: keyNorm,
+      alpha,
       hay,
       id: uniqueKey,
       tag: langTag(item.language || '')
@@ -249,6 +254,7 @@ export default function Home() {
   const [region, setRegion] = useState<Set<string>>(new Set())
   const [era, setEra] = useState<Set<string>>(new Set())
   const [lg, setLg] = useState<Set<string>>(new Set())
+  const [letter, setLetter] = useState<Set<string>>(new Set())
   const [starred, setStarred] = useState(false)
   const [sort, setSort] = useState('az')
   const [group, setGroup] = useState('none')
@@ -727,9 +733,10 @@ export default function Home() {
     if (region.size && !region.has(r.rg) && skip !== 'region') return false
     if (era.size && !era.has(r.e) && skip !== 'era') return false
     if (lg.size && !lg.has(r.lg) && skip !== 'lg') return false
+    if (letter.size && !letter.has(r.alpha) && skip !== 'letter') return false
     if (starred && skip !== 'starred' && !isStarred(r)) return false
     return true
-  }, [qTokens, domain, region, era, lg, starred, isStarred])
+  }, [qTokens, domain, region, era, lg, letter, starred, isStarred])
 
   const list = useMemo(() => {
     const filtered = rows.filter(r => passes(r))
@@ -751,7 +758,7 @@ export default function Home() {
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   // Reset visible count whenever search, filter, or sort changes (adjust state during render)
-  const filterKey = `${q}|${sort}|${starred}|${domain.size}|${region.size}|${era.size}|${lg.size}|${Array.from(domain).join(',')}|${Array.from(region).join(',')}|${Array.from(era).join(',')}|${Array.from(lg).join(',')}`
+  const filterKey = `${q}|${sort}|${starred}|${domain.size}|${region.size}|${era.size}|${lg.size}|${letter.size}|${Array.from(domain).join(',')}|${Array.from(region).join(',')}|${Array.from(era).join(',')}|${Array.from(lg).join(',')}|${Array.from(letter).join(',')}`
   const [prevFilterKey, setPrevFilterKey] = useState(filterKey)
 
   if (filterKey !== prevFilterKey) {
@@ -884,7 +891,7 @@ export default function Home() {
     return { domain: td, region: tr, era: te, lg: tl }
   }, [rows])
 
-  const facetCounts = useCallback((facet: 'domain' | 'region' | 'era' | 'lg') => {
+  const facetCounts = useCallback((facet: 'domain' | 'region' | 'era' | 'lg' | 'letter') => {
     const m: Record<string, number> = {}
     rows.forEach(r => {
       if (passes(r, facet)) {
@@ -893,6 +900,7 @@ export default function Home() {
         if (facet === 'region') v = r.rg
         if (facet === 'era') v = r.e
         if (facet === 'lg') v = r.lg
+        if (facet === 'letter') v = r.alpha
         if (v) m[v] = (m[v] || 0) + 1
       }
     })
@@ -918,7 +926,7 @@ export default function Home() {
     lg: ordered('lg')
   }), [ordered])
 
-  const cd = facetCounts('domain'), cr = facetCounts('region'), ce = facetCounts('era'), cl = facetCounts('lg')
+  const cd = facetCounts('domain'), cr = facetCounts('region'), ce = facetCounts('era'), cl = facetCounts('lg'), ca = facetCounts('letter')
 
   const toggle = (f: string, v: string) => {
     if (f === 'domain') {
@@ -930,6 +938,9 @@ export default function Home() {
       const s = new Set(era); if (s.has(v)) s.delete(v); else s.add(v); setEra(s)
     } else if (f === 'lg') {
       const s = new Set(lg); if (s.has(v)) s.delete(v); else s.add(v); setLg(s)
+    } else if (f === 'letter') {
+      if (v === '__all') { setLetter(new Set()); return }
+      const s = new Set(letter); if (s.has(v)) s.delete(v); else s.add(v); setLetter(s)
     } else if (f === 'star') {
       if (!currentUser && !starred) {
         setAuthNotice('Please sign in or create an account to view and save bookmarked terms.')
@@ -945,10 +956,10 @@ export default function Home() {
   }
 
   const resetAll = () => {
-    setQ(''); setDomain(new Set()); setRegion(new Set()); setEra(new Set()); setLg(new Set()); setStarred(false); setLangQ('')
+    setQ(''); setDomain(new Set()); setRegion(new Set()); setEra(new Set()); setLg(new Set()); setLetter(new Set()); setStarred(false); setLangQ('')
   }
 
-  const activeCount = (domain.size + region.size + era.size + lg.size) + (starred ? 1 : 0)
+  const activeCount = (domain.size + region.size + era.size + lg.size + letter.size) + (starred ? 1 : 0)
 
   const langShown = useMemo(() => {
     let shown = options.lg
@@ -1095,6 +1106,35 @@ export default function Home() {
               </button>
             ))}
           </div>
+          <div className="alpha-bar" id="alphaBar" role="group" aria-label="Filter by initial letter">
+            <button
+              className="alpha-btn alpha-all"
+              type="button"
+              onClick={() => setLetter(new Set())}
+              aria-pressed={letter.size === 0}
+              title="Show all letters (A–Z)"
+            >
+              A–Z
+            </button>
+            {ALPHABET.map((ltr) => {
+              const count = ca[ltr] || 0
+              const isSelected = letter.has(ltr)
+              return (
+                <button
+                  key={ltr}
+                  className={`alpha-btn ${count === 0 && !isSelected ? 'dim' : ''}`}
+                  type="button"
+                  onClick={() => toggle('letter', ltr)}
+                  aria-pressed={isSelected}
+                  aria-label={`Letter ${ltr} (${count} terms)`}
+                  title={`${ltr}: ${count} ${count === 1 ? 'term' : 'terms'}`}
+                >
+                  <span>{ltr}</span>
+                  <span className="alpha-n">{count}</span>
+                </button>
+              )
+            })}
+          </div>
           <div className="status">
             <p id="count" aria-live="polite">
               {loading ? (
@@ -1111,6 +1151,9 @@ export default function Home() {
               )}
             </p>
             <div className="active" id="active">
+              {Array.from(letter).sort().map(v => (
+                <button key={v} className="chip x" type="button" onClick={() => toggle('letter', v)} aria-label={`Remove letter filter ${v}`}>Letter: {v}<ICON.x /></button>
+              ))}
               {Array.from(domain).map(v => (
                 <button key={v} className="chip x" type="button" onClick={() => toggle('domain', v)} aria-label={`Remove filter ${v}`}>Domain: {v}<ICON.x /></button>
               ))}
@@ -1270,6 +1313,23 @@ export default function Home() {
           </button>
         </div>
         <div className="sheet-body">
+          <div className="fgroup">
+            <h3>Alphabet</h3>
+            <div className="chips" id="fAlpha">
+              <button className="chip" type="button" aria-pressed={letter.size === 0} onClick={() => setLetter(new Set())}>All A–Z</button>
+              {ALPHABET.map(ltr => (
+                <button
+                  key={ltr}
+                  className={`chip ${(ca[ltr] || 0) === 0 && !letter.has(ltr) ? 'dim' : ''}`}
+                  type="button"
+                  aria-pressed={letter.has(ltr)}
+                  onClick={() => toggle('letter', ltr)}
+                >
+                  {ltr} <span className="n">{ca[ltr] || 0}</span>
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="fgroup"><h3>Domain</h3><div className="chips" id="fDomain">
             {options.domain.map(d => (
               <button key={d} className="chip" type="button" aria-pressed={domain.has(d)} onClick={() => toggle('domain', d)}>{d} <span className="n">{cd[d] || 0}</span></button>

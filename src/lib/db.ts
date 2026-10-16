@@ -81,6 +81,7 @@ export interface TermFilter {
   region?: string[]
   era?: string[]
   lg?: string[]
+  letter?: string[]
   starred?: boolean
   sort?: string
 }
@@ -106,6 +107,14 @@ export function norm(s: string): string {
     .replace(/[\u0259]/g, 'e')
 }
 
+export function getInitialLetter(term: string, romanization?: string): string {
+  const key =
+    norm(romanization || term).replace(/[^a-z0-9]/g, '') ||
+    norm(term).replace(/[^a-z0-9]/g, '')
+  const first = (key[0] || '').toUpperCase()
+  return /^[A-Z]$/.test(first) ? first : '#'
+}
+
 declare global {
   var _lexiconDb: DatabaseSync | undefined
 }
@@ -129,8 +138,11 @@ export function getDb(): DatabaseSync {
   db.exec('PRAGMA journal_mode = WAL;')
   db.exec('PRAGMA foreign_keys = ON;')
 
-  // Register custom SQL function for accent/diacritic-insensitive matching
+  // Register custom SQL functions for accent/diacritic-insensitive matching and initial letter extraction
   db.function('norm', (val: unknown) => norm(String(val ?? '')))
+  db.function('initial_letter', (t: unknown, r: unknown) =>
+    getInitialLetter(String(t ?? ''), String(r ?? ''))
+  )
 
   // Create tables & indexes
   db.exec(`
@@ -298,6 +310,12 @@ export function seedDatabase(force = false): { seeded: number } {
 
 export function getAllTerms(filter?: TermFilter, userId?: number): TermRecord[] {
   const db = getDb()
+  // Ensure initial_letter function is registered if reusing a hot-reloaded global DB instance
+  try {
+    db.function('initial_letter', (t: unknown, r: unknown) =>
+      getInitialLetter(String(t ?? ''), String(r ?? ''))
+    )
+  } catch {}
   const conditions: string[] = []
   const joinParams: unknown[] = []
   const whereParams: unknown[] = []
@@ -346,6 +364,15 @@ export function getAllTerms(filter?: TermFilter, userId?: number): TermRecord[] 
     const placeholders = filter.lg.map(() => '?').join(', ')
     conditions.push(`t.language_group IN (${placeholders})`)
     whereParams.push(...filter.lg)
+  }
+
+  if (filter?.letter && filter.letter.length > 0) {
+    const letters = filter.letter.map((l) => l.trim().toUpperCase()).filter(Boolean)
+    if (letters.length > 0) {
+      const placeholders = letters.map(() => '?').join(', ')
+      conditions.push(`initial_letter(t.term, t.romanization) IN (${placeholders})`)
+      whereParams.push(...letters)
+    }
   }
 
   if (filter?.starred) {

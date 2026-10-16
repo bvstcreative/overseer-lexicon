@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
     const region = getMultiParam('region')
     const era = getMultiParam('era')
     const lg = getMultiParam('lg')
+    const letter = getMultiParam('letter') || getMultiParam('alpha')
 
     const filter: TermFilter = {
       q,
@@ -33,6 +34,7 @@ export async function GET(request: NextRequest) {
       region,
       era,
       lg,
+      letter,
     }
 
     const terms = getAllTerms(filter, user?.id)
